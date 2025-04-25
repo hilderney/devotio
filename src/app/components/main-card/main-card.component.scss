@@ -1,0 +1,18 @@
+.card-header {
+  height: 120px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: end;
+  padding: 0.5rem;
+  color: white;
+  font-weight: bold;
+  background-color: #00000077;
+  border-radius: 8px 8px 0 0;
+}
+
+.titulo {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+}

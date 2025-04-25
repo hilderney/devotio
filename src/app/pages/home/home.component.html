@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title> Devotio </ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12" sizeSm="6" sizeMd="4" sizeLg="3">
+        <app-main-card
+          routerLink="/devotional"
+          titulo="Devocional do Dia"
+          imagemUrl="assets/imgs/devotional.webp"
+          descricao="Leia uma meditação diária com base nas Escrituras."
+        ></app-main-card>
+      </ion-col>
+
+      <ion-col size="12" sizeSm="6" sizeMd="4" sizeLg="3">
+        <app-main-card
+          routerLink="/profile"
+          titulo="Meu Perfil"
+          imagemUrl="assets/imgs/profile.webp"
+          descricao="Acesse e atualize suas informações pessoais."
+        ></app-main-card>
+      </ion-col>
+
+      <ion-col size="12" sizeSm="6" sizeMd="4" sizeLg="3">
+        <app-main-card
+          routerLink="/prayers"
+          titulo="Minhas Orações"
+          imagemUrl="assets/imgs/prayer.webp"
+          descricao="Registre, organize e acompanhe suas orações com lembretes personalizados."
+        ></app-main-card>
+      </ion-col>
+
+      <ion-col size="12" sizeSm="6" sizeMd="4" sizeLg="3">
+        <app-main-card
+          routerLink="/community"
+          titulo="Comunidade Reformada"
+          imagemUrl="assets/imgs/community.webp"
+          descricao="Participe de uma comunidade que compartilha fé, conteúdo e edificação mútua."
+        ></app-main-card>
+      </ion-col>
+
+      <ion-col size="12" sizeSm="6" sizeMd="4" sizeLg="3">
+        <app-main-card
+          routerLink="/feed"
+          titulo="Feed"
+          imagemUrl="assets/imgs/feed.webp"
+          descricao="Veja publicações de irmãos em Cristo, reflexões e mensagens edificantes."
+        ></app-main-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/"><ion-icon name="home-outline"></ion-icon></ion-button>
+      <ion-button routerLink="/"><ion-icon name="search-outline"></ion-icon></ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/perfil"><ion-icon name="person-outline"></ion-icon></ion-button>
+      <ion-button routerLink="/configuracoes"><ion-icon name="settings-outline"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
