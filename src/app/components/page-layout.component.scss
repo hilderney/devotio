@@ -1,0 +1,18 @@
+.page-header {
+  .background-image {
+    background-size: cover;
+    background-position: center;
+    height: 180px;
+    display: flex;
+    align-items: flex-end;
+
+    ion-toolbar {
+      background-color: rgba(0, 0, 0, 0.4); // efeito escuro sobre imagem
+      color: #fff;
+
+      ion-title {
+        font-weight: bold;
+      }
+    }
+  }
+}
