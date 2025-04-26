@@ -1,27 +1,100 @@
-# Devotio
+# 📖 Devotio
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.0.
+[![Angular v17](https://img.shields.io/badge/Angular-17-red)](https://angular.io/)
+[![Ionic v7](https://img.shields.io/badge/Ionic-7-blue)](https://ionicframework.com/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Status: In Progress](https://img.shields.io/badge/status-in--development-yellow)]()
 
-## Development server
+> A mobile-first devotional app for Reformed Christians, built with Angular 17 and Ionic. Stay connected to your spiritual walk through personalized devotionals, prayer tracking, and community features.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+---
 
-## Code scaffolding
+## 📚 Table of Contents
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- [Overview](#-overview)
+- [Project Structure](#-project-structure)
+- [Technologies](#-technologies)
+- [Getting Started](#-getting-started)
+- [Building for Production](#-building-for-production)
+- [Generating Native Apps](#-generating-native-apps)
+- [License](#-license)
+- [Author](#-author)
 
-## Build
+---
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## 📱 Overview
 
-## Running unit tests
+Devotio is a progressive web and mobile app designed to enhance the devotional life of Reformed believers. It combines modern UI with features such as:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+- ✝️ Daily devotionals powered by biblical APIs
+- 🙏 Prayer tracking and reminders
+- 🤝 Community and feed interaction
+- 🎶 Traditional music and radio streaming
+- 📊 Personalized insights based on user behavior
+- 🔒 Local data storage with optional sync
 
-## Running end-to-end tests
+---
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## 🏗 Project Structure
 
-## Further help
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+---
+
+## 🧱 Technologies
+
+- Angular 17 (with Standalone Components)
+- Ionic Framework v7
+- RxJS
+- TypeScript + SCSS
+- PWA (Progressive Web App) with service workers
+- Capacitor (for Android/iOS deployment)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Run in development mode
+
+```bash
+ionic serve
+```
+
+### 3. Or directly with Angular CLI
+
+```bash
+ng serve
+```
+
+### 📦 Building for Production
+
+```bash
+ionic build --prod
+```
+
+### 📲 Generating Native Apps
+
+Ensure Capacitor is properly configured:
+
+```bash
+ionic cap add android
+ionic cap sync
+ionic cap build android
+```
+
+For iOS:
+
+```bash
+ionic cap add ios
+ionic cap open ios
+```
+
+### 📄 License
+
+Made with ❤️, code & purpose by ZapfCorp
+“Soli Deo Gloria”
