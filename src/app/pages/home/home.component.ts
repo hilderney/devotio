@@ -8,11 +8,15 @@ import { MainCardComponent } from '../../components/main-card/main-card.componen
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   standalone: true,
-  imports: [IonicModule, RouterModule, MainCardComponent],
+  imports: [
+    IonicModule,
+    RouterModule,
+    MainCardComponent
+  ],
 })
 export class HomeComponent  implements OnInit {
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {}
 

@@ -1,0 +1,20 @@
+.page-header {
+  height: 200px; // ajuste conforme o tamanho desejado
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  --background: none; // remove background default do ion-toolbar
+
+  ion-toolbar {
+    background: transparent;
+    --min-height: 56px; // mantém a altura do toolbar
+  }
+
+  ion-title {
+    color: white; // ou outra cor, dependendo da imagem
+  }
+
+  ion-icon {
+    color: white;
+  }
+}
