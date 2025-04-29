@@ -1,0 +1,17 @@
+.circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--ion-color-medium);
+  background-color: transparent;
+}
+
+.circle.filled {
+  background-color: var(--ion-color-success);
+  border: none;
+}
+
+.completed {
+  opacity: 0.6;
+  text-decoration: line-through;
+}

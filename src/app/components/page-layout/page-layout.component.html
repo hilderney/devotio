@@ -1,0 +1,14 @@
+<ion-header class="page-header" [style.backgroundImage]="'url(' + imagemUrl + ')'">
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="back()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ titulo }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ng-content></ng-content>
+</ion-content>
