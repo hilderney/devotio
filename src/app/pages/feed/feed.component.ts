@@ -6,7 +6,9 @@ import { PageLayoutComponent } from '../../components/page-layout/page-layout.co
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.scss'],
   standalone: true,
-  imports: [PageLayoutComponent]
+  imports: [
+    PageLayoutComponent
+  ]
 })
 export class FeedComponent  implements OnInit {
 

@@ -1,0 +1,23 @@
+
+<app-page-layout-simple
+  [title]="'Reflexão do dia'"
+  [imgUrl]="'assets/imgs/devotional.webp'">
+
+  <div class="overlay">
+    <div class="reflection-box" *ngIf="todaysReflection">
+      <h1 class="title">“{{ todaysReflection.text }}”</h1>
+      <p class="verse">{{ todaysReflection.verse }}</p>
+      <div class="quote">
+        <p>{{ todaysReflection.reflection }}</p>
+      </div>
+      <p class="author">— {{ todaysReflection.author }}</p>
+    </div>
+
+    <ion-spinner *ngIf="!todaysReflection" name="crescent"></ion-spinner>
+  </div>
+
+  <ion-button class="margin-top" color="medium" shape="round" (click)="backToDevotional()">
+    <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+  </ion-button>
+
+</app-page-layout-simple>

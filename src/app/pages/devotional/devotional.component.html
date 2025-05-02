@@ -1,10 +1,27 @@
 <app-page-layout
-  titulo="Devocional do Dia"
-  imagemUrl="assets/imgs/devotional.webp"
+  title="Devocional do Dia"
+  imgUrl="assets/imgs/devotional.webp"
 >
-  <div class="devotional-list">
-    <app-devotional-item title="Devocional"></app-devotional-item>
-    <app-devotional-item title="Texto Bíblico"></app-devotional-item>
-    <app-devotional-item title="Oração"></app-devotional-item>
-  </div>
+  <ion-item-group class="devotional-list">
+    <app-swipe-item
+      [title]="'Para Refletir'"
+      [link]="'devotional/todays-reflection'"
+    ></app-swipe-item>
+    <app-swipe-item
+      [title]="'Texto do dia'"
+      [link]="'devotional/todays-verse'"
+    ></app-swipe-item>
+    <app-swipe-item
+      [title]="'Oração'"
+      [link]="'devotional/todays-prayer'"
+    ></app-swipe-item>
+    <app-swipe-item
+      [title]="'Citação'"
+      [link]="'devotional/todays-citation'"
+    ></app-swipe-item>
+    <app-swipe-item
+      [title]="'Musica temática'"
+      [link]="'devotional/todays-music'"
+    ></app-swipe-item>
+  </ion-item-group>
 </app-page-layout>

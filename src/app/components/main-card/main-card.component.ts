@@ -11,8 +11,8 @@ import { IonicModule } from '@ionic/angular';
 })
 export class MainCardComponent  implements OnInit {
 
-  @Input() titulo: string = '';
-  @Input() imagemUrl: string = '';
+  @Input() title: string = '';
+  @Input() imgUrl: string = '';
   @Input() descricao: string = '';
 
   constructor() { }

@@ -11,8 +11,8 @@ import { IonicModule } from '@ionic/angular';
   imports: [CommonModule, IonicModule],
 })
 export class PageLayoutComponent  implements OnInit {
-  @Input() titulo: string = '';
-  @Input() imagemUrl: string = '';
+  @Input() title: string = '';
+  @Input() imgUrl: string = '';
 
   constructor(private router: Router) { }
 

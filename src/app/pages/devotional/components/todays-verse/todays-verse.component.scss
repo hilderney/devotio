@@ -1,0 +1,81 @@
+.overlay {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+.reflection-box {
+  max-width: 600px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+  .adress {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #222;
+    margin: 0 16px;
+    text-shadow: 1px 1px 4px #ddf;
+  }
+
+  .verses {
+
+    .verse {
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+      justify-content: flex-start;
+      align-content: flex-start;
+      margin: 8px 0;
+      font-family: serif;
+      font-size: 1rem;
+
+      line-height: 1.6;
+      color: #222;
+      text-shadow: 1px 1px 4px #fff;
+
+      .number {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        width: 14px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        line-height: 1.6;
+        color: #666;
+      }
+
+      .text {
+        text-indent: 16px;
+        line-height: 1.6;
+        font-size: 1.2rem;
+        text-align: left;
+        color: #222;
+      }
+    }
+  }
+
+  .author {
+    font-size: 1.1rem;
+    text-align: right;
+    font-style: italic;
+    color: #ddf;
+    text-shadow: 1px 1px 4px #222;
+  }
+
+  .margin-top {
+    margin-top: 16px;
+  }
+}
