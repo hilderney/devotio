@@ -1,0 +1,21 @@
+<ion-header class="page-header" translucent="true">
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="backToDevotional()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title> {{ title }} </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="page-wrapper">
+    <div class="page-centered">
+      <ng-content></ng-content>
+    </div>
+  </div>
+  <div class="position-fixed background-img"
+    [style.backgroundImage]="'url(' + imgUrl + ')'"
+  ></div>
+</ion-content>

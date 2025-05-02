@@ -3,21 +3,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { DevotionalItemComponent } from './devotional-item.component';
+import { SwipeItemComponent } from './swipe-item.component';
 
-describe('DevotionalItemComponent', () => {
-  let component: DevotionalItemComponent;
-  let fixture: ComponentFixture<DevotionalItemComponent>;
+describe('SwipeItemComponent', () => {
+  let component: SwipeItemComponent;
+  let fixture: ComponentFixture<SwipeItemComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DevotionalItemComponent ]
+      declarations: [ SwipeItemComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DevotionalItemComponent);
+    fixture = TestBed.createComponent(SwipeItemComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

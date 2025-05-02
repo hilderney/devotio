@@ -11,8 +11,10 @@
   border-radius: 8px 8px 0 0;
 }
 
-.titulo {
+.title {
   background-color: rgba(0, 0, 0, 0.6);
+  color: #fff; // Cor do texto
   padding: 4px 8px;
   border-radius: 4px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); // Adiciona sombra ao texto
 }

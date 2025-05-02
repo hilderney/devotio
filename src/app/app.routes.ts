@@ -8,4 +8,6 @@ export const routes: Routes = [
   { path: 'prayers', loadComponent: () => import('./pages/prayers/prayers.component').then(m => m.PrayersComponent) },
   { path: 'community', loadComponent: () => import('./pages/community/community.component').then(m => m.CommunityComponent) },
   { path: 'feed', loadComponent: () => import('./pages/feed/feed.component').then(m => m.FeedComponent) },
+  { path: 'devotional/todays-reflection', loadComponent: () => import('./pages/devotional/components/todays-reflection/todays-reflection.component').then(m => m.TodaysReflectionComponent) },
+  { path: 'devotional/todays-verse', loadComponent: () => import('./pages/devotional/components/todays-verse/todays-verse.component').then(m => m.TodaysVerseComponent) },
 ];

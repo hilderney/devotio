@@ -1,23 +1,27 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, IonItemSliding } from '@ionic/angular';
+import { Router, RouterModule } from '@angular/router';
+import { provideClientHydration } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-devotional-item',
+  selector: 'app-swipe-item',
   standalone: true,
-  templateUrl: './devotional-item.component.html',
-  styleUrls: ['./devotional-item.component.scss'],
+  templateUrl: './swipe-item.component.html',
+  styleUrls: ['./swipe-item.component.scss'],
   imports: [
     CommonModule,
-    IonicModule
+    RouterModule,
+    IonicModule,
   ]
 })
-export class DevotionalItemComponent {
+export class SwipeItemComponent {
   @Input() title: string = '';
+  @Input() link!: string;
   isCompleted: boolean = false;
   private lastX: number = 0;
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   onSwipe(slidingItem: IonItemSliding, event: any) {
     if (event.detail.side === 'start') {
@@ -30,8 +34,17 @@ export class DevotionalItemComponent {
     slidingItem.close();
   }
 
-  handleClick() {
-    this.isCompleted = !this.isCompleted;
+  handleClick(forceMark: boolean = false) {
+    if (!forceMark) {
+      this.isCompleted = !this.isCompleted;
+      return;
+    }
+
+    this.isCompleted = true;
+
+    if (this.link) {
+      this.router.navigate([this.link]);
+    }
   }
 
   // TODO: Registrar o status de conclusão dos itens

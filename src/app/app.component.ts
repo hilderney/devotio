@@ -5,9 +5,12 @@ import { IonicModule } from '@ionic/angular';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [IonicModule, RouterModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
+  imports: [
+    IonicModule,
+    RouterModule
+  ],
 })
 export class AppComponent {
   title = 'devotio';
