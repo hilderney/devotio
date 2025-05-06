@@ -39,11 +39,13 @@ export class TodaysVerseComponent {
   }
 
   decreaseTextSize() {
-
+    this.textSize = Math.max(this.textSize - 2, 12); // Limita o tamanho mínimo
+    document.documentElement.style.setProperty('--font-size', `${this.textSize}px`);
   }
 
   increaseTextSize() {
-
+    this.textSize = Math.min(this.textSize + 2, 32); // Limita o tamanho máximo
+    document.documentElement.style.setProperty('--font-size', `${this.textSize}px`);
   }
 }
 

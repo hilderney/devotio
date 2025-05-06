@@ -1,3 +1,7 @@
+:host {
+  --font-size: 16px; // Tamanho padrão
+}
+
 .overlay {
   display: flex;
   flex-direction: column;
@@ -78,4 +82,27 @@
   .margin-top {
     margin-top: 16px;
   }
+}
+
+.footer-controls {
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.65);
+  padding: 8px 16px;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.35);
+}
+
+.text {
+  font-size: var(--font-size); // Usa a variável CSS para o tamanho da fonte
+}
+
+.number {
+  font-size: calc(var(--font-size) * 0.8); // Ajusta o tamanho relativo para números
 }

@@ -1,6 +1,6 @@
 
 <app-page-layout-simple
-  [title]="'Reflexão do dia'"
+  [title]="'Texto do Dia'"
   [imgUrl]="'assets/imgs/devotional.webp'">
 
   <div class="overlay">
@@ -13,7 +13,7 @@
         @for (verse of todaysVerse.verses; track $index) {
           <div class="verse">
             <span class="number"
-              [class]="textSize+ 'px'">
+              [class]="textSize + 'px'">
             >{{ verse.number }}</span>
             <span class="text">{{ verse.text }}</span>
           </div>
@@ -24,19 +24,23 @@
     <ion-spinner *ngIf="!todaysVerse" name="crescent"></ion-spinner>
   </div>
 
-  <ion-buttons>
-    <ion-button class="margin-top" color="medium" shape="round" (click)="decreaseTextSize()">
-      <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
-    </ion-button>
-    <ion-button class="margin-top" color="medium" shape="round" (click)="backToDevotional()">
-      <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
-    </ion-button>
-    <ion-button class="margin-top" color="medium" shape="round" (click)="increaseTextSize()">
-      <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
-    </ion-button>
-  </ion-buttons>
+  <ion-button class="margin-top" color="medium" shape="round" (click)="backToDevotional()">
+    <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+  </ion-button>
 
-
-
+  <!-- Botões fixados no rodapé -->
+  <ion-footer class="footer-controls">
+      <ion-button color="medium" shape="round" (click)="backToDevotional()" [slot]="'start'">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+      <ion-item-group [slot]="'end'">
+        <ion-button color="medium" shape="round" (click)="decreaseTextSize()">
+          <ion-icon slot="icon-only" name="remove-outline"></ion-icon>
+        </ion-button>
+        <ion-button color="medium" shape="round" (click)="increaseTextSize()">
+          <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+        </ion-button>
+      </ion-item-group>
+  </ion-footer>
 
 </app-page-layout-simple>
