@@ -1,10 +1,15 @@
-.overlay {
+.page-content-wrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   align-content: center;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+}
+
+.overlay {
   padding: 1.5rem;
 }
 
@@ -24,14 +29,6 @@
     margin-bottom: 1rem;
   }
 
-  .verse {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #fff;
-    margin: 0 16px;
-    text-shadow: 1px 1px 4px #222;
-  }
-
   .quote {
     font-size: 1.1rem;
     line-height: 1.6;
@@ -46,6 +43,57 @@
     font-style: italic;
     color: #ddf;
     text-shadow: 1px 1px 4px #222;
+  }
+
+  .address {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #222;
+    margin: 0 16px;
+    text-shadow: 1px 1px 4px #ddf;
+  }
+
+  .verses {
+
+    .verse {
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+      justify-content: flex-start;
+      align-content: flex-start;
+      margin: 8px 0;
+      font-family: serif;
+      font-size: 1rem;
+
+      line-height: 1.6;
+      color: #222;
+      text-shadow: 1px 1px 4px #fff;
+
+      .number {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        width: 14px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        line-height: 1.6;
+        color: #666;
+      }
+
+      .text {
+        text-indent: 16px;
+        line-height: 1.6;
+        font-size: 1.2rem;
+        text-align: left;
+        color: #222;
+      }
+    }
   }
 
   .margin-top {

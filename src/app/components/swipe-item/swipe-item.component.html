@@ -1,13 +1,15 @@
 <ion-item-sliding
   #slidingItem
   (ionSwipe)="onSwipe(slidingItem, $event)">
-  <ion-item
-    [class.completed]="isCompleted">
+  <ion-item>
     <ion-avatar slot="start" (click)="handleClick()">
       <div class="circle" [class.filled]="isCompleted"></div>
     </ion-avatar>
     <ion-label>
-      <label (click)="handleClick(true)">
+      <label
+        [class.completed]="isCompleted"
+        (click)="handleClick(true)"
+      >
         {{ title }}
       </label>
     </ion-label>

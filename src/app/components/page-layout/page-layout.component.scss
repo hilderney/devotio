@@ -1,33 +1,30 @@
-// :host {
-//   display: flex;
-//   flex-direction: column;
-//   flex-wrap: nowrap;
-//   justify-content: space-between;
-//   align-items: center;
-//   height: 100%;
-// }
-
 .page-header {
   height: 200px; // ajuste conforme o tamanho desejado
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  // --background: none; // remove background default do ion-toolbar
 }
-//   ion-content::part(scroll) {
-//     padding-top: 200px; // igual à altura do header
-//   }
 
-//   ion-toolbar {
-//     background: transparent;
-//     --min-height: 56px; // mantém a altura do toolbar
-//   }
+.page-wrapper,
+.position-fixed {
+  top: 200px;
+}
 
-//   ion-title {
-//     color: white; // ou outra cor, dependendo da imagem
-//   }
+.no-scroll {
+  overflow: visible;
+}
 
-//   ion-icon {
-//     color: white;
-//   }
-// }
+.footer-controls {
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.65);
+  padding: 8px 16px;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.35);
+}

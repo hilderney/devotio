@@ -3,6 +3,8 @@ import { PageLayoutComponent } from '../../components/page-layout/page-layout.co
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { SwipeItemComponent } from '../../components/swipe-item/swipe-item.component';
+import { DevotionalService } from './devotional.service';
+import { TasksEnum } from '../../shared/enums/tasks.enum';
 
 @Component({
   selector: 'app-devotional',
@@ -17,8 +19,25 @@ import { SwipeItemComponent } from '../../components/swipe-item/swipe-item.compo
 })
 export class DevotionalComponent  implements OnInit {
 
-  constructor() { }
+  taskEnum = TasksEnum;
+  tasks: TasksEnum[] = [];
+  isDevotionalLoaded = false;
 
-  ngOnInit() {}
+  constructor(private service: DevotionalService) { }
+
+  ngOnInit() {
+    this.reloadTasks();
+  }
+
+  reloadTasks() {
+    setTimeout(() => {
+      this.service.getCompletedTasks().subscribe(response => {
+        console.log('RESPONSE: ', response);
+        this.tasks.push(response);
+        console.log(this.tasks);
+        this.isDevotionalLoaded = true;
+      })
+    }, 1000);
+  }
 
 }

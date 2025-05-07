@@ -10,9 +10,9 @@ export class TodaysVerseService {
   constructor() { }
 
   getTodaysVerse(): Observable<ITodaysVerse> {
-    const mock = {
+    const mock: ITodaysVerse = {
       bibleVersion: 'NVI',
-      adress: 'João 1:1-4',
+      address: 'João 1:1-4',
       verses: [
         {
           number: '1',
@@ -35,7 +35,12 @@ export class TodaysVerseService {
       ],
     }
 
-    return of(mock)
+    return of(mock);
+  }
+
+  endTodaysTask(): Observable<boolean> {
+    // TODO registrar conclusão da task do dia de Verso
+    return of(true);
   }
 
 }

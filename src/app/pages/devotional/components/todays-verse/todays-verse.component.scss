@@ -1,14 +1,15 @@
-:host {
-  --font-size: 16px; // Tamanho padrão
-}
-
-.overlay {
+.page-content-wrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   align-content: center;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+}
+
+.overlay {
   padding: 1.5rem;
 }
 
@@ -20,7 +21,7 @@
   padding: 32px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 
-  .adress {
+  .address {
     font-size: 1.1rem;
     font-weight: 500;
     color: #222;
@@ -82,21 +83,6 @@
   .margin-top {
     margin-top: 16px;
   }
-}
-
-.footer-controls {
-  position: fixed;
-  bottom: 0px;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 16px;
-  justify-content: space-between;
-  z-index: 10;
-  background-color: rgba(255, 255, 255, 0.65);
-  padding: 8px 16px;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 0 16px rgba(0, 0, 0, 0.35);
 }
 
 .text {
