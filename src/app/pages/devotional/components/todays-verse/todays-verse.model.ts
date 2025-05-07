@@ -1,5 +1,5 @@
 export class TodaysVerse implements ITodaysVerse {
-  adress!: string;
+  address!: string;
   bibleVersion!: string;
   verses!: IVerse[];
 
@@ -11,7 +11,7 @@ export class TodaysVerse implements ITodaysVerse {
 }
 
 export interface ITodaysVerse {
-  adress: string;
+  address: string;
   bibleVersion: string;
   verses: IVerse[];
 }

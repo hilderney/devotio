@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { PageLayoutSimpleComponent } from '../../../../components/page-layout-simple/page-layout-simple.component';
 import { TodaysVerseService } from './todays-verse.service';
+import { ITodaysVerse, TodaysVerse } from './todays-verse.model';
 
 @Component({
   selector: 'app-todays-verse',
@@ -18,8 +19,8 @@ import { TodaysVerseService } from './todays-verse.service';
   ],
 })
 export class TodaysVerseComponent {
-  todaysVerse: any = null;
-  textSize: number = 16;
+  todaysVerse!: ITodaysVerse;
+  textSize = 16;
 
   constructor(
     private router: Router,
@@ -28,22 +29,26 @@ export class TodaysVerseComponent {
   ngOnInit(): void {
     // Simula chamada de API
     setTimeout(() => {
-      this.service.getTodaysVerse().subscribe(res => {
-        this.todaysVerse = res;
+      this.service.getTodaysVerse().subscribe(response => {
+        this.todaysVerse = new TodaysVerse(response);
       })
     }, 1000);
+  }
+
+  endTask() {
+    // TODO registrar conclusão da task
+    this.backToDevotional();
   }
 
   backToDevotional() {
     this.router.navigate(['./devotional']);
   }
 
-  decreaseTextSize() {
-
-  }
-
   increaseTextSize() {
-
+    console.log('ChangeTextSize: Increase')
+  }
+  decreaseTextSize() {
+    console.log('ChangeTextSize: Deacrease')
   }
 }
 

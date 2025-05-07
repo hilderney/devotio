@@ -1,7 +1,7 @@
 <ion-header class="page-header" translucent="true">
   <ion-toolbar color="transparent">
     <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="backToDevotional()">
+      <ion-button fill="clear" (click)="handleBackButton()">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -19,3 +19,17 @@
     [style.backgroundImage]="'url(' + imgUrl + ')'"
   ></div>
 </ion-content>
+
+<ion-footer class="footer-controls">
+  <ion-button color="medium" shape="round" (click)="handleBackButton()" [slot]="'start'">
+    <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+  </ion-button>
+  <ion-item-group [slot]="'end'">
+    <ion-button color="medium" shape="round" (click)="handleDecreaseTextSize()">
+      <ion-icon slot="icon-only" name="remove-outline"></ion-icon>
+    </ion-button>
+    <ion-button color="medium" shape="round" (click)="handleIncreaseTextSize()">
+      <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+    </ion-button>
+  </ion-item-group>
+</ion-footer>

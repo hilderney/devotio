@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
@@ -13,13 +13,26 @@ import { IonicModule } from '@ionic/angular';
 export class PageLayoutSimpleComponent  implements OnInit {
   @Input() title: string = ''
   @Input() imgUrl: string = ''
+  @Input('show-footer') showFooter = false;
+  @Input('back-to') backTo = '';
+  @Output('backButtonClick') backButtonEmitter = new EventEmitter();
+  @Output('increaseTextClick') increaseTextSizeEmitter = new EventEmitter();
+  @Output('decreaseTextClick') decreaseTextSizeEmitter = new EventEmitter();
 
   constructor(private router: Router) { }
 
   ngOnInit() {}
 
-  backToDevotional() {
-    this.router.navigate(['./devotional']);
+  handleBackButton() {
+    this.backButtonEmitter.emit();
+  }
+
+  handleDecreaseTextSize() {
+    this.decreaseTextSizeEmitter.emit();
+  }
+
+  handleIncreaseTextSize() {
+    this.increaseTextSizeEmitter.emit();
   }
 
 }

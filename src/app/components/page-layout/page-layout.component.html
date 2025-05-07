@@ -1,7 +1,7 @@
 <ion-header class="page-header" [style.backgroundImage]="'url(' + imgUrl + ')'">
   <ion-toolbar color="transparent">
     <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="back()">
+      <ion-button fill="clear" (click)="handleBackButton()">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -9,6 +9,24 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <ng-content></ng-content>
+<ion-content fullscreen class="ion-padding">
+  <div class="page-wrapper">
+    <div class="page-top">
+      <ng-content></ng-content>
+    </div>
+  </div>
 </ion-content>
+
+<ion-footer class="footer-controls">
+  <ion-button color="medium" shape="round" (click)="handleBackButton()" [slot]="'start'">
+    <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+  </ion-button>
+  <ion-item-group [slot]="'end'">
+    <ion-button color="medium" shape="round" (click)="handleDecreaseTextSize()">
+      <ion-icon slot="icon-only" name="remove-outline"></ion-icon>
+    </ion-button>
+    <ion-button color="medium" shape="round" (click)="handleIncreaseTextSize()">
+      <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+    </ion-button>
+  </ion-item-group>
+</ion-footer>

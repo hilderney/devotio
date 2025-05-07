@@ -2,26 +2,40 @@
   title="Devocional do Dia"
   imgUrl="assets/imgs/devotional.webp"
 >
-  <ion-item-group class="devotional-list">
-    <app-swipe-item
-      [title]="'Para Refletir'"
-      [link]="'devotional/todays-reflection'"
-    ></app-swipe-item>
+  <div class="page-content-wrapper">
+
+  <ion-item-group class="devotional-list" *ngIf="isDevotionalLoaded">
+    @if (isDevotionalLoaded) {
     <app-swipe-item
       [title]="'Texto do dia'"
       [link]="'devotional/todays-verse'"
+      [completed]="tasks.includes(taskEnum.Verse)"
+    ></app-swipe-item>
+    <app-swipe-item
+      [title]="'Refletir'"
+      [link]="'devotional/todays-reflection'"
+      [completed]="tasks.includes(taskEnum.Reflection)"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Oração'"
       [link]="'devotional/todays-prayer'"
+      [completed]="tasks.includes(taskEnum.Prayer)"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Citação'"
       [link]="'devotional/todays-citation'"
+      [completed]="tasks.includes(taskEnum.Citation)"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Musica temática'"
       [link]="'devotional/todays-music'"
+      [completed]="tasks.includes(taskEnum.Music)"
     ></app-swipe-item>
+    }
   </ion-item-group>
+
+  <div class="page-center">
+    <ion-spinner *ngIf="!isDevotionalLoaded" name="crescent"></ion-spinner>
+  </div>
+  </div>
 </app-page-layout>
