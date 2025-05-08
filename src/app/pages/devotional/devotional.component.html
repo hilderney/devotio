@@ -9,27 +9,27 @@
     <app-swipe-item
       [title]="'Texto do dia'"
       [link]="'devotional/todays-verse'"
-      [completed]="tasks.includes(taskEnum.Verse)"
+      [completed]="(completedTasks$ | async)?.includes(taskEnum.Verse) || false"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Refletir'"
       [link]="'devotional/todays-reflection'"
-      [completed]="tasks.includes(taskEnum.Reflection)"
+      [completed]="(completedTasks$ | async)?.includes(taskEnum.Reflection) || false"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Oração'"
       [link]="'devotional/todays-prayer'"
-      [completed]="tasks.includes(taskEnum.Prayer)"
+      [completed]="(completedTasks$ | async)?.includes(taskEnum.Prayer) || false"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Citação'"
       [link]="'devotional/todays-citation'"
-      [completed]="tasks.includes(taskEnum.Citation)"
+      [completed]="(completedTasks$ | async)?.includes(taskEnum.Citation) || false"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Musica temática'"
       [link]="'devotional/todays-music'"
-      [completed]="tasks.includes(taskEnum.Music)"
+      [completed]="(completedTasks$ | async)?.includes(taskEnum.Music) || false"
     ></app-swipe-item>
     }
   </ion-item-group>

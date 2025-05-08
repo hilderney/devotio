@@ -5,8 +5,10 @@ import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { addIcons } from 'ionicons';
 import { starOutline, arrowBackOutline, checkmarkOutline, closeOutline, addOutline, removeOutline } from 'ionicons/icons';
 
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+bootstrapApplication(
+  AppComponent,
+  appConfig
+).catch((err) => console.error(err));
 
 addIcons({
   'star-outline': starOutline,
