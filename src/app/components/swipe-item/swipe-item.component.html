@@ -3,11 +3,11 @@
   (ionSwipe)="onSwipe(slidingItem, $event)">
   <ion-item>
     <ion-avatar slot="start" (click)="handleClick()">
-      <div class="circle" [class.filled]="isCompleted"></div>
+      <div class="circle" [class.filled]="isCompleted$ | async"></div>
     </ion-avatar>
     <ion-label>
       <label
-        [class.completed]="isCompleted"
+        [class.completed]="isCompleted$ | async"
         (click)="handleClick(true)"
       >
         {{ title }}

@@ -9,27 +9,27 @@
     <app-swipe-item
       [title]="'Texto do dia'"
       [link]="'devotional/todays-verse'"
-      [completed]="(completedTasks$ | async)?.includes(taskEnum.Verse) || false"
+      [task]="taskEnum.Verse"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Refletir'"
       [link]="'devotional/todays-reflection'"
-      [completed]="(completedTasks$ | async)?.includes(taskEnum.Reflection) || false"
+      [task]="taskEnum.Reflection"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Oração'"
       [link]="'devotional/todays-prayer'"
-      [completed]="(completedTasks$ | async)?.includes(taskEnum.Prayer) || false"
+      [task]="taskEnum.Prayer"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Citação'"
       [link]="'devotional/todays-citation'"
-      [completed]="(completedTasks$ | async)?.includes(taskEnum.Citation) || false"
+      [task]="taskEnum.Citation"
     ></app-swipe-item>
     <app-swipe-item
       [title]="'Musica temática'"
       [link]="'devotional/todays-music'"
-      [completed]="(completedTasks$ | async)?.includes(taskEnum.Music) || false"
+      [task]="taskEnum.Music"
     ></app-swipe-item>
     }
   </ion-item-group>

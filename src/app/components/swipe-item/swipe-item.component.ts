@@ -2,7 +2,11 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, IonItemSliding } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
-import { provideClientHydration } from '@angular/platform-browser';
+import { Store } from '@ngrx/store';
+import { TasksEnum } from '../../pages/devotional/state/devotional.models';
+import { selectCompletedTasks } from '../../pages/devotional/state/devotional.selectors';
+import { map, take } from 'rxjs';
+import { markTaskComplete, unmarkTask } from '../../pages/devotional/state/devotional.actions';
 
 @Component({
   selector: 'app-swipe-item',
@@ -18,36 +22,45 @@ import { provideClientHydration } from '@angular/platform-browser';
 export class SwipeItemComponent {
   @Input() title: string = '';
   @Input() link!: string;
-  @Input('completed') isCompleted: boolean = false;
+  @Input() task!: TasksEnum;
+  // @Input('completed') isCompleted: boolean = false;
   private lastX: number = 0;
+  isCompleted$ = this.store.select(selectCompletedTasks).pipe(
+    map((tasks: string | TasksEnum[]) => tasks.includes(this.task))
+  );
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private store: Store
+  ) {}
 
   onSwipe(slidingItem: IonItemSliding, event: any) {
     if (event.detail.side === 'start') {
       console.log('Swipe para a DIREITA COMPLETAR');
-      // TODO Completar a task atual
-      this.isCompleted = true;
+      this.store.dispatch(markTaskComplete({ task: this.task }));
     } else {
-      // TODO RemoverCompletar a task atual
       console.log('Swipe para a ESQUERDA REMOVER COMPLETO');
-      this.isCompleted = false;
+      this.store.dispatch(unmarkTask({ task: this.task }));
     }
     slidingItem.close();
   }
 
   handleClick(forceMark: boolean = false) {
     if (!forceMark) {
-      console.log('Clique TOOGLE COMPLETAR');
-      // TODO Completar ou Remover Completar da task atual
-      this.isCompleted = !this.isCompleted;
+      // Alterna o status: se está completo, remove; se não, completa
+      this.isCompleted$.pipe(
+        take(1)
+      ).subscribe(isCompleted => {
+        if (isCompleted) {
+          this.store.dispatch(unmarkTask({ task: this.task }));
+        } else {
+          this.store.dispatch(markTaskComplete({ task: this.task }));
+        }
+      });
       return;
     }
 
-    console.log('Clique COMPLETAR');
-    // TODO Completar a task atual
-    this.isCompleted = true;
-
+    this.store.dispatch(markTaskComplete({ task: this.task }));
     if (this.link) {
       this.router.navigate([this.link]);
     }
