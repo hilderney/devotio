@@ -1,4 +1,4 @@
-import { ApplicationConfig, isDevMode } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -9,6 +9,7 @@ import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { devotionalFeatureKey, devotionalReducer } from './pages/devotional/state/devotional.reducer';
 import { DevotionalEffects } from './pages/devotional/state/devotional.effects';
+import { HttpClientModule } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,6 +21,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideStore({ [devotionalFeatureKey]: devotionalReducer }),
     provideEffects([DevotionalEffects]),
-    provideStoreDevtools({ maxAge: 25 })
+    provideStoreDevtools({ maxAge: 25 }),
+    importProvidersFrom(HttpClientModule)
   ]
 };
