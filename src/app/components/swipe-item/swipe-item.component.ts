@@ -23,7 +23,6 @@ export class SwipeItemComponent {
   @Input() title: string = '';
   @Input() link!: string;
   @Input() task!: TasksEnum;
-  // @Input('completed') isCompleted: boolean = false;
   private lastX: number = 0;
   isCompleted$ = this.store.select(selectCompletedTasks).pipe(
     map((tasks: string | TasksEnum[]) => tasks.includes(this.task))

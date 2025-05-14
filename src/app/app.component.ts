@@ -1,3 +1,4 @@
+import { HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -9,7 +10,8 @@ import { IonicModule } from '@ionic/angular';
   styleUrl: './app.component.scss',
   imports: [
     IonicModule,
-    RouterModule
+    RouterModule,
+    HttpClientModule
   ],
 })
 export class AppComponent {
