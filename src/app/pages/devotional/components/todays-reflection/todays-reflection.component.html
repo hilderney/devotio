@@ -8,43 +8,46 @@
   (increaseTextClick)="increaseTextSize()"
   (decreaseTextClick)="decreaseTextSize()">
 
-  <div class="page-content-wrapper" *ngIf="todaysReflection">
+  <ion-content fullscreen>
+    <div class="page-content-wrapper" *ngIf="todaysReflection">
 
-    <div class="overlay">
-      <div class="reflection-box">
-        <h1 class="title">“{{ todaysReflection.title }}”</h1>
-        <div class="quote">
-          <p>{{ todaysReflection.reflection }}</p>
-        </div>
-        <p class="author">— {{ todaysReflection.author }}</p>
-
-        <hr>
-
-        @if (todaysReflection.verse) {
-          <div class="address">
-            <p>{{ todaysReflection.verse.address }}</p>
+      <div class="overlay">
+        <div class="reflection-box">
+          <h1 class="title">“{{ todaysReflection.title }}”</h1>
+          <div class="quote">
+            <p>{{ todaysReflection.reflection }}</p>
           </div>
-          <div class="verses">
-            @for (verse of todaysReflection.verse.verses; track $index) {
-            <div class="verse">
-              <span class="number"> {{ verse.number }}</span>
-              <span class="text">{{ verse.text }}</span>
+          <p class="author">— {{ todaysReflection.author }}</p>
+
+          <hr>
+
+          @if (todaysReflection.verse) {
+            <div class="address">
+              <p>{{ todaysReflection.verse.address }}</p>
             </div>
-            }
-          </div>
+            <div class="verses">
+              @for (verse of todaysReflection.verse.verses; track $index) {
+              <div class="verse">
+                <span class="number"> {{ verse.number }}</span>
+                <span class="text">{{ verse.text }}</span>
+              </div>
+              }
+            </div>
 
-          <p class="verse">{{ todaysReflection.address }}</p>
-        }
+            <p class="verse">{{ todaysReflection.address }}</p>
+          }
+        </div>
+
       </div>
+
+      <ion-button class="margin-top" color="medium" shape="round" (click)="endTask()">
+        <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+      </ion-button>
 
     </div>
 
-    <ion-button class="margin-top" color="medium" shape="round" (click)="endTask()">
-      <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
-    </ion-button>
+    <ion-spinner *ngIf="!todaysReflection" name="crescent"></ion-spinner>
 
-  </div>
-
-  <ion-spinner *ngIf="!todaysReflection" name="crescent"></ion-spinner>
+  </ion-content>
 
 </app-page-layout-simple>
