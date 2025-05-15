@@ -1,41 +1,41 @@
-
 <app-page-layout-simple
-  [title]="'Texto do Dia'"
-  [imgUrl]="'assets/imgs/devotional.webp'"
-  [show-footer]="true"
-  [back-to]="'devotional'"
-  (backButtonClick)="backToDevotional()"
-  (increaseTextClick)="increaseTextSize()"
-  (decreaseTextClick)="decreaseTextSize()">
+[title]="'Texto do Dia'"
+[imgUrl]="'assets/imgs/devotional.webp'"
+[show-footer]="true"
+[back-to]="'devotional'"
+(backButtonClick)="backToDevotional()"
+(increaseTextClick)="increaseTextSize()"
+(decreaseTextClick)="decreaseTextSize()">
 
-  <div class="page-content-wrapper" *ngIf="todaysVerse">
+  <ion-content fullscreen>
+    <div class="page-content-wrapper" *ngIf="todaysVerse">
 
-    <div class="overlay">
-      <div class="reflection-box">
-        <!-- <h1 class="title">“{{ todaysVerse.text }}”</h1> -->
-        <div class="adress">
-          <p>{{ todaysVerse.address }}</p>
-        </div>
-        <div class="verses">
-          @for (verse of todaysVerse.verses; track $index) {
+      <div class="overlay">
+        <div class="reflection-box">
+          <!-- <h1 class="title">“{{ todaysVerse.text }}”</h1> -->
+          <div class="adress">
+            <p>{{ todaysVerse.address }}</p>
+          </div>
+          <div class="verses">
+            @for (verse of todaysVerse.verses; track $index) {
             <div class="verse">
-              <span class="number"
-                [class]="textSize + 'px'"
-              > {{ verse.number }}</span>
+              <span class="number" [class]="textSize + 'px'"> {{ verse.number }}</span>
               <span class="text">{{ verse.text }}</span>
             </div>
-          }
+            }
+          </div>
         </div>
+
       </div>
+
+      <ion-button class="margin-top" color="medium" shape="round" (click)="endTask()">
+        <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+      </ion-button>
 
     </div>
 
-    <ion-button class="margin-top" color="medium" shape="round" (click)="endTask()">
-      <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
-    </ion-button>
+    <ion-spinner *ngIf="!todaysVerse" name="crescent"></ion-spinner>
 
-  </div>
-
-  <ion-spinner *ngIf="!todaysVerse" name="crescent"></ion-spinner>
+  </ion-content>
 
 </app-page-layout-simple>

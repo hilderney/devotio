@@ -1,6 +1,6 @@
 <ion-app>
   <!-- Menu lateral -->
-  <ion-menu contentId="main-content" type="overlay">
+  <ion-menu #menu contentId="main-content" type="overlay">
     <ion-header>
       <ion-toolbar color="primary">
         <ion-title>Menu</ion-title>
@@ -8,13 +8,26 @@
     </ion-header>
     <ion-content>
       <ion-list>
-        <ion-item routerLink="/" routerDirection="root">Início</ion-item>
-        <ion-item routerLink="/devotional">Devocional</ion-item>
-        <ion-item routerLink="/prayers">Orações</ion-item>
-        <ion-item routerLink="/community">Comunidade</ion-item>
-        <ion-item routerLink="/feed">Feed</ion-item>
-        <ion-item routerLink="/profile">Meu Perfil</ion-item>
-        <ion-item routerLink="/settings">Configurações</ion-item>
+        <ion-item
+          [routerLink]="'/'" routerDirection="root">Início</ion-item>
+        <ion-item
+          [routerLink]="'/devotional'"
+          (click)="menu.close()"> Devocional </ion-item>
+        <ion-item
+          [routerLink]="'/prayers'"
+          (click)="menu.close()"> Orações </ion-item>
+        <ion-item
+          [routerLink]="'/community'"
+          (click)="menu.close()"> Comunidade </ion-item>
+        <ion-item
+          [routerLink]="'/feed'"
+          (click)="menu.close()"> Feed </ion-item>
+        <ion-item
+          [routerLink]="'/profile'"
+          (click)="menu.close()"> Meu Perfil </ion-item>
+        <ion-item
+          [routerLink]="'/settings'"
+          (click)="menu.close()"> Configurações </ion-item>
       </ion-list>
     </ion-content>
   </ion-menu>

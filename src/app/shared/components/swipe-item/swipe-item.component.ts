@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, IonItemSliding } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { TasksEnum } from '../../pages/devotional/state/devotional.models';
-import { selectCompletedTasks } from '../../pages/devotional/state/devotional.selectors';
+import { TasksEnum } from '../../../pages/devotional/state/devotional.models';
+import { selectCompletedTasks } from '../../../pages/devotional/state/devotional.selectors';
 import { map, take } from 'rxjs';
-import { markTaskComplete, unmarkTask } from '../../pages/devotional/state/devotional.actions';
+import { markTaskComplete, unmarkTask } from '../../../pages/devotional/state/devotional.actions';
 
 @Component({
   selector: 'app-swipe-item',
@@ -33,23 +33,21 @@ export class SwipeItemComponent {
     private store: Store
   ) {}
 
-  onSwipe(slidingItem: IonItemSliding, event: any) {
-    if (event.detail.side === 'start') {
-      console.log('Swipe para a DIREITA COMPLETAR');
+  handleSwipe(slidingItem: IonItemSliding, event: any): void {
+    if (event.detail && event.detail.side === 'start') {
       this.store.dispatch(markTaskComplete({ task: this.task }));
     } else {
-      console.log('Swipe para a ESQUERDA REMOVER COMPLETO');
       this.store.dispatch(unmarkTask({ task: this.task }));
     }
     slidingItem.close();
   }
 
-  handleClick(forceMark: boolean = false) {
+  handleClick(forceMark: boolean = false): void {
     if (!forceMark) {
       // Alterna o status: se está completo, remove; se não, completa
       this.isCompleted$.pipe(
         take(1)
-      ).subscribe(isCompleted => {
+      ).subscribe((isCompleted: boolean) => {
         if (isCompleted) {
           this.store.dispatch(unmarkTask({ task: this.task }));
         } else {
