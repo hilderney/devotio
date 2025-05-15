@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
-import { PageLayoutSimpleComponent } from '../../../../components/page-layout-simple/page-layout-simple.component';
+import { PageLayoutSimpleComponent } from '../../../../shared/components/page-layout-simple/page-layout-simple.component';
 import { TodaysReflectionService } from './todays-reflection.service';
 import { TodaysReflection } from './todays-reflection.model';
 

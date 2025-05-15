@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { PageLayoutComponent } from '../../components/page-layout/page-layout.component';
+import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { SwipeItemComponent } from '../../components/swipe-item/swipe-item.component';
+import { SwipeItemComponent } from '../../shared/components/swipe-item/swipe-item.component';
 import { DevotionalService } from './devotional.service';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';

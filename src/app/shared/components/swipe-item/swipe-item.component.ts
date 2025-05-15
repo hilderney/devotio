@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, IonItemSliding } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { TasksEnum } from '../../pages/devotional/state/devotional.models';
-import { selectCompletedTasks } from '../../pages/devotional/state/devotional.selectors';
+import { TasksEnum } from '../../../pages/devotional/state/devotional.models';
+import { selectCompletedTasks } from '../../../pages/devotional/state/devotional.selectors';
 import { map, take } from 'rxjs';
-import { markTaskComplete, unmarkTask } from '../../pages/devotional/state/devotional.actions';
+import { markTaskComplete, unmarkTask } from '../../../pages/devotional/state/devotional.actions';
 
 @Component({
   selector: 'app-swipe-item',
