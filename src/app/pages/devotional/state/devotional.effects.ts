@@ -1,7 +1,7 @@
 // src/app/state/devotional/devotional.effects.ts
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { tap, map, exhaustMap } from 'rxjs/operators';
+import { tap, map, exhaustMap, catchError } from 'rxjs/operators';
 import { loadCompletedTasks, markTaskComplete, unmarkTask } from './devotional.actions';
 import { TasksEnum } from './devotional.models';
 import { Action, Store } from '@ngrx/store';
@@ -43,9 +43,12 @@ export class DevotionalEffects {
             .select(state => (state as any).devotional.completedTasks)
             .subscribe(list => (current = list))
             .unsubscribe();
-
           // grava no localStorage
           localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+        }),
+        catchError((err: any) => {
+          console.error('Erro ao salvar no localStorage: ', err);
+          return of(null)
         })
       ),
     { dispatch: false }
@@ -58,6 +61,10 @@ export class DevotionalEffects {
         exhaustMap(action => {
           // TODO Passe o userId real aqui!
           return this.service.completeTask(action.task, '0');
+        }),
+        catchError((err: any) => {
+          console.error('Erro ao completar a tarefa: ', err);
+          return of(null)
         })
       ),
     { dispatch: false }
@@ -70,6 +77,10 @@ export class DevotionalEffects {
         exhaustMap(action => {
           // TODO Passe o userId real aqui!
           return this.service.uncompleteTask(action.task, '0');
+        }),
+        catchError((err: any) => {
+          console.error('Erro ao desfazer completar a tarefa: ', err);
+          return of(null)
         })
       ),
     { dispatch: false }
