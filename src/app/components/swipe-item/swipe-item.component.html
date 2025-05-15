@@ -1,6 +1,6 @@
 <ion-item-sliding
   #slidingItem
-  (ionSwipe)="onSwipe(slidingItem, $event)">
+  (ionSwipe)="handleSwipe(slidingItem, $event)">
   <ion-item>
     <ion-avatar slot="start" (click)="handleClick()">
       <div class="circle" [class.filled]="isCompleted$ | async"></div>

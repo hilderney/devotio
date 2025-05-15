@@ -33,23 +33,21 @@ export class SwipeItemComponent {
     private store: Store
   ) {}
 
-  onSwipe(slidingItem: IonItemSliding, event: any) {
-    if (event.detail.side === 'start') {
-      console.log('Swipe para a DIREITA COMPLETAR');
+  handleSwipe(slidingItem: IonItemSliding, event: any): void {
+    if (event.detail && event.detail.side === 'start') {
       this.store.dispatch(markTaskComplete({ task: this.task }));
     } else {
-      console.log('Swipe para a ESQUERDA REMOVER COMPLETO');
       this.store.dispatch(unmarkTask({ task: this.task }));
     }
     slidingItem.close();
   }
 
-  handleClick(forceMark: boolean = false) {
+  handleClick(forceMark: boolean = false): void {
     if (!forceMark) {
       // Alterna o status: se está completo, remove; se não, completa
       this.isCompleted$.pipe(
         take(1)
-      ).subscribe(isCompleted => {
+      ).subscribe((isCompleted: boolean) => {
         if (isCompleted) {
           this.store.dispatch(unmarkTask({ task: this.task }));
         } else {

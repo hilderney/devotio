@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { delay, Observable, of } from "rxjs";
 import { TasksEnum } from "./state/devotional.models";
+import { DevotionalFirestoreAdapter } from "../../core/adapters/firestore/devotional-firestore.adapter";
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,9 @@ export class DevotionalService {
     // pode iniciar vazio ou com alguns itens
   ];
 
-  constructor() { }
+  constructor(
+    private firestoreAdapter: DevotionalFirestoreAdapter
+  ) { }
 
   getCompletedTasks(): Observable<TasksEnum[]> {
     return of(this.completed).pipe(
@@ -20,15 +23,17 @@ export class DevotionalService {
     );
   }
 
-  completeTask(task: TasksEnum): Observable<void> {
+  completeTask(task: TasksEnum, userId: string): Observable<void> {
     if (!this.completed.includes(task)) {
       this.completed.push(task);
+      this.firestoreAdapter.markTaskComplete(userId, task);
     }
     return of(void 0).pipe(delay(200));
   }
 
-  uncompleteTask(task: TasksEnum): Observable<void> {
+  uncompleteTask(task: TasksEnum, userId: string): Observable<void> {
     this.completed = this.completed.filter(t => t !== task);
+    this.firestoreAdapter.markTaskUncomplete(userId, task);
     return of(void 0).pipe(delay(200));
   }
 }

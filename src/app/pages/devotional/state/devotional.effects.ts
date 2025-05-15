@@ -1,11 +1,12 @@
 // src/app/state/devotional/devotional.effects.ts
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { tap, map } from 'rxjs/operators';
+import { tap, map, exhaustMap } from 'rxjs/operators';
 import { loadCompletedTasks, markTaskComplete, unmarkTask } from './devotional.actions';
 import { TasksEnum } from './devotional.models';
 import { Action, Store } from '@ngrx/store';
 import { of } from 'rxjs';
+import { DevotionalService } from '../devotional.service';
 
 const STORAGE_KEY = 'devotio:completedTasks';
 
@@ -13,7 +14,8 @@ const STORAGE_KEY = 'devotio:completedTasks';
 export class DevotionalEffects {
   constructor(
     private actions$: Actions,
-    private store: Store
+    private store: Store,
+    private service: DevotionalService
   ) { }
 
   // Efeito para carregar tarefas do localStorage ao iniciar
@@ -44,6 +46,30 @@ export class DevotionalEffects {
 
           // grava no localStorage
           localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+        })
+      ),
+    { dispatch: false }
+  );
+
+  saveTaskOnComplete$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(markTaskComplete),
+        exhaustMap(action => {
+          // TODO Passe o userId real aqui!
+          return this.service.completeTask(action.task, '0');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  removeTaskOnUnmark$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(unmarkTask),
+        exhaustMap(action => {
+          // TODO Passe o userId real aqui!
+          return this.service.uncompleteTask(action.task, '0');
         })
       ),
     { dispatch: false }
