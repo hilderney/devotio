@@ -1,0 +1,23 @@
+name: Sync to Org Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+
+      - name: Push to org repo
+        env:
+          TOKEN: ${{ secrets.LEVEL_REPO }}
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          git remote add org https://x-access-token:${TOKEN}@github.com/zapf-coorp/devotio-app.git
+          git push --force org main
