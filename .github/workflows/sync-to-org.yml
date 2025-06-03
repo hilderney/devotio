@@ -1,4 +1,4 @@
-name: Sync to Org Repo
+name: Sync to zapf-coorp/devotio-app
 
 on:
   push:
@@ -9,21 +9,23 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read   # Reduz permissões do GITHUB_TOKEN, pois não o usaremos para push :contentReference[oaicite:18]{index=18}
+
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: false  # Não usar GITHUB_TOKEN automaticamente :contentReference[oaicite:19]{index=19}
+          fetch-depth: 0             # Clonar todo o histórico (não raso) :contentReference[oaicite:20]{index=20}
 
-      - name: Push to org repo
+      - name: Configurar Git
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
       - name: Adicionar remoto usando PAT e executar push
         env:
-          TOKEN: ${{ secrets.LEVEL_REPO }}  # Seu PAT com escopo public_repo
+          TOKEN: ${{ secrets.LEVEL_REPO }}
         run: |
           git remote add org https://x-access-token:${TOKEN}@github.com/zapf-coorp/devotio-app.git
           git push --force org main
