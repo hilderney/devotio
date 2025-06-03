@@ -1,5 +1,6 @@
 # 📖 Devotio
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b8617661-4b06-47ee-9123-4ee1fc7a996e/deploy-status)](https://app.netlify.com/projects/devotio-app/deploys)
 [![Angular v17](https://img.shields.io/badge/Angular-17-red)](https://angular.io/)
 [![Ionic v7](https://img.shields.io/badge/Ionic-7-blue)](https://ionicframework.com/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
