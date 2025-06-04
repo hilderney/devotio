@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-feed',
@@ -7,7 +9,9 @@ import { PageLayoutComponent } from '../../shared/components/page-layout/page-la
   styleUrls: ['./feed.component.scss'],
   standalone: true,
   imports: [
-    PageLayoutComponent
+    PageLayoutComponent,
+    CommonModule,
+    IonicModule
   ]
 })
 export class FeedComponent  implements OnInit {
