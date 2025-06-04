@@ -17,10 +17,10 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideIonicAngular({}),
-    provideServiceWorker('ngsw-worker.js', {
-        enabled: !isDevMode(),
-        registrationStrategy: 'registerWhenStable:30000'
-    }),
+    // provideServiceWorker('ngsw-worker.js', {
+    //     enabled: !isDevMode(),
+    //     registrationStrategy: 'registerWhenStable:30000'
+    // }),
     provideStore({ [devotionalFeatureKey]: devotionalReducer }),
     provideEffects([DevotionalEffects]),
     provideStoreDevtools({ maxAge: 25 }),
