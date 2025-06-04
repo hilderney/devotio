@@ -4,9 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4203",
-    "build": "ng build",
-    "build-prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
+    "build": "ng build",
+    "build-prod": "ng build --configuration production --watch",
+    "serve-build": "npx serve dist/devotio/browser",
     "test": "ng test"
   },
   "private": true,
@@ -21,7 +22,7 @@
     "@angular/platform-browser-dynamic": "^17.1.0",
     "@angular/router": "^17.1.0",
     "@angular/service-worker": "^17.1.0",
-    "@ionic/angular": "^8.5.5",
+    "@ionic/angular": "^8.5.8",
     "@ionic/pwa-elements": "^3.3.0",
     "@ngrx/effects": "^17.2.0",
     "@ngrx/store": "^17.2.0",
