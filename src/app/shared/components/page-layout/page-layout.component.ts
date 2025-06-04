@@ -8,7 +8,10 @@ import { IonicModule } from '@ionic/angular';
   templateUrl: './page-layout.component.html',
   styleUrls: ['./page-layout.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [
+    CommonModule,
+    IonicModule
+  ],
 })
 export class PageLayoutComponent implements OnInit {
   @Input() title: string = '';
