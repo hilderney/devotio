@@ -12,21 +12,23 @@ import { HttpClientModule, provideHttpClient } from '@angular/common/http';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { firebaseConfig } from '../enviroments/firebase-config';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { getAuth, provideAuth } from '@angular/fire/auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideIonicAngular({}),
-    // provideServiceWorker('ngsw-worker.js', {
-    //     enabled: !isDevMode(),
-    //     registrationStrategy: 'registerWhenStable:30000'
-    // }),
+    provideServiceWorker('ngsw-worker.js', {
+        enabled: !isDevMode(),
+        registrationStrategy: 'registerWhenStable:30000'
+    }),
     provideStore({ [devotionalFeatureKey]: devotionalReducer }),
     provideEffects([DevotionalEffects]),
     provideStoreDevtools({ maxAge: 25 }),
     importProvidersFrom(HttpClientModule),
     provideHttpClient(),
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideFirestore(() => getFirestore())
+    provideFirestore(() => getFirestore()),
+    provideAuth(() => getAuth())
   ]
 };

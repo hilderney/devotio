@@ -9,7 +9,7 @@ export class LocalUserAdapter implements IUserRepository {
   }
 
   saveUser(user: User): Observable<void> {
-    localStorage.setItem(`user-${user.id}`, JSON.stringify(user));
+    localStorage.setItem(`user-${user.uid}`, JSON.stringify(user));
     return of(void 0);
   }
 

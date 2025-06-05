@@ -15,7 +15,7 @@ export class FirestoreUserAdapter implements IUserRepository {
   }
 
   saveUser(user: User): Observable<void> {
-    const ref = doc(this.firestore, `users/${user.id}`);
+    const ref = doc(this.firestore, `users/${user.uid}`);
     return from(setDoc(ref, user));
   }
 

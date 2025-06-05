@@ -1,0 +1,11 @@
+<ion-content>
+  <form (ngSubmit)="onLogin()">
+    <ion-item>
+      <ion-input [(ngModel)]="email" name="email" type="email" placeholder="Email" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input [(ngModel)]="password" name="password" type="password" placeholder="Senha" required></ion-input>
+    </ion-item>
+    <ion-button expand="block" type="submit">Entrar</ion-button>
+  </form>
+</ion-content>
