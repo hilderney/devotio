@@ -1,0 +1,16 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@/*": ["./app/*", "./src/*"],
+      "@devocional/backend/*": ["../packages/backend/src/*"],
+      "@devocional/domain/*": ["../packages/domain/src/*"],
+      "@devocional/ui-kit/*": ["../packages/ui-kit/src/*"]
+    }
+  },
+  "include": ["app/**/*", "src/**/*", "expo-router.config.js", "tailwind.config.ts", "postcss.config.js"],
+  "exclude": ["node_modules", "dist", ".expo"]
+}

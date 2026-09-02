@@ -1,0 +1,32 @@
+{
+  "name": "@devocional/domain",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./validators": "./src/validators/index.ts",
+    "./permissions": "./src/permissions/index.ts",
+    "./hooks": "./src/hooks/index.ts",
+    "./types": "./src/types/index.ts",
+    "./date": "./src/date/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.22.0",
+    "convex": "^1.14.0",
+    "react": "^18.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0",
+    "@types/react": "^18.3.0",
+    "eslint": "^8.57.0"
+  }
+}
