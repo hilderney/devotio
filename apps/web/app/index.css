@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: theme('colors.canvas');
+    color: theme('colors.textPrimary');
+    font-family: theme('fontFamily.sans');
+  }
+}
