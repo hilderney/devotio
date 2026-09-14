@@ -88,6 +88,13 @@ Zero lógica duplicada — a única coisa que muda é o componente de apresenta�
   string (URL), o que é compatível com servir os áudios diretamente do Cloudflare
   R2 (bucket público ou signed URL) sem passar pelo file storage do Convex — mantém
   o uso dentro do free tier de ambos os serviços.
+- **APIs externas de conteúdo (ex: Bíblia) tratadas como fonte de importação, não
+  dependência de runtime**: a experiência real com a API "A Bíblia Digital"
+  (desativada pelo mantenedor em 01/08/2026 após anos no ar — ver
+  `specs/003-conteudo-biblico/spec.md §1`) confirma esse princípio na prática. Toda
+  integração de conteúdo externo neste projeto deve seguir o padrão
+  "sincroniza uma vez para o Convex, lê sempre do Convex" — nunca uma chamada
+  direta do client a um serviço de terceiro em tempo de leitura.
 
 ## 6. Convenção de pastas dentro de `packages/domain`
 

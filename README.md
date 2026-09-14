@@ -14,6 +14,8 @@ codificada sem antes existir como `spec.md` → `plan.md` → `tasks.md` em `/sp
 4. **`specs/`** — uma pasta por feature. `001-devocional-diario` e
    `002-comunidade-v1` são o MVP e servem de referência de qualidade para as
    próximas specs (`_templates/` tem os modelos em branco).
+   `003-conteudo-biblico` cobre a importação/leitura de texto bíblico e está
+   em **rascunho** — depende de decisões humanas (spec §9) antes de virar código.
 
 ## Estrutura
 
@@ -25,7 +27,8 @@ codificada sem antes existir como `spec.md` → `plan.md` → `tasks.md` em `/sp
 ├── specs/
 │   ├── _templates/           # spec/plan/tasks em branco
 │   ├── 001-devocional-diario/
-│   └── 002-comunidade-v1/
+│   ├── 002-comunidade-v1/
+│   └── 003-conteudo-biblico/  # rascunho — depende de decisões em spec §9
 ├── packages/
 │   ├── backend/               # Convex — schema, queries, mutations, cron
 │   ├── domain/                 # regras de negócio, permissões, hooks — TS puro
