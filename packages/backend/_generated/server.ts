@@ -49,3 +49,8 @@ export function action<Args, Output>(
 ): any {
   return definition;
 }
+
+export const internalQuery = query;
+export const internalMutation = mutation;
+export const internalAction = action;
+
