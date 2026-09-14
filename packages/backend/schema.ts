@@ -127,6 +127,32 @@ export default defineSchema({
     .index("by_item", ["checklistItemId"]),
 
   // ============================================
+  // 7.5 CONTEÚDO BÍBLICO — LIVROS E VERSÍCULOS (spec 003, importado, não editável por usuário)
+  // ============================================
+  bibleBooks: defineTable({
+    version: v.string(), // ex: "acf" — particiona por tradução importada
+    abbrev: v.string(),  // ex: "gn"
+    name: v.string(),
+    author: v.optional(v.string()),
+    chapters: v.number(),
+    group: v.optional(v.string()),
+    testament: v.union(v.literal("VT"), v.literal("NT")),
+  })
+    .index("by_version", ["version"])
+    .index("by_version_abbrev", ["version", "abbrev"]),
+
+  bibleVerses: defineTable({
+    version: v.string(),
+    abbrev: v.string(),
+    chapter: v.number(),
+    number: v.number(),
+    text: v.string(),
+  })
+    .index("by_version_abbrev_chapter", ["version", "abbrev", "chapter"])
+    .index("by_version_abbrev_chapter_number", ["version", "abbrev", "chapter", "number"])
+    .searchIndex("search_text", { searchField: "text", filterFields: ["version"] }),
+
+  // ============================================
   // 8. BÍBLIA ONLINE — MARCAÇÕES (v3 — fora do escopo do MVP)
   // ============================================
   bibleMarkings: defineTable({
