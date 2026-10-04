@@ -1,36 +1,18 @@
 # AGENTS.md — apps/web
 
-> Estende `/AGENTS.md` e `/docs/architecture.md`. Leia os dois primeiro.
+Estende [regras gerais](../../AGENTS.md) e [arquitetura](../../docs/architecture.md).
 
-## Stack
+React 19 + Vite SPA + TanStack Router + Tailwind 3. Sem SSR. PWA guarda somente shell estático; dados autenticados exigem rede.
 
-TanStack Start (React 19 + Vite, SSR) + Tailwind CSS + shadcn/ui.
+- Componentes consomem domain/react; contratos e validações vêm de domain/core. Regras e autorização continuam no núcleo.
+- Seguir [UI/UX](../../docs/design/experience.md) e tokens de ui-kit.
+- Preferir HTML semântico e componentes locais.
+- Áudio HTML5 sem autoplay; preload none.
+- Prévia somente importada sob import.meta.env.DEV. Nunca expor fixtures no build público.
+- APIs de navegador ficam em apps/web, nunca no núcleo puro.
+- Auth real exige credenciais e verificação em homologação; não introduzir bypass.
+- Executar lint, typecheck, testes e build na raiz após mudanças pertinentes.
 
-## Regras específicas deste app
+Comandos: npm run dev --workspace=web, npm run build --workspace=web, npm run typecheck --workspace=web, npm run lint --workspace=web e npm run preview --workspace=web.
 
-- Nenhum componente aqui contém lógica de negócio ou permissão — ele só chama hooks
-  de `packages/domain` e renderiza o resultado. Se você precisa de um `if` de
-  permissão para decidir *o que renderizar*, tudo bem; se precisa dele para decidir
-  *o que é permitido fazer*, a checagem real já deveria estar na mutation do
-  Convex.
-- Componentes shadcn/ui são copiados para o repo (não é uma lib instalada) — ao
-  adicionar um novo, use `npx shadcn add [componente]` a partir de `apps/web`, não
-  copie manualmente de outro projeto.
-- SSR: nenhuma chamada a `window`, `localStorage` ou APIs de browser fora de um
-  efeito client-side (`useEffect` ou equivalente do TanStack Start) — vai quebrar o
-  render no servidor.
-- Áudio: usar `<audio>` HTML5 nativo. Não introduzir uma lib de player só para o
-  devocional diário — é um caso simples e a constituição pede minimalismo também no
-  código.
-- Tokens de design vêm de `packages/ui-kit/tokens.ts` e são mapeados em
-  `tailwind.config.ts` — não hardcode cor/spacing direto em className com valores
-  arbitrários (`text-[#123456]`) sem antes checar se o token já existe.
-
-## Comandos
-
-```bash
-npm run dev --workspace=web
-npm run build --workspace=web
-npm run typecheck --workspace=web
-npx shadcn add [componente]   # executar de dentro de apps/web
-```
+Consulte o [estado real](../../docs/engineering/status.md) antes de declarar prontidão.

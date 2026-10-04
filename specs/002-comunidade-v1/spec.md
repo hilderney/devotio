@@ -1,5 +1,7 @@
 # Spec: Comunidade (v1 — funcionalidades base)
 
+> Revisão de 02/10/2026: aprovação histórica dos requisitos preservada; não significa implementação concluída. A distribuição inicial web e as lacunas estão no [catálogo](../README.md). Novos requisitos de fundação constam da [spec 004](../004-fundacao-lancamento/spec.md), em rascunho.
+
 **ID:** 002-comunidade-v1
 **Status:** aprovada
 **Versão alvo:** v1 (lançamento)
@@ -143,7 +145,7 @@ constituição §V).
 
 - Clubes/subgrupos e AC (v2 — spec própria quando priorizada).
 - Edição/remoção de mensagens do mural após o envio.
-- Notificação push quando o AG publica no mural (v2, ver `architecture.md §3`).
+- Notificação push quando o AG publica no mural (futuro; ver `docs/architecture.md §7`).
 - Transferência de papel de AG para outro usuário (v1 assume que o criador
   permanece AG; mecanismo de sucessão fica para depois se necessário).
 
@@ -160,3 +162,11 @@ constituição §V).
   o fluxo v1 é só por convite (link/código)? Recomendação: convite por código simples
   para v1 (menor superfície de busca de usuários por terceiros), busca fica para v2 —
   confirmar com o dono do produto antes do `plan.md`.
+
+## 10. Divergências identificadas na revisão de 02/10/2026
+
+A matriz §6 cita edição/remoção de mensagens próprias, enquanto §7 exclui essas
+ações. Resolver com produto antes de implementar; recomendação do piloto: manter
+fora de escopo. O convite por código de §9 é recomendação técnica, sem aprovação
+humana registrada. Preservação de ticks após remoção (§4) não define política de
+exclusão de conta/retenção; ver [privacidade](../../docs/operations/content-privacy.md).

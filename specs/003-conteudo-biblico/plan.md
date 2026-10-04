@@ -1,5 +1,7 @@
 # Plano Técnico: Conteúdo Bíblico — Importação, Cache e Leitura
 
+> Revisão de 02/10/2026: implementação futura. Schema já contém parte do desenho, mas importação permanece bloqueada pela licença e aprovação. O MVP pode usar trechos editoriais autorizados sem importar uma Bíblia completa.
+
 **Spec relacionada:** ./spec.md
 **Status:** rascunho — depende das decisões da spec §9 (provider, licença, versões)
 antes de ser considerado aprovado para execução.
@@ -57,7 +59,7 @@ optar por ela, ou como plano B futuro):
   processo de seed).
 - `abibliaDigitalApiProvider.ts` — chama os endpoints REST documentados do
   projeto `omarciovsena/abibliadigital` (`/api/books`, `/api/verses/:version/:abbrev/:chapter`),
-  mantido no código como opção, mas **não ativado por padrão** dado que a API
+  mantido no código como opção, mas **apenas alternativa de desenho, não implementação entregue**, dado que a API
   oficial está fora do ar desde 01/08/2026 (ver spec §1). Só faz sentido ativar
   este provider contra uma instância confirmada no ar (self-host validado) — não
   assumir a URL oficial como disponível sem checar antes.
@@ -153,18 +155,16 @@ Array<{ abbrev: string; bookName: string; chapter: number; number: number; text:
 
 ## 7. Estimativa de capacidade (Convex free tier)
 
-- Uma versão completa (~31.100 versículos + 66 livros) importada para
-  `bibleVerses`/`bibleBooks`: estimativa de ~30-40 bytes de texto médio por
-  versículo em português mais overhead de documento do Convex — ordem de
-  grandeza de poucos MB por versão importada, folgado dentro do limite de 0.5GB
-  do plano gratuito mesmo com 2-3 versões. Ainda assim, medir o tamanho real após
-  a primeira importação de teste antes de decidir importar mais de uma versão
-  (spec §9, pergunta 1).
+- Medir os bytes UTF-8 reais do dataset e os documentos/índices após importação
+  de uma amostra em desenvolvimento. A estimativa anterior de 30–40 bytes por
+  versículo não é confiável e foi retirada. Não inferir capacidade só pelo número
+  de versículos. Projetar crescimento, busca, I/O e transferência antes de importar
+  versões adicionais. Ver [cotas atuais](../../docs/operations/free-launch.md).
 
 ## 8. Riscos técnicos e decisões a validar
 
 - **Licenciamento de dataset** (spec §9, pergunta 2) — bloqueador para importar
-  qualquer versão além de ACF até confirmação.
+  qualquer versão, inclusive ACF, até confirmação.
 - **Search index do Convex**: validar limites de `withSearchIndex` (tamanho de
   campo indexado, comportamento com texto em português/acentuação) com uma
   importação de teste pequena (ex: um único livro) antes de rodar a importação

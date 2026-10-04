@@ -51,3 +51,11 @@ vai para o `plan.md`.
 ## 9. Perguntas em aberto
 
 Qualquer decisão que precisa de dono humano antes do plano técnico.
+
+## 10. Aprovação e lançamento
+
+- Responsável e data de aprovação: pendentes (não preencher por inferência).
+- Canal inicial e diferenças entre web/nativo:
+- Dependências e critério de liberação:
+- Visibilidade, dados pessoais, licença de conteúdo e exclusão/retenção:
+- Decisões ainda necessárias antes do plano:

@@ -1,8 +1,10 @@
 # Spec: Conteúdo Bíblico — Importação, Cache e Leitura
 
+> Revisão de 02/10/2026: permanece rascunho e fora do lançamento inicial. Tabelas/queries já existem no protótipo, mas isso não aprova importação. Licença precisa ser validada para **todas** as versões, inclusive ACF. Ver [conteúdo e privacidade](../../docs/operations/content-privacy.md).
+
 **ID:** 003-conteudo-biblico
 **Status:** rascunho (depende de decisões em §9 antes de virar "aprovada")
-**Versão alvo:** v2 (Bíblia Online, dentro de Fé Madura) + capacidade de backend usável desde já para dar suporte a v1
+**Versão alvo:** futura (Fé Madura); não é dependência do piloto v1
 
 ## 1. Contexto e problema
 
@@ -124,7 +126,7 @@ spec).
 - **Custo de armazenamento dentro do free tier.** Uma versão completa da Bíblia
   tem ~31.000 versículos. O volume estimado por versão importada deve ser
   verificado contra o limite de 0.5GB do plano gratuito do Convex antes de
-  importar múltiplas versões (ver `plan.md §6`).
+  importar múltiplas versões (ver `plan.md §7`).
 - **Import não bloqueia o app em produção.** A sincronização roda como uma
   Convex action separada (disparada manualmente ou por cron), nunca como parte
   do caminho de uma query/mutation acionada por usuário final.
@@ -193,22 +195,17 @@ Estas precisam de decisão humana antes de `spec.md` passar de "rascunho" para
      com a arquitetura de baixo custo já adotada no projeto. Confirmar com o dono
      do produto antes do `plan.md`.
 
-2. **Licenciamento de cada versão.** ACF costuma ser tratada como texto de uso
-   livre/domínio público; **NVI é uma tradução comercial** (direitos da Biblica/
-   SBB) e sua presença em repositórios de terceiros no GitHub não implica
-   necessariamente permissão de redistribuição dentro de um produto comercial ou
-   de grande distribuição. Antes de importar qualquer versão além de ACF, validar
-   os termos de uso/licença de cada uma — isto não é uma decisão técnica e não
-   deve ser assumida como "ok" só porque o dado está publicamente acessível.
+2. **Licenciamento de cada versão.** Não presumir domínio público de ACF,
+   NVI ou qualquer edição por estar disponível no GitHub. A SBTB publica
+   condições específicas para ACF; citações e distribuição integral são usos
+   distintos. Confirmar licença/autorizações de texto, áudio e distribuição
+   digital antes de importar qualquer versão. [Fonte oficial SBTB, consultada em
+   02/10/2026](https://www.biblias.com.br/direitos-autorais).
 
-3. **Mapeamento de versão.** A constituição do produto (ver `docs/constitution.md`,
-   preferência já registrada no documento original do projeto) cita preferência
-   por "Almeida Corrigida Fiel, KJV 1611 ou ARC". As fontes encontradas oferecem
-   `ACF` diretamente; `KJV` (não necessariamente a edição de 1611 especificamente)
-   e não encontramos `ARC` (Almeida Revista e Corrigida) como abreviação exata —
-   pode ser preciso mapear para `AA` (Almeida Revisada Imprensa Bíblica) ou
-   confirmar se ARC é aceitável como uma variante equivalente. Confirmar antes de
-   fechar o `plan.md`.
+3. **Identificação de versão.** Escolher tradução, edição e fonte com a equipe
+   editorial. A constituição atual não determina uma tradução específica. ACF,
+   ARC e AA não são identificadores intercambiáveis; não mapear uma tradução
+   para outra silenciosamente. Registrar edição e hash do dataset aprovado.
 
 4. **Frequência de atualização.** O texto bíblico não muda — a importação é
    majoritariamente um evento único (seed inicial). Faz sentido manter um cron

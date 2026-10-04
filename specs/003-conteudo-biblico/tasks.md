@@ -1,5 +1,7 @@
 # Tasks: Conteúdo Bíblico — Importação, Cache e Leitura
 
+> Revisão de 02/10/2026: tasks continuam abertas; presença de tabelas não comprova aceite. Licença de toda versão, inclusive ACF, deve estar documentada. Fora do caminho crítico do piloto.
+
 **Plano relacionado:** ./plan.md
 
 > Pré-requisito: as perguntas em aberto da `spec.md §9` (provider, licenciamento,
@@ -62,6 +64,7 @@
 - [ ] Confirmar respostas às perguntas da spec §9 e atualizar o status da spec
       de "rascunho" para "aprovada" antes de iniciar T1.
 - [ ] Testes de domínio (T3, T6) passando.
-- [ ] Atualizar `docs/architecture.md` se o provider escolhido introduzir alguma
+- [ ] Atualizar `docs/architecture.md` (Modelo de Dados) e registrar evidência de licença;
+      revisar também a arquitetura se o provider escolhido introduzir alguma
       dependência de infraestrutura não prevista (ex: se a decisão for self-host
       da abibliadigital em vez do dataset estático).

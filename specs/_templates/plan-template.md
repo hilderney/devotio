@@ -36,3 +36,11 @@ Referenciar `docs/architecture.md §5` se aplicável, ou registrar risco novo.
 
 - Testes de `packages/domain` (obrigatório para toda regra de permissão/validação).
 - Casos manuais críticos em web e mobile antes de considerar concluído.
+
+## 8. Operação e custo
+
+- Estado existente versus implementação proposta:
+- Provedores, cotas, consumo estimado e fontes datadas:
+- Segredos, ambientes, deploy, migração e recuperação:
+- Cache, invalidação e remoção de dados após logout/revogação:
+- Limites de consultas, paginação e contrato de idempotência:

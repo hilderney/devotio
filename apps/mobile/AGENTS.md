@@ -1,37 +1,25 @@
 # AGENTS.md — apps/mobile
 
-> Estende `/AGENTS.md` e `/docs/architecture.md`. Leia os dois primeiro.
+Estende [regras gerais](../../AGENTS.md) e [arquitetura](../../docs/architecture.md).
 
-## Stack
+## Situação
 
-Expo (React Native) + Expo Router + NativeWind.
+Diretório reservado, sem package.json ou app executável. A proposta do piloto
+atende celulares pela web; Expo fica para etapa posterior da
+[ADR 001](../../docs/adr/001-web-first-free-launch.md). Tasks nativas continuam abertas.
 
-## Regras específicas deste app
+## Direção quando o app for iniciado
 
-- Mesma regra de ouro do web: nenhuma lógica de negócio ou permissão aqui. Hooks
-  vêm de `packages/domain`, que já funciona com `convex/react` neste runtime — não
-  reimplementar queries direto no componente.
-- Áudio: `expo-audio` (ou `expo-av` caso o projeto ainda dependa dele), sempre com
-  `app.json` configurado para `UIBackgroundModes: ["audio"]` no iOS. Testar
-  play/pause/lockscreen em device físico antes de marcar qualquer task de áudio
-  como concluída — simulador não reflete o comportamento de background real.
-- Sessão de autenticação: token armazenado via `expo-secure-store`, nunca em
-  `AsyncStorage` puro (dado sensível). Ver risco técnico documentado em
-  `docs/architecture.md §5` sobre maturidade do Better Auth em Expo — validar
-  antes de implementar o fluxo de login aqui.
-- NativeWind consome os mesmos tokens de `packages/ui-kit/tokens.ts` via preset —
-  não duplicar valores de cor/espaçamento manualmente no `tailwind.config` deste
-  app.
-- Antes de submeter build para revisão de loja (App Store/Play Store), confirmar
-  que nenhuma feature de v2/v3 (Clubes, Fé Madura) está acessível na UI — o ciclo
-  de revisão de loja é mais lento que o deploy do backend, então feature flags são
-  preferíveis a remover código depois.
+- Expo + Expo Router + NativeWind; escolher versões compatíveis no plano da feature.
+- Mesmas regras/validações/contratos de backend e domain; nenhuma autorização apenas no client.
+- Componentes nativos próprios, consumindo tokens ui-kit; não compartilhar DOM.
+- Usar expo-audio, com configuração de background e controles de mídia conforme
+  documentação do SDK escolhido. Testar em iOS/Android físicos antes de concluir.
+- Validar integração Better Auth/Expo e armazenamento seguro de credenciais;
+  não armazenar tokens sensíveis em AsyncStorage sem proteção.
+- Offline e push exigem spec própria; não presumir que a distribuição nativa os inclui.
+- Antes de lojas, validar orçamento, requisitos de publicação, privacidade e
+  ausência de features futuras expostas.
 
-## Comandos
-
-```bash
-npm run dev --workspace=mobile          # abre o Expo Dev Client / Metro
-npm run ios --workspace=mobile          # simulador iOS
-npm run android --workspace=mobile      # emulador Android
-npm run typecheck --workspace=mobile
-```
+Não há comandos npm de mobile disponíveis hoje. Documentá-los quando o workspace
+for criado e verificado.

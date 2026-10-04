@@ -7,13 +7,18 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "npm run dev --workspace=web",
     "build": "turbo run build",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint && eslint scripts",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "verify:web": "npm run build && node scripts/verify-web-build.mjs"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "typescript-eslint": "^8.48.0",
+    "globals": "^16.5.0",
     "turbo": "^2.4.4",
     "typescript": "^5.7.3"
   }

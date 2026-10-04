@@ -1,5 +1,7 @@
 # Tasks: Comunidade (v1)
 
+> Revisão de 02/10/2026: arquivos presentes não comprovam o aceite. Tasks mobile permanecem abertas e adiadas conforme [ADR 001](../../docs/adr/001-web-first-free-launch.md). Fechar a entrega exige integração real, permissões verificadas, lint configurado e evidência.
+
 **Plano relacionado:** ./plan.md
 
 ## Backend / Domain (`packages/backend`, `packages/domain`)
@@ -33,7 +35,8 @@
       recebem `order` sequencial a partir de 0.
 - [ ] T8 — Implementar `checklistTicks.toggle`, `checklistTicks.countByItem` e
       `checklistTicks.myTicks`.
-      Critério de aceite: `toggle` usa `userId` de `ctx.auth.getUserIdentity()`
+      Pré-requisito: resolver contrato idempotente de estado desejado no plano.
+      Critério de aceite: operação usa `userId` de `ctx.auth.getUserIdentity()`
       (nunca de argumento); teste de domínio confirmando idempotência (chamar
       duas vezes seguidas não duplica nem deixa em estado inconsistente).
 - [ ] T9 — Implementar `isAdminOfCommunity`, `isMemberOfCommunity`,

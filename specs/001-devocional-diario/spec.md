@@ -1,7 +1,10 @@
 # Spec: Devocional Diário
 
+> Revisão de 02/10/2026: aprovação histórica dos requisitos preservada; não significa implementação concluída. A distribuição inicial web e as lacunas estão no [catálogo](../README.md). Novos requisitos de fundação constam da [spec 004](../004-fundacao-lancamento/spec.md).  
+> **Revisão de 04/10/2026:** janela de leitura dos últimos 7 dias (além do dia atual) e favoritos com cópia pessoal — ver §4 itens 11–13. Esses requisitos ainda não estão implementados.
+
 **ID:** 001-devocional-diario
-**Status:** aprovada
+**Status:** aprovada (requisitos 11–13 aguardam plano/tasks e implementação)
 **Versão alvo:** v1 (lançamento)
 
 ## 1. Contexto e problema
@@ -27,13 +30,18 @@ impressão de "sobriedade" que o produto se propõe a ter.
   faço outra atividade.
 - Como usuário, eu quero uma sugestão de oração curta ligada ao tema do dia, para
   direcionar minha oração pessoal.
+- Como usuário, eu quero reler o devocional de até sete dias atrás, para recuperar
+  uma leitura recente sem depender de histórico longo.
+- Como usuário, eu quero favoritar o devocional de um dia e guardar uma cópia na
+  minha conta, para conservar o texto mesmo depois que ele sair da janela de
+  sete dias.
 
 ## 4. Requisitos funcionais
 
 1. **Tema do mês.** O sistema deve exibir `globalSettings.monthlyVerse` fixo no
    topo da tela, para todo usuário autenticado.
-   - Critério de aceite: o bloco permanece visível ao rolar a tela até o segundo
-     dia de conteúdo (ex: sticky header ou reafixado no topo), pois a spec de
+   - Critério de aceite: o bloco permanece visível ao rolar a tela durante a
+     rolagem do devocional (ex: sticky header), pois a spec de
      produto exige meditação "contínua" ao longo do mês.
    - Se `globalSettings` ainda não tiver sido configurado (documento inexistente),
      o bloco não deve renderizar (nem placeholder vazio) — tratar como ausência
@@ -43,13 +51,15 @@ impressão de "sobriedade" que o produto se propõe a ter.
    abaixo do tema do mês, visualmente hierarquizado como secundário (menor
    destaque que o tema do mês, maior destaque que o corpo do devocional).
 
-3. **Busca do devocional do dia.** O sistema deve buscar o documento de
-   `devotionals` cujo `date` seja igual à data local do dispositivo, no formato
-   `YYYY-MM-DD`, via índice `by_date`.
+3. **Busca do devocional do dia (e janela recente).** O sistema deve buscar o
+   documento de `devotionals` cujo `date` seja igual à data local selecionada,
+   no formato `YYYY-MM-DD`, via índice `by_date`. A data padrão ao abrir o app é
+   a data local de hoje.
    - Critério de aceite: a busca nunca varre a tabela inteira — sempre via índice.
-   - Critério de aceite: a data usada é recalculada sempre que o app volta ao
-     primeiro plano (foreground), não apenas no primeiro carregamento — cobre o
-     caso de o usuário deixar o app aberto passando da meia-noite.
+   - Critério de aceite: a data local de “hoje” é recalculada sempre que o app
+     volta ao primeiro plano (foreground), não apenas no primeiro carregamento —
+     cobre o caso de o usuário deixar o app aberto passando da meia-noite.
+   - A seleção de outras datas na janela recente segue o item 11.
 
 4. **Estado vazio (sem publicação).** Se não existir devocional para a data atual,
    o sistema deve exibir um estado vazio sóbrio, com uma frase fixa definida em
@@ -90,6 +100,47 @@ impressão de "sobriedade" que o produto se propõe a ter.
     fluxo de autenticação antes de montar esta tela (comportamento herdado do
     roteamento protegido do app, não implementado dentro desta feature).
 
+11. **Janela de leitura recente (até sete dias atrás).** Além do dia atual, o
+    sistema deve permitir ao usuário autenticado escolher e ler o devocional de
+    qualquer data local no intervalo fechado
+    `[hojeLocal − 7 dias, hojeLocal]` (oito datas possíveis: hoje e os sete dias
+    anteriores).
+    - Critério de aceite: datas fora dessa janela não são oferecidas na interface
+      de leitura e não podem ser obtidas por escolha do usuário (sem calendário
+      aberto, busca por data arbitrária, lista infinita ou URL/parâmetro que
+      libere dia anterior à janela).
+    - Critério de aceite: para cada data da janela, ausência de publicação usa o
+      mesmo estado vazio sóbrio do item 4 — não é erro.
+    - Critério de aceite: a virada de meia-noite local encolhe/avança a janela;
+      um dia que saiu da janela deixa de aparecer na leitura recente (exceto se
+      estiver nos favoritos do usuário — item 12).
+
+12. **Favoritar com cópia pessoal.** O usuário autenticado deve poder favoritar o
+    devocional de um dia **que esteja disponível para leitura** (janela do item
+    11, com publicação existente) e manter uma **cópia** do conteúdo vinculada à
+    sua conta — não apenas um ponteiro para o registro editorial global.
+    - A cópia deve persistir em **dois lugares**: (a) armazenamento local em JSON
+      no dispositivo; (b) banco de dados vinculado à conta autenticada.
+    - Campos mínimos da cópia: data de origem (`YYYY-MM-DD`), texto bíblico,
+      reflexão, sugestão de oração, referência/crédito quando existirem no
+      original, e `audioUrl` se houver no momento do favorito. Metadados mínimos:
+      quando foi favoritado.
+    - Critério de aceite: após favoritar, a cópia permanece acessível ao titular
+      mesmo que o dia saia da janela de sete dias ou que o registro editorial
+      global seja corrigido/retirado depois — a cópia não é atualizada
+      automaticamente com edições posteriores (é snapshot no ato do favorito).
+    - Critério de aceite: desfavoritar remove a cópia do banco da conta e do JSON
+      local da sessão/dispositivo corrente, sem apagar o devocional editorial
+      global.
+    - Critério de aceite: favoritos de um usuário nunca aparecem para outro
+      usuário; o client não é a barreira de segurança — o servidor só devolve
+      cópias do titular autenticado.
+
+13. **Sem busca de histórico antigo.** Não há busca, filtro ou navegação para
+    devocionais anteriores à janela do item 11, exceto o acesso às **cópias
+    favoritadas** do próprio usuário (item 12). Favoritos não são um arquivo
+    público nem um catálogo editorial.
+
 ## 5. Requisitos não-funcionais
 
 - **Resiliência de rede.** A tela deve ser utilizável com conexão lenta: o texto
@@ -113,37 +164,57 @@ impressão de "sobriedade" que o produto se propõe a ter.
 - **Idempotência de leitura.** Reabrir a tela ou trocar de aba e voltar não deve
   reiniciar o áudio já em reprodução (o player mantém estado de reprodução
   independente de remontagem de tela, quando tecnicamente viável na plataforma).
+- **Favorito resiliente.** A cópia no banco da conta é a fonte de verdade entre
+  dispositivos; o JSON local é espelho no aparelho (leitura offline da cópia
+  favoritada quando a rede falhar, sem permitir novas escritas de favorito
+  offline que driblem o servidor). Conflito: prevalece a cópia do servidor ao
+  reconciliar.
+- **Privacidade da cópia.** Favoritos são dados pessoais do titular; não entram
+  em feeds de comunidade nem em agregados nominais.
 
 ## 6. Regras de visibilidade/permissão
 
 | Papel | Pode ver | Pode criar | Pode editar/remover |
 |---|---|---|---|
-| AG / editorial | Devocional do dia e histórico | Devocional (via processo fora desta spec) | Sim |
-| AC | Devocional do dia | Não | Não |
-| Membro | Devocional do dia | Não | Não |
+| AG / editorial | Devocional do dia, janela recente editorial e histórico de publicação (processo fora desta spec) | Devocional editorial (fora desta spec) | Sim (editorial) |
+| AC | Devocional na janela recente; próprias cópias favoritadas | Favorito (cópia pessoal) | Próprios favoritos |
+| Membro | Devocional na janela recente; próprias cópias favoritadas | Favorito (cópia pessoal) | Próprios favoritos |
 
-Não há visibilidade diferenciada por comunidade/clube nesta feature — o devocional
-diário é global para todos os usuários do app.
+Não há visibilidade diferenciada por comunidade/clube nesta feature — o
+devocional da janela recente é global para todos os usuários autenticados do
+app. Favoritos são estritamente por conta.
 
 ## 7. Fora de escopo
 
 - Painel/fluxo de publicação do devocional pelo AG (assumir, para v1, publicação
-  via Convex Dashboard ou script interno — uma spec de "Painel Editorial" fica para
+  via processo interno da spec 004 / Convex — painel editorial completo fica para
   depois se necessário).
-- Histórico navegável de devocionais passados (v1 mostra apenas o dia atual).
+- Busca, calendário aberto ou histórico navegável além da janela de sete dias
+  atrás (item 11). Retenção longa do usuário ocorre só via favoritos (item 12).
+- Sincronização de áudio baixado no favorito (apenas a URL na cópia, se existir);
+  download offline de áudio não é requisito desta revisão.
 - Notificação push lembrando de ler o devocional (v2, ver risco de notificações em
-  `docs/architecture.md §3`).
+  `docs/architecture.md §7`).
+- Compartilhamento público de favoritos ou coleções pastorais.
 
 ## 8. Dados envolvidos
 
 - `globalSettings` (singleton) — leitura.
-- `devotionals`, índice `by_date` — leitura.
-- Nenhuma tabela nova necessária; schema atual já cobre a feature.
+- `devotionals`, índice `by_date` — leitura na janela recente.
+- **Nova tabela** (nome no plano técnico) para cópias favoritadas por `userId`,
+  com snapshot dos campos de conteúdo e índices por usuário / (usuário + data de
+  origem). Detalhe de schema, índices e sincronização com JSON local ficam no
+  `plan.md` e em `docs/architecture.md § Modelo de Dados` na implementação.
+- Armazenamento local JSON no dispositivo — espelho das cópias do titular;
+  nunca substitui a autorização no servidor.
 
 ## 9. Perguntas em aberto
 
-- Timezone: a data "de hoje" deve ser calculada com base no timezone do servidor
-  (Convex, UTC) ou no timezone do dispositivo? Recomendação: calcular no client
-  (dispositivo) e enviar a data como parâmetro da query, para evitar que o
-  devocional troque no meio da noite local do usuário em fuso diferente do
-  servidor. Decisão a confirmar no `plan.md`.
+- Timezone: o plano original adotou a data local do dispositivo. Essa escolha
+  permanece; a política editorial de liberação de conteúdo futuro será definida
+  na spec 004, sem presumir acesso irrestrito a datas arbitrárias.
+- Limite máximo de favoritos por conta (se houver teto operacional) — definir
+  antes da implementação se as cotas do piloto exigirem.
+- Se o favorito for feito a partir de uma data da janela e o áudio for opcional:
+  confirmar se a ausência de `audioUrl` no snapshot é aceitável (sim, alinhado ao
+  item 7).

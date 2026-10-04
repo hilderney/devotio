@@ -1,112 +1,135 @@
 # Plano Técnico: Devocional Diário
 
+> Revisão técnica de 02/10/2026: a base aprovada foi preservada, com correções documentais para a SPA atual. Ver [stack](../../docs/engineering/stack.md) e [estado real](../../docs/engineering/status.md). Integração e aceites não estão concluídos; nativo fica para etapa posterior.  
+> **Revisão de 04/10/2026:** janela `[hoje−7, hoje]` e favoritos com snapshot (banco + JSON local) — spec §4 itens 11–13. Schema e funções abaixo ainda não implementados.
+
 **Spec relacionada:** ./spec.md
-**Status:** aprovado
+**Status:** aprovado (delta 04/10/2026 em documentação; implementação pendente)
 
 ## 1. Impacto no schema (`packages/backend/schema.ts`)
 
-Nenhuma alteração — `globalSettings` e `devotionals` (com índice `by_date`) já
-cobrem os requisitos.
+- `globalSettings` e `devotionals` (`by_date`) permanecem para leitura da janela.
+- **Nova tabela** `devotionalFavorites` (nome canônico):
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `userId` | id de usuário / subject estável da auth | titular da cópia |
+| `sourceDate` | string `YYYY-MM-DD` | data de origem do editorial |
+| `scripture`, `reflection`, `prayerSuggestion` | string | snapshot no ato do favorito |
+| `reference`, `credit` | string opcional | se existirem no original |
+| `audioUrl` | string opcional | URL no momento do favorito; sem download de arquivo |
+| `favoritedAt` | number (epoch ms) | |
+| `sourceDevotionalId` | id opcional | auditoria; leitura do favorito **não** depende deste id |
+
+Índices: `by_user` (`userId`), `by_user_sourceDate` (`userId`, `sourceDate`) único por par.  
+Na implementação: atualizar também `docs/architecture.md § Modelo de Dados`.
 
 ## 2. Funções Convex necessárias
 
 | Função | Tipo | Descrição | Quem pode chamar |
 |---|---|---|---|
-| `globalSettings.get` | query | retorna o singleton (monthlyVerse, weeklyVerse) ou `null` se ainda não configurado | qualquer usuário autenticado |
-| `devotionals.getByDate` | query | recebe `date: string (YYYY-MM-DD)`, retorna o devocional ou `null` | qualquer usuário autenticado |
+| `globalSettings.get` | query | singleton (monthlyVerse, weeklyVerse) ou `null` | autenticado |
+| `devotionals.getByDate` | query | `date` na janela local; retorna devocional ou `null` | autenticado |
+| `devotionalFavorites.listMine` | query | lista cópias do titular | autenticado (só as próprias) |
+| `devotionalFavorites.add` | mutation | cria snapshot a partir do editorial da data (se na janela e publicado) | autenticado |
+| `devotionalFavorites.remove` | mutation | remove cópia do titular por `sourceDate` ou id | autenticado (só a própria) |
 
-Resolve a pergunta em aberto da spec: `date` é **parâmetro obrigatório** calculado
-no client a partir do timezone local do dispositivo (`Intl.DateTimeFormat` no web,
-equivalente no Expo), nunca calculado no servidor — evita o devocional trocar no
-meio da noite local de usuários fora do timezone do servidor.
+`date` / `sourceDate` são **parâmetros** calculados no client a partir do timezone
+local (`Intl.DateTimeFormat` / equivalente), nunca “hoje” implícito no servidor.
+
+### Janela no servidor
+
+- Validator Zod em `packages/domain`: data `YYYY-MM-DD` e pertencimento ao intervalo
+  `[todayLocal − 7, todayLocal]` **usando o `todayLocal` enviado e validado** (ou
+  equivalente acordado), rejeitando datas fora da janela em `getByDate` e em `add`.
+- Não expor listagem global de datas editoriais além do necessário; a UI monta as
+  oito datas locais e consulta por data.
+- Sem endpoint de “buscar histórico” ou range aberto.
 
 ### Contrato de `devotionals.getByDate`
 
 ```ts
 // args
-{ date: string }  // validado com regex /^\d{4}-\d{2}-\d{2}$/ via zod antes de
-                   // chegar na query — string malformada retorna erro de validação,
-                   // não uma query silenciosamente vazia
+{ date: string }  // /^\d{4}-\d{2}-\d{2}$/ + dentro da janela de 7 dias
 
-// retorno
+// retorno (campos de leitura; alinhados ao schema editorial atual)
 {
   scripture: string;
   reflection: string;
   audioUrl?: string;
   prayerSuggestion: string;
+  reference?: string;
+  credit?: string;
 } | null
 ```
 
-- Autenticação é verificada via `ctx.auth.getUserIdentity()` no início da query;
-  se `null`, lançar erro (não expor conteúdo a usuário não autenticado, mesmo que
-  o conteúdo em si não seja sensível — consistência com o resto do backend).
-- Se mais de um documento existir para a mesma `date` (não deveria acontecer, mas
-  o índice não impõe unicidade), a query retorna o mais recente por `createdAt` e
-  isso é tratado como bug a corrigir, não como comportamento esperado — registrar
-  em `docs/adr/` se acontecer em produção.
+- Autenticação obrigatória no início da query/mutation.
+- Duplicata por `date` no editorial: retornar o vigente mais recente e tratar como
+  bug operacional (como já previsto).
+
+### Contrato de favorito (snapshot)
+
+```ts
+// add: server carrega devotionals da sourceDate, copia campos, upsert por
+// (userId, sourceDate). Falha se fora da janela ou sem publicação.
+// listMine / remove: filtrar sempre por identidade do caller.
+```
+
+JSON local (web: `localStorage` ou equivalente; mobile: storage seguro do app):
+estrutura tipada em `packages/domain`, espelho de `listMine`. Escrita local só
+após sucesso da mutation; ao login/reconciliar, servidor vence.
 
 ## 3. Regras de negócio → `packages/domain`
 
-- `packages/domain/hooks/useMonthlyAndWeeklyVerse.ts` — encapsula
-  `useQuery(api.globalSettings.get)`.
-- `packages/domain/hooks/useDailyDevotional.ts` — encapsula
-  `useQuery(api.devotionals.getByDate, { date: todayLocalISODate() })`, expõe
-  `{ data, isLoading, isEmpty }`.
-- `packages/domain/date/todayLocalISODate.ts` — util pura, sem dependência de
-  plataforma (usa `Date` nativo do JS), retorna `YYYY-MM-DD` do dispositivo.
-- Nenhuma regra de permissão nova — leitura é aberta a qualquer usuário autenticado.
+- Util de datas: `todayLocalISODate` e helper de janela
+  (`listLocalDatesInReadingWindow` / `isDateInReadingWindow`) com testes.
+- Validators Zod para data, janela e payload de favorito.
+- Hooks (entrypoints react): leitura do dia/seleção na janela; listagem e
+  add/remove de favoritos; sincronização do espelho JSON sem lógica de permissão
+  no app.
+- Leitura do editorial na janela: qualquer autenticado. Favoritos: só o titular
+  (checagem no Convex).
 
 ## 4. Impacto em `apps/web`
 
-- Rota `apps/web/routes/devocional.tsx` (ou `index.tsx` se for a tela inicial).
-- Componentes: `MonthlyVerseBanner`, `WeeklyVerseBanner`, `DevotionalScripture`,
-  `DevotionalReflection`, `PrayerSuggestionCard`, `AudioPlayerWeb` (`<audio>` nativo
-  do HTML, streaming direto da URL do R2).
-- Estado vazio: componente `EmptyDevotionalState` compartilhando o mesmo texto do
-  mobile (string vive em `packages/domain`, não duplicar a mensagem).
-- Estado de carregamento: usar skeleton com a mesma altura aproximada do conteúdo
-  final (requisito não-funcional de "sem layout shift" — ver spec §5).
-- `AudioPlayerWeb`: sem autoplay (atributo `autoPlay` do `<audio>` **não** deve
-  ser usado); tratar `onError` do elemento exibindo o estado de erro discreto
-  descrito na spec §4 item 7.
-- SSR: `MonthlyVerseBanner`/`WeeklyVerseBanner` podem ser renderizados no servidor
-  (dado não depende de timezone do usuário); `DevotionalScripture` e afins
-  dependem da data local do client, então a query de `devotionals.getByDate` só
-  dispara após hidratação, com o skeleton visível durante esse intervalo.
+- Tela de leitura em `apps/web/src` (rota de devocional da SPA atual).
+- Seletor sóbrio das datas da janela (hoje … hoje−7); sem calendário aberto nem
+  input livre de data.
+- Ação de favoritar/desfavoritar no dia com publicação; lista/acesso às cópias
+  favoritadas (fora da janela só via essa lista).
+- Player, vazio e skeleton como já previstos; textos em `packages/domain`.
+- Espelho JSON local após mutations bem-sucedidas; limpar espelho no logout /
+  troca de conta (alinhado à 004).
+- SPA: queries só após sessão; sem SSR.
 
 ## 5. Impacto em `apps/mobile`
 
-- Tela `apps/mobile/app/(tabs)/index.tsx`.
-- Mesmos componentes de conteúdo (podem até ter o mesmo nome, mas são implementações
-  React Native separadas — ver `architecture.md §7`, não compartilhar componente
-  renderizado).
-- `AudioPlayerMobile` usando `expo-audio`, com `app.json` configurado para
-  `UIBackgroundModes: ["audio"]` no iOS e integração com
-  `expo-notifications`/media controls para exibir controle na lockscreen (título
-  "Devocional de [data]").
-- Recalcular `date` local ao evento `AppState` mudar para `active` (cobre o
-  requisito funcional §4 item 3 de recalcular ao voltar ao foreground).
-- Estado de erro de áudio: usar o `status.error` do `expo-audio` para acionar o
-  mesmo componente visual de erro descrito para o web (reaproveitar texto de
-  `packages/domain`, ícone pode variar por plataforma).
+- Mesma janela e favoritos via hooks de domain; UI nativa separada (Expo adiado
+  no piloto web-first — tasks mobile permanecem abertas).
+- Recalcular `todayLocal` e a janela ao `AppState` → `active`.
+- JSON local no storage do app; limpar na troca de conta.
+- Áudio em background / lockscreen permanece como já planejado para quando o
+  workspace mobile existir.
 
 ## 6. Riscos técnicos e decisões a validar
 
-- Background audio no iOS (`docs/architecture.md §5`) — validar em device físico
-  antes de considerar a task de mobile concluída, simulador não é confiável para
-  isso.
-- Tamanho dos arquivos de áudio no R2: garantir que o bitrate escolhido mantenha o
-  app dentro do free tier de egresso (R2 tem egresso gratuito, então o risco real é
-  apenas storage — 10GB no free tier, monitorar conforme o catálogo de devocionais
-  cresce).
+- Background audio no iOS — validar em device quando mobile voltar ao escopo.
+- Áudio e egresso no piloto: [free-launch](../../docs/operations/free-launch.md).
+- Cliente malicioso enviando `date` fora da janela: rejeição obrigatória no
+  Convex (não confiar só na UI).
+- Crescimento de `devotionalFavorites`: se cotas apertarem, definir teto por conta
+  (pergunta em aberto na spec).
+- Retirada editorial global não apaga snapshots; comunicar na política se
+  necessário (conteúdo pessoal retido pelo titular).
 
 ## 7. Plano de testes
 
-- `packages/domain`: teste de `todayLocalISODate()` cobrindo virada de dia em pelo
-  menos dois timezones diferentes (ex: UTC-3 e UTC+9).
-- `packages/domain`: teste de `useDailyDevotional` retornando `isEmpty: true`
-  quando a query resolve `null`.
-- Manual: abrir o app pouco antes e pouco depois da meia-noite local e confirmar
-  que o devocional não troca durante o dia (só na virada correta).
-- Manual: tocar áudio no mobile, minimizar o app, confirmar que o áudio continua e
-  os controles aparecem na lockscreen.
+- Domain: `todayLocalISODate`, pertencimento à janela de 7 dias, virada de dia em
+  ≥2 timezones.
+- Domain: validators de favorito; regras de “só titular”.
+- Backend (convex-test): `getByDate` rejeita fora da janela; `add` copia campos e
+  nega outro usuário em `listMine`/`remove`; desfavoritar é idempotente.
+- Manual web: navegar só nas oito datas; favoritar; sair da janela após virada e
+  ainda ler a cópia; logout limpa JSON local; segundo usuário não vê favoritos
+  alheios.
+- Manual mobile (quando aplicável): áudio em background + mesma janela/favoritos.

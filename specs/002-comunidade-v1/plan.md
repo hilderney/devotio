@@ -1,5 +1,7 @@
 # Plano Técnico: Comunidade (v1)
 
+> Revisão técnica de 02/10/2026: a base aprovada foi preservada, com correções documentais para a SPA atual. Ver [stack](../../docs/engineering/stack.md) e [estado real](../../docs/engineering/status.md). Integração e aceites não estão concluídos; nativo fica para etapa posterior.
+
 **Spec relacionada:** ./spec.md
 **Status:** aprovado
 
@@ -26,7 +28,7 @@ aberto §9 da spec:
 | `communityMessages.listByCommunity` | query | lista mensagens paginadas, ordenadas por `sentAt` desc para paginação, exibidas asc na UI | membro ou AG da comunidade |
 | `checklists.create` | mutation | cria checklist + itens iniciais, `communityId` obrigatório, mínimo 1 item | apenas AG |
 | `checklists.listByCommunity` | query | lista checklists ativas da comunidade | membro ou AG da comunidade |
-| `checklistTicks.toggle` | mutation | cria/remove o tick do usuário atual para um item (idempotente) | membro ou AG da comunidade |
+| `checklistTicks.toggle` | mutation | contrato de estado desejado pendente; ver casos de borda | membro ou AG da comunidade |
 | `checklistTicks.countByItem` | query | retorna contagem agregada por item, sem lista nominal | membro ou AG da comunidade |
 | `checklistTicks.myTicks` | query | retorna quais itens o usuário atual já marcou (para renderizar o checkbox como marcado) | membro ou AG da comunidade |
 
@@ -40,26 +42,21 @@ aberto §9 da spec:
   contar quantos `communityMembers` com `role: "admin"` existem para a
   `communityId`; se o alvo é admin e a contagem é 1, rejeitar com erro
   `"Não é possível remover o único administrador da comunidade."`.
-- **`communityMessages.send`**: valida `content` (1–1000 caracteres) via zod
-  antes de checar permissão, para retornar o erro mais específico primeiro só
-  depois de confirmar que o usuário tem permissão de enviar (evita vazar detalhe
-  de validação para quem nem deveria poder chamar a função).
+- **`communityMessages.send`**: autenticar e verificar associação/papel antes de
+  validar conteúdo via Zod e persistir. Não expor dados do grupo a usuários sem acesso.
 - **`communityMessages.listByCommunity`**: paginação via `paginationOptsValidator`
   do Convex (cursor-based), página inicial de 50 mensagens — decisão que atende
   ao requisito não-funcional de "escala razoável para v1" (spec §5).
-- **`checklistTicks.toggle(checklistItemId)`**: `userId` sempre lido de
-  `ctx.auth.getUserIdentity()`, nunca recebido como argumento — elimina por
-  construção a possibilidade de um usuário marcar tick em nome de outro.
+- **Marcação de item**: `userId` vem da sessão. O nome histórico `toggle` não
+  define idempotência: repetir uma inversão muda o resultado. Antes de executar T8,
+  revisar o contrato para receber estado desejado (marcado/desmarcado) ou uma chave
+  de operação. A spec exige resultado idempotente; não marcar T8 pronta com toggle simples.
 
 ## 3. Regras de negócio → `packages/domain`
 
-- `packages/domain/permissions/isAdminOfCommunity.ts` — recebe `userId,
-  communityId`, checa `communityMembers` (role `admin`). Usado dentro de **toda**
-  mutation de AG listada acima — nunca só no client.
-- `packages/domain/permissions/isMemberOfCommunity.ts` — usado para bloquear
-  queries/mutations de quem não pertence à comunidade.
-- `packages/domain/permissions/canRemoveMember.ts` — encapsula a regra de
-  "não remover o único admin", reusável tanto na mutation quanto em testes.
+- `packages/domain/permissions/communityPermissions.ts` já contém helpers puros
+  para papel e remoção do último admin. O backend carrega a associação do usuário
+  autenticado e passa os fatos para esses helpers; domain não consulta o banco.
 - `packages/domain/validators/communityValidators.ts` — zod para: nome (1–80),
   descrição (≤280), scripture (≤500), conteúdo de mensagem (1–1000), nome de
   checklist e de item.
@@ -118,3 +115,9 @@ aberto §9 da spec:
   usuário (marcar duas vezes não duplica).
 - Manual: dois usuários de teste (um AG, um membro) confirmando que o membro não
   consegue enviar mensagem nem ver quem marcou o quê na checklist.
+
+## Divergências a resolver antes do aceite
+
+A matriz da spec §6 menciona editar/remover mensagens próprias, mas §7 exclui
+edição/remoção. A recomendação do piloto é seguir §7 até revisão explícita do
+produto. A escolha de convite por código continua pendente de confirmação.

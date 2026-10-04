@@ -23,3 +23,12 @@ sozinho, com critério de aceite claro.
 - [ ] Atualizar `docs/architecture.md` se alguma decisão de arquitetura mudou.
 - [ ] Testes de `packages/domain` cobrindo as regras da spec §6.
 - [ ] Validar manualmente em web e mobile.
+
+## Evidência e liberação
+
+- [ ] Lint real e typecheck em todos os workspaces aplicáveis.
+- [ ] Testar autorização nas funções do backend, além das regras puras de domain.
+- [ ] Registrar evidências do aceite (comando, resultado, data; capturas quando úteis).
+- [ ] Validar cotas, licenças e dados pessoais conforme impacto.
+- [ ] Documentar diferenças de plataforma; manter tasks adiadas abertas.
+- [ ] Atualizar estado real e checklist de release; nenhuma proposta marcada como entregue.

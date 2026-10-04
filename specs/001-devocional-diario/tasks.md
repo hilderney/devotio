@@ -1,65 +1,74 @@
 # Tasks: Devocional Diário
 
+> Revisão de 02/10/2026: arquivos presentes não comprovam o aceite. Tasks mobile permanecem abertas e adiadas conforme [ADR 001](../../docs/adr/001-web-first-free-launch.md). Fechar a entrega exige integração real, permissões verificadas, lint configurado e evidência.  
+> **Revisão de 04/10/2026:** T6–T8 e T-W4/T-W5 documentam janela de 7 dias e favoritos (spec §4 itens 11–13); todas abertas.
+
 **Plano relacionado:** ./plan.md
 
 ## Backend / Domain (`packages/backend`, `packages/domain`)
 
-- [x] T1 — Implementar `globalSettings.get` (query).
+- [ ] T1 — Implementar `globalSettings.get` (query).
       Critério de aceite: retorna o único documento da tabela ou `null` se ainda
-      não configurado; verifica autenticação via `ctx.auth.getUserIdentity()` e
-      lança erro se ausente.
-- [x] T2 — Implementar `devotionals.getByDate` (query, arg `date: v.string()`).
-      Critério de aceite: usa índice `by_date`; retorna `null` se não encontrado
-      (nunca lança erro por ausência de dado); valida formato `YYYY-MM-DD` com
-      zod antes de consultar; verifica autenticação.
-- [x] T3 — Criar `packages/domain/date/todayLocalISODate.ts`.
-      Critério de aceite: função pura (sem I/O), com testes cobrindo (a) virada de
-      dia em pelo menos dois timezones diferentes, (b) horário de verão, se
-      aplicável ao timezone testado, (c) formato de saída sempre `YYYY-MM-DD` com
-      zero-padding.
-- [x] T4 — Criar `useMonthlyAndWeeklyVerse` e `useDailyDevotional` em
-      `packages/domain/hooks`.
-      Critério de aceite: `useDailyDevotional` expõe `{ data, isLoading, isEmpty,
-      audioError, setAudioError }` (ou equivalente) para que os dois apps
-      controlem o estado de erro de áudio de forma consistente; hook recalcula a
-      query quando a data local muda (não apenas na montagem).
-- [x] T5 — Definir em `packages/domain/copy/devotionalMessages.ts` os textos fixos
-      de estado vazio e de erro de áudio, usados por ambos os apps (evita
-      divergência de texto entre plataformas).
+      não configurado; verifica autenticação e lança erro se ausente.
+- [ ] T2 — Implementar `devotionals.getByDate` (query, arg `date: v.string()`).
+      Critério de aceite: usa índice `by_date`; retorna `null` se não encontrado;
+      valida `YYYY-MM-DD` com zod; **rejeita data fora da janela**
+      `[hojeLocal−7, hojeLocal]`; verifica autenticação.
+- [x] T3 — Criar util de data local ISO.
+      Critério de aceite: função pura com testes de virada de dia / formato
+      `YYYY-MM-DD` (evolução da base atual em `packages/domain`).
+- [ ] T4 — Hooks de leitura do dia/temas na janela recente.
+      Critério de aceite: seleção de data na janela; `{ data, isLoading, isEmpty,
+      … }`; recalcula “hoje” e a janela ao voltar ao foreground.
+- [x] T5 — Textos fixos de estado vazio e erro de áudio em domain (evoluir paths
+      atuais sem duplicar copy nos apps).
+- [ ] T6 — Helpers e validators da janela (`isDateInReadingWindow` / lista das
+      oito datas) + testes em domain.
+      Critério de aceite: inclui hoje e exatamente sete dias atrás; exclui
+      hoje−8 e datas futuras relativas a hojeLocal.
+- [ ] T7 — Schema `devotionalFavorites` + mutations/queries
+      (`listMine`, `add`, `remove`) com snapshot de conteúdo.
+      Critério de aceite: só o titular lê/apaga; `add` copia campos do editorial
+      e falha fora da janela ou sem publicação; índice por usuário+data; documentar
+      em `docs/architecture.md § Modelo de Dados`.
+- [ ] T8 — Adaptador de espelho JSON local + regras de reconcile (servidor vence)
+      e limpeza no logout/troca de conta.
+      Critério de aceite: testes de domain para merge; apps não implementam regra
+      de autorização.
 
 ## Web (`apps/web`)
 
-- [x] T-W1 — Criar rota `devocional` (ou tela inicial) consumindo os hooks de T4.
-      Critério de aceite: `MonthlyVerseBanner`/`WeeklyVerseBanner` renderizam no
-      servidor (SSR); demais blocos disparam a query só após hidratação.
-- [x] T-W2 — Implementar `AudioPlayerWeb` com `<audio>` nativo.
-      Critério de aceite: sem `autoPlay`; player não é renderizado se `audioUrl`
-      ausente; `onError` aciona o texto de erro de `devotionalMessages.ts`; áudio
-      não recomeça ao trocar de rota e voltar, se tecnicamente viável.
-- [x] T-W3 — Implementar `EmptyDevotionalState` e skeleton de carregamento.
-      Critério de aceite: skeleton tem altura aproximada do conteúdo final (sem
-      layout shift perceptível ao trocar de loading para conteúdo).
+- [ ] T-W1 — Tela de leitura consumindo hooks de T4/T6.
+      Critério de aceite: sessão antes das queries; loading/vazio/falha distintos;
+      seletor apenas das datas da janela (sem busca de histórico antigo).
+- [ ] T-W2 — Player de áudio web sem autoplay; oculto se sem `audioUrl`.
+- [x] T-W3 — Estado vazio e skeleton (revalidar no layout atual).
+- [ ] T-W4 — Favoritar/desfavoritar e lista de cópias pessoais.
+      Critério de aceite: após sair da janela, a cópia favoritada permanece
+      legível; desfavoritar remove banco + JSON local.
+- [ ] T-W5 — Logout/troca de conta limpa o JSON local de favoritos da conta
+      anterior.
 
 ## Mobile (`apps/mobile`)
 
-- [ ] T-M1 — Criar tela inicial consumindo os mesmos hooks de T4.
-      Critério de aceite: escuta `AppState` e recalcula `date` local ao voltar
-      para `active`.
-- [ ] T-M2 — Implementar `AudioPlayerMobile` com `expo-audio`.
-      Critério de aceite: `app.json` configurado com `UIBackgroundModes: ["audio"]`
-      no iOS; media controls exibem título "Devocional de [data]"; erro de
-      carregamento aciona o mesmo texto de `devotionalMessages.ts`.
-- [ ] T-M3 — Validar em device físico iOS e Android.
-      Critério de aceite: áudio toca em background, aparece nos controles de
-      mídia do sistema (lockscreen/central de controle), e sobrevive a
-      minimizar/restaurar o app sem reiniciar do zero.
+- [ ] T-M1 — Tela inicial com janela de 7 dias e mesmos hooks (quando Expo
+      existir). Critério: `AppState` recalcula hoje/janela.
+- [ ] T-M2 — Player com `expo-audio` e controles de sistema.
+- [ ] T-M3 — Validar áudio em background em device físico.
+- [ ] T-M4 — Favoritos + JSON local no storage nativo; limpeza na troca de conta.
 
 ## Cross-cutting
 
-- [ ] Atualizar `docs/architecture.md` caso a decisão de background audio mude algo
-      além do já documentado em §5.
-- [x] Testes de `packages/domain` passando (T3, T4).
-- [ ] Validação manual da virada de dia em dois timezones (web e mobile), incluindo
-      o cenário de app aberto passando da meia-noite (T-W1/T-M1).
-- [x] Checar contraste AA dos blocos de tema do mês/semana e sugestão de oração
-      (requisito não-funcional de acessibilidade da spec §5).
+- [ ] Atualizar `docs/architecture.md` (modelo `devotionalFavorites` + privacidade
+      da cópia).
+- [ ] Testes domain da janela e favoritos; testes de autorização no backend.
+- [ ] Validação manual da virada de dia (janela avança; dia que sai some da
+      leitura recente e permanece só se favoritado).
+- [ ] Contraste AA dos blocos de tema e sugestão de oração.
+- [ ] Confirmar ausência de UI/API de busca além da janela e da lista de favoritos.
+
+## Revalidação do protótipo
+
+T1/T2/T4/T-W1/T-W2 permanecem abertas quanto à integração real. T6–T8 e
+T-W4/T-W5 são requisitos novos de 04/10/2026 e começam abertos. Evidências
+anteriores de testes de domínio não cobrem janela nem favoritos.

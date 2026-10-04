@@ -7,7 +7,9 @@
 
 ## 0. Antes de qualquer coisa
 
-1. Leia `docs/constitution.md`. Os princípios ali são inegociáveis.
+1. Leia `docs/constitution.md`. Os princípios ali são inegociáveis. Consulte também
+   `docs/README.md`, `docs/engineering/status.md` e a spec da feature: documentação
+   de destino não comprova implementação pronta.
 2. Toda feature nova começa em `/specs/NNN-nome-da-feature/spec.md`, **nunca** direto no
    código. Se não existe spec para o que você está prestes a construir, pare e crie a
    spec primeiro (use `specs/_templates/spec-template.md`).
@@ -23,13 +25,13 @@ devocional-app/
 ├── specs/                   # spec-driven development (uma pasta por feature)
 ├── packages/
 │   ├── backend/             # Convex: schema, queries, mutations, actions, cron
-│   ├── domain/              # TS puro: tipos, validação (zod), regras de permissão,
-│   │                        # hooks reativos (re-export de convex/react) — SEM UI
+│   ├── domain/              # núcleo TS puro + hooks React em fronteira separada
+│   │                        # tipos, zod e permissões; adaptadores Convex e prévia separados
 │   └── ui-kit/              # design tokens (cores, spacing, tipografia, raio)
 │                            # consumidos por Tailwind (web) e NativeWind (mobile)
 ├── apps/
-│   ├── web/                 # TanStack Start (React 19 + Vite) + shadcn/ui
-│   └── mobile/              # Expo (React Native) + NativeWind
+│   ├── web/                 # React 19 + Vite SPA + Tailwind; PWA implementada
+│   └── mobile/              # reservado para Expo + NativeWind; ainda sem workspace
 ├── turbo.json
 └── package.json
 ```
@@ -52,18 +54,18 @@ Para cada feature:
 4. **Código** — só começa depois que `spec.md` e `plan.md` existem e fazem sentido.
 
 Um agente que recebe "implemente a feature X" e não encontra `specs/XXX-x/spec.md`
-deve **gerar a spec primeiro**, mostrar pro humano, e só then seguir para plan/tasks/code.
+deve **gerar a spec primeiro**, mostrar ao humano e obter aprovação dos requisitos
+antes de seguir para plan/tasks/code.
 
 ## 3. Comandos (Turborepo + npm workspaces)
 
 ```bash
 npm install                            # instala tudo no monorepo
 npm run dev --workspace=web            # roda apenas o app web
-npm run dev --workspace=mobile         # roda apenas o Expo (mobile)
-npm run dev                            # roda web + convex dev em paralelo (via turbo)
-npm run convex:dev --workspace=backend # backend Convex em modo watch
+npm run dev                            # roda apenas web; backend em terminal separado
+npm run dev --workspace=backend        # Convex watch (credenciais/deployment real pendentes)
 npm run test --workspace=domain        # testes de regras de negócio (o mais importante)
-npm run lint && npm run typecheck      # antes de qualquer commit (roda em todos os workspaces via turbo)
+npm run lint && npm run typecheck      # requisito antes de commit; lint configurado nos workspaces
 ```
 
 > Nota: `--workspace=nome` pode ser abreviado como `-w nome`. O `name` de cada
@@ -78,11 +80,11 @@ npm run lint && npm run typecheck      # antes de qualquer commit (roda em todos
   `packages/domain/validators` e reusada nas mutations do Convex e nos forms dos apps.
 - **Permissões nunca no client.** Toda checagem de papel (AG/AC/membro) é feita dentro
   da function do Convex (`packages/backend`), usando helpers de
-  `packages/domain/permissions.ts`. O client só *esconde* UI que o usuário não pode
+  `packages/domain/permissions/`. O client só *esconde* UI que o usuário não pode
   usar — ele nunca é a barreira de segurança.
-- **Nomenclatura em português para conteúdo de domínio** (ex: `devotionals.scripture`,
-  mensagens de erro voltadas ao usuário), **inglês para código de infraestrutura**
-  (nomes de função, variáveis técnicas). Não misture os dois no mesmo identificador.
+- **Português para conteúdo e mensagens ao usuário; inglês para identificadores de
+  código**, seguindo nomes existentes como `devotionals.scripture`. Não renomear o
+  schema por tradução nem misturar idiomas no mesmo identificador.
 - **Sem dependências pesadas de UI dentro de `packages/domain`.** Esse pacote não
   importa React DOM nem React Native — só `react` (para hooks) e `convex/react` puro,
   para poder ser consumido pelos dois apps sem conflito de bundler.
@@ -108,3 +110,16 @@ Uma task só é considerada concluída quando:
 - [ ] Funciona igual (ou com a diferença documentada) em web e mobile.
 - [ ] Nenhuma checagem de permissão foi feita só no client.
 - [ ] `tasks.md` da feature foi atualizado marcando o item concluído.
+
+## 7. Direção documental do lançamento
+
+Consulte `docs/adr/001-web-first-free-launch.md`: a proposta é publicar a web
+primeiro dentro de cotas gratuitas. Expo fica para outra etapa; não marcar tasks
+mobile como concluídas. A diferença entre plataformas deve aparecer na spec/plano.
+Novos requisitos de acesso, instalação e operação estão em
+`specs/004-fundacao-lancamento/spec.md`, autorizada para reconstrução; homologação pendente.
+
+O comando lint na raiz não comprova análise enquanto os workspaces não tiverem
+scripts/configuração. Não declarar DoD atendida com execução vazia. Para revisão
+somente documental, verificar links, comandos, fontes datadas e consistência das
+specs; registrar checks indisponíveis sem alterar código para maquiar a verificação.

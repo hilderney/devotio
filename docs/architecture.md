@@ -1,115 +1,55 @@
-# Arquitetura — Núcleo Agnóstico + Cascas de Plataforma
+# Arquitetura
 
-## 1. Visão geral
+**Atualização: 03/10/2026.** Base web implementada; deployment e OAuth reais pendentes. Ver [status](engineering/status.md) e [ADR 001](adr/001-web-first-free-launch.md).
 
-```
-                         ┌─────────────────────────────┐
-                         │        packages/backend       │
-                         │  (Convex: schema, queries,    │
-                         │  mutations, actions, cron)    │
-                         │  100% agnóstico — roda no      │
-                         │  edge, nunca no device         │
-                         └───────────────┬───────────────┘
-                                         │ convex/react (web) e
-                                         │ convex/react (RN funciona igual)
-                         ┌───────────────┴───────────────┐
-                         │        packages/domain         │
-                         │  tipos, zod validators,        │
-                         │  regras de permissão AG/AC,     │
-                         │  hooks reativos (useDevotional, │
-                         │  useCommunity...) — TS puro     │
-                         │  100% agnóstico                 │
-                         └───────┬───────────────┬─────────┘
-                                 │               │
-                 ┌───────────────┘               └───────────────┐
-                 │                                                │
-        ┌────────┴────────┐                              ┌────────┴────────┐
-        │    apps/web      │                              │   apps/mobile    │
-        │ TanStack Start   │                              │      Expo        │
-        │ Tailwind+shadcn  │                              │    NativeWind    │
-        │ Player HTML5     │                              │  expo-audio      │
-        │ TanStack Router  │                              │  Expo Router      │
-        └──────────────────┘                              └──────────────────┘
-```
+## Fronteiras
 
-O princípio é simples: **quanto mais perto do "o que o app faz", mais agnóstico;
-quanto mais perto do "como o dedo/mouse interage", mais específico**.
+Pages (destino) entrega apps/web, uma SPA/PWA. A apresentação consome domain/react e domain/convex. Convex executa identidade, autorização e transações. domain/core reúne contratos, Zod e regras puras; ui-kit fornece tokens. Expo permanece reservado.
 
-## 2. O que é 100% compartilhado
+Domain não importa DOM/React Native. Backend importa apenas domain/core. server.ts usa builders oficiais tipados com DataModel derivado do schema; não é arquivo gerado nem stub. Referências do client ficam em domain/convex e são exercitadas pelos testes contra as funções reais no convex-test.
 
-| Camada | Onde vive | Por quê pode ser 100% igual |
+## Fluxos
+
+Leitura resolve sessão, calcula data local e consulta by_date. Conteúdo só aparece se não retirado e publishedAt atingido. Data é reavaliada periodicamente e ao retornar ao primeiro plano. O scheduler invalida subscriptions no instante da liberação.
+
+Auth usa Better Auth/Google no Convex, plugins crossDomain e provider oficial. Segredos ficam no servidor. Editorial usa funções internas com reviewedBy humano, licença, motivo e auditoria. Liderança de comunidade não equivale a editor global.
+
+Toda consulta/operação comunitária verifica associação. Mural usa páginas de 50 por cursor. Ticks expressam estado desejado, derivam usuário da sessão e têm contagem apenas de membros atuais. Criar/entrar em grupo verifica unicidade transacional.
+
+## Permissões
+
+| Recurso | Leitura | Escrita |
 |---|---|---|
-| Schema de dados | `packages/backend/schema.ts` | Convex é o backend único; não existe "schema do mobile" |
-| Regras de negócio / permissões (AG, AC, membro) | `packages/domain/permissions.ts` | Regra de quem vê o quê não muda por dispositivo |
-| Validação de input (zod) | `packages/domain/validators/*.ts` | Mesma validação usada nas mutations do Convex e nos forms de ambos os apps |
-| Hooks de dados reativos (`useDailyDevotional`, `useCommunityFeed`, `useChecklist`) | `packages/domain/hooks/*.ts` | `convex/react` e `convex/react-native` expõem a mesma API de hooks (`useQuery`, `useMutation`); o hook de domínio só encapsula a query, então funciona nos dois runtimes sem alteração |
-| Design tokens (cor, espaçamento, tipografia, raio) | `packages/ui-kit/tokens.ts` | Definidos uma vez em TS/JSON puro; consumidos pelo `tailwind.config` do web e por um preset do NativeWind no mobile |
-| Autenticação — modelo de sessão e regras de acesso | `packages/backend` (Better Auth core + `convex-gate`) | A lógica de "quem está logado, qual o papel" é backend, não depende de plataforma |
+| Devocional/temas | Autenticado, conteúdo liberado | Operação editorial interna |
+| Grupo/mural/listas/membros | Associado ao grupo | Liderança do próprio grupo |
+| Tick | Próprio estado e agregado | Próprio usuário |
+| Convite | Nome para autenticado com código | Entrada transacional |
 
-## 3. O que é necessariamente específico — e por quê
+Membros não recebem emails ou autores dos ticks. Contagens pequenas podem permitir inferências. IDs relacionados são conferidos dentro do grupo. O último administrador não pode ser removido. Não existe bypass de auth no backend.
 
-| Preocupação | Web | Mobile | Motivo da divergência |
-|---|---|---|---|
-| Roteamento | TanStack Router (file-based, SSR) | Expo Router (file-based, nativo) | APIs de navegação nativa (gestos, stack nativo) não existem no browser |
-| Renderização de áudio | `<audio>` HTML5 + streaming direto do R2 | `expo-audio` (ou `expo-av`) com controle de background/lockscreen | Mobile precisa tocar em segundo plano e integrar com os controles de mídia do sistema operacional — não existe equivalente web |
-| Estilização | Tailwind CSS + shadcn/ui (componentes DOM) | NativeWind (Tailwind-like sobre RN) + componentes nativos | shadcn/ui é baseado em Radix/DOM, não roda em React Native |
-| Armazenamento local/offline | Cache do browser (leve, opcional) | SQLite/AsyncStorage para leitura offline do devocional do dia (recomendado para v1.1) | Mobile tem expectativa de funcionar em conexão instável; web pode assumir conexão presente |
-| Notificações | Web Push (opcional, v2) | Push nativo via Expo Notifications (recomendado desde v1 para "Mural do AG") | Mecanismos de entrega totalmente diferentes na origem |
-| Sessão de auth no client | Cookie de sessão (Better Auth padrão web) | Token seguro em `expo-secure-store` | Mobile não tem cookie de browser; **ver risco técnico na seção 5** |
-| Distribuição | Deploy contínuo (Vercel/Cloudflare Pages) | Build + submissão a App Store/Play Store (ciclo de revisão) | Isso muda o *cadence* de release: mobile precisa de feature flags para desacoplar deploy de backend de liberação de UI |
+## Modelo de Dados
 
-## 4. Fluxo de dados (exemplo: Devocional Diário)
+[Schema v1](../packages/backend/schema.ts):
 
-1. `packages/backend/devotionals.ts` expõe `getByDate(date)` (query) e
-   `markAudioPlayed` (mutation, se você quiser telemetria simples no futuro).
-2. `packages/domain/hooks/useDailyDevotional.ts` encapsula
-   `useQuery(api.devotionals.getByDate, { date: today() })` e devolve um objeto
-   tipado (`{ scripture, reflection, audioUrl, prayerSuggestion, isLoading }`).
-3. `apps/web/routes/devocional.tsx` chama `useDailyDevotional()` e renderiza com
-   `<audio src={audioUrl} />` dentro do layout TanStack Start.
-4. `apps/mobile/app/(tabs)/devocional.tsx` chama o **mesmo** `useDailyDevotional()`
-   e renderiza com um componente `<AudioPlayer />` baseado em `expo-audio`.
+| Tabela | Responsabilidade | Índices |
+|---|---|---|
+| users | authId, name, email | by_authId |
+| devotionals | date, reference, translation, scripture, reflection, prayerSuggestion, credit, licenseEvidence, reviewedBy, publishedAt, audioUrl opcional, withdrawn, updatedAt | by_date |
+| editorialEvents | devotionalId, actor, reason, action, at | by_devotional |
+| globalSettings | Singleton main com temas e referências | by_key |
+| communities | Nome, descrição, escritura, convite, criação | by_invite |
+| communityMembers | Usuário, grupo, papel admin/member | by_user, by_community, by_pair |
+| communityMessages | Grupo, autor, conteúdo, instante | by_community_time |
+| checklists | Grupo e nome | by_community |
+| checklistItems | Lista, texto, ordem | by_checklist |
+| checklistTicks | Item e usuário | by_item, by_pair |
 
-Zero lógica duplicada — a única coisa que muda é o componente de apresentação do
-áudio.
+Índice não impõe unicidade sozinho: as operações consultam e alteram na mesma transação. Auth mantém tabelas no componente Better Auth. editorialEvents foi introduzida pela spec 004 para rastreabilidade, sem telemetria de leitores.
 
-## 5. Riscos técnicos a validar antes de codar (registrar como ADR quando resolvidos)
+Bíblia completa, clubes, orações privadas e marcações futuras não integram o schema reconstruído. A mudança foi local; não migrar deployment existente sem plano próprio.
 
-- **Better Auth em React Native/Expo**: a integração web (cookie + `convex-gate`) é
-  madura; o suporte a Expo é uma área que muda rápido no ecossistema Better Auth.
-  Antes de iniciar `apps/mobile`, validar a versão atual da documentação oficial do
-  Better Auth para Expo/React Native e do Convex Auth como alternativa nativa, caso
-  o suporte não esteja maduro o suficiente. Isso é uma decisão de `plan.md`, não da
-  spec de produto.
-- **Streaming de áudio do R2 em background no iOS**: exige configuração de
-  `UIBackgroundModes: audio` no `app.json` do Expo — tratar como task explícita em
-  `apps/mobile`, não assumir que "funciona igual ao web".
-- **Convex file storage vs R2 direto**: o schema já referencia `audioUrl` como
-  string (URL), o que é compatível com servir os áudios diretamente do Cloudflare
-  R2 (bucket público ou signed URL) sem passar pelo file storage do Convex — mantém
-  o uso dentro do free tier de ambos os serviços.
-- **APIs externas de conteúdo (ex: Bíblia) tratadas como fonte de importação, não
-  dependência de runtime**: a experiência real com a API "A Bíblia Digital"
-  (desativada pelo mantenedor em 01/08/2026 após anos no ar — ver
-  `specs/003-conteudo-biblico/spec.md §1`) confirma esse princípio na prática. Toda
-  integração de conteúdo externo neste projeto deve seguir o padrão
-  "sincroniza uma vez para o Convex, lê sempre do Convex" — nunca uma chamada
-  direta do client a um serviço de terceiro em tempo de leitura.
+## Cache e plataformas
 
-## 6. Convenção de pastas dentro de `packages/domain`
+PWA precacheia shell/fontes, sem runtime cache de Convex, sessão, áudio ou dados pessoais. Conteúdo autenticado exige rede. Player HTML5 permanece no shell durante navegação, sem autoplay.
 
-```
-packages/domain/
-├── validators/       # zod schemas (fonte única de validação)
-├── permissions/       # canUserSeeComment(), isAdminOf(), etc.
-├── hooks/             # useDailyDevotional, useCommunity, useChecklist...
-└── types/             # tipos derivados do schema Convex (Doc<"devotionals"> etc.)
-```
-
-## 7. O que NÃO agnosticizar (armadilha comum)
-
-Não tente forçar componentes de UI compartilhados via React Native Web ou similar
-neste projeto. O princípio de minimalismo (constituição §I) e a diferença de
-affordances entre toque e mouse tornam mais barato manter duas implementações de UI
-finas do que manter uma camada de abstração de componente cross-platform. O que se
-compartilha são **tokens de design**, não **componentes renderizados**.
+Expo reutilizará regras/contratos/tokens com apresentação própria. OAuth, áudio, instalação e atualização precisam de testes físicos antes do piloto. Listas e membros ainda carregam o grupo inteiro: manter o piloto pequeno.
