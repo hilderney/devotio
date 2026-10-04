@@ -1,11 +1,14 @@
 # Tasks: Conteúdo Bíblico — Importação, Cache e Leitura
 
-> Revisão de 02/10/2026: tasks continuam abertas; presença de tabelas não comprova aceite. Licença de toda versão, inclusive ACF, deve estar documentada. Fora do caminho crítico do piloto.
+> Revisão de 04/10/2026: Bíblia integra o marco web local. Tasks abertas e
+> condicionadas à revisão aprovada da spec/plano. D4/D5 resolvidas: importar
+> **AA** da ABíbliaDigital em `.api.br` para o banco. Nenhuma tabela bíblica existe
+> no schema ativo.
 
 **Plano relacionado:** ./plan.md
 
-> Pré-requisito: as perguntas em aberto da `spec.md §9` (provider, licenciamento,
-> mapeamento de versão) precisam de resposta antes de iniciar T1. Não começar a
+> Pré-requisito: as perguntas restantes da `spec.md §9` (condições de uso,
+> identificação da edição e atualização) precisam de resposta antes de iniciar T1. Não começar a
 > importar dados "provisoriamente" enquanto a licença não estiver confirmada.
 
 ## Backend / Domain (`packages/backend`, `packages/domain`)
@@ -16,8 +19,8 @@
       compostos cobrem os padrões de acesso de leitura por capítulo e por
       versículo único.
 - [ ] T2 — Implementar a interface `BibleContentProvider` e o
-      `jsonDatasetProvider` (dataset estático baixado para o repo, sem chamada de
-      rede durante o import).
+      `abibliaDigitalApiProvider`, após validação dos contratos reais de AA.
+      Prever lotes por capítulo, retomada, timeout e concorrência controlada.
       Critério de aceite: rodar o provider isoladamente (fora do Convex, em
       script Node local) retorna a estrutura esperada para pelo menos 1 livro
       antes de integrar com `syncVersion`.
@@ -39,7 +42,7 @@
 
 ## Validação de dados (antes de considerar o import "fonte de verdade")
 
-- [ ] T8 — Importar 1 versão (a definida na spec §9) em ambiente de
+- [ ] T8 — Importar a versão AA (edição definida na spec §9) em ambiente de
       desenvolvimento via `syncVersion`.
 - [ ] T9 — Validar amostra de ao menos 10 versículos conhecidos contra uma fonte
       impressa/confiável, registrando o resultado (aprovado ou lista de
@@ -48,14 +51,14 @@
       confirmar contra o limite do free tier (plano §7) antes de decidir importar
       versões adicionais.
 
-## Web (`apps/web`) — depende de "Fé Madura v2" ser priorizada
+## Web (`apps/web`) — priorizada; aguarda revisão aprovada da spec/plano
 
 - [ ] T-W1 — Rotas `biblia/index.tsx`, `biblia/$abbrev.tsx`,
       `biblia/$abbrev.$chapter.tsx`, `biblia/busca.tsx`.
 - [ ] T-W2 — Componentes `BookList`, `ChapterList`, `VerseList`,
       `SearchResults`, consumindo os hooks de T7.
 
-## Mobile (`apps/mobile`) — depende de "Fé Madura v2" ser priorizada
+## Mobile (`apps/mobile`) — adiado; não integra o marco local web
 
 - [ ] T-M1 — Telas equivalentes a T-W1 em `apps/mobile/app/(tabs)/fe-madura/biblia/`.
 

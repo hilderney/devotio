@@ -1,5 +1,9 @@
 # Spec: Publicação do piloto gratuito
 
+> Prioridade revista em 04/10/2026: retomar o planejamento e a execução desta spec
+> depois da versão local completa das três áreas, conforme [ADR 002](../../docs/adr/002-local-complete-product.md).
+> As escolhas de provedor e ambiente abaixo permanecem registradas para essa etapa.
+
 **ID:** 005-piloto-publicacao  
 **Status:** rascunho — decisões de canal e ambiente registradas em 03/10/2026; execução e aprovação formal pendentes  
 **Versão alvo:** piloto v1 na web  

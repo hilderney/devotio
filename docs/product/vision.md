@@ -15,6 +15,10 @@ O público inicial são pessoas de uma comunidade cristã de língua portuguesa,
 
 ## Escopo da v1
 
+> Atualização de 04/10/2026: o marco atual é a versão local com Devocional,
+> Bíblia e Comunidades; publicação será planejada depois. Ver [ADR 002](../adr/002-local-complete-product.md).
+> O recorte de lançamento abaixo é histórico e será revisto nessa etapa.
+
 | Entra | Limite de escopo |
 |---|---|
 | Devocional diário | Texto bíblico curto, reflexão completa, oração e temas do mês/semana; spec 001 |

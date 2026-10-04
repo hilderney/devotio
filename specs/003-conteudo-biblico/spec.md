@@ -1,16 +1,20 @@
 # Spec: Conteúdo Bíblico — Importação, Cache e Leitura
 
-> Revisão de 02/10/2026: permanece rascunho e fora do lançamento inicial. Tabelas/queries já existem no protótipo, mas isso não aprova importação. Licença precisa ser validada para **todas** as versões, inclusive ACF. Ver [conteúdo e privacidade](../../docs/operations/content-privacy.md).
+> Revisão de 04/10/2026: leitura bíblica incluída no marco local das três áreas.
+> Fonte escolhida pelo usuário: ABíbliaDigital em `abibliadigital.api.br`.
+> O usuário confirmou importação para o banco e versão inicial **AA** em 04/10/2026.
+> Identificação da edição, condições de cópia e demais pontos de §9 continuam
+> pendentes. As tabelas bíblicas ainda não existem no schema ativo.
 
 **ID:** 003-conteudo-biblico
 **Status:** rascunho (depende de decisões em §9 antes de virar "aprovada")
-**Versão alvo:** futura (Fé Madura); não é dependência do piloto v1
+**Versão alvo:** produto web local completo, antes de planejar publicação ([ADR 002](../../docs/adr/002-local-complete-product.md))
 
 ## 1. Contexto e problema
 
 O app precisa de texto bíblico confiável em dois lugares:
 
-1. **Leitura direta** — a futura aba "Bíblia Online" (Fé Madura, v2), onde o usuário
+1. **Leitura direta** — a área de Bíblia da versão local, onde o usuário
    navega por livro/capítulo/versículo.
 2. **Fonte de conteúdo** — hoje, `devotionals.scripture`, `globalSettings.monthlyVerse`
    e `globalSettings.weeklyVerse` são digitados manualmente pela equipe editorial.
@@ -24,20 +28,18 @@ completo (isso é uma spec futura que pode reusar as funções descritas aqui).
 
 ### Risco de arquitetura que motiva o desenho abaixo
 
-A API pública mais conhecida em português para este fim, **A Bíblia Digital**
-(`abibliadigital.com.br`, repositório
-[`omarciovsena/abibliadigital`](https://github.com/omarciovsena/abibliadigital)),
-**foi desativada pelo mantenedor em 01/08/2026** — site e API fora do ar, decisão
-anunciada no próprio README do projeto após ~8 anos de operação. O código
-permanece open source (licença BSD-2-Clause), então **self-host é tecnicamente
-possível**, mas depender de uma API externa viva — oficial ou auto-hospedada —
-como caminho crítico de leitura do app é exatamente o tipo de risco que este
-projeto já decidiu evitar (ver `docs/architecture.md §5`).
+A fonte selecionada é a [ABíbliaDigital](https://abibliadigital.api.br), cuja
+[documentação](https://github.com/omarcoscardoso/abibliadigital-api-br) descreve
+uma continuação do projeto anterior. O encerramento histórico da API no domínio
+`.com.br` não determina a disponibilidade do novo `.api.br`. Ver
+[verificação do provedor](../../docs/engineering/bible-provider.md).
 
-Por isso, esta spec trata qualquer fonte de texto bíblico (API oficial, instância
+O desenho atual desta spec trata qualquer fonte de texto bíblico (API oficial, instância
 self-hosted, ou dataset estático) como **fonte de importação**, não como
 dependência de runtime. O app nunca chama uma API bíblica externa a partir do
 client (web ou mobile) — ele lê de uma cópia própria dentro do Convex.
+Esse modelo foi confirmado pelo usuário (D4 do plano do produto): importar AA
+para o banco. Não implementar consulta externa sob demanda durante a leitura.
 
 ## 2. Papéis envolvidos
 
@@ -47,9 +49,8 @@ client (web ou mobile) — ele lê de uma cópia própria dentro do Convex.
   (leitura na aba Bíblia Online).
 
 Não há diferenciação de visibilidade por comunidade/clube — o texto bíblico é o
-mesmo para todos os usuários do app (diferente de `bibleMarkings`, que já existe
-no schema para comentários pessoais sobre um versículo e não é afetado por esta
-spec).
+mesmo para todos os usuários do app. Comentários pessoais sobre versículos são
+fora de escopo; `bibleMarkings` não existe no schema ativo.
 
 ## 3. Histórias de usuário
 
@@ -72,14 +73,14 @@ spec).
    concreta funcional no momento da entrega (ver §9 sobre qual implementação sai
    primeiro).
    - Critério de aceite: trocar de provider (ex: de dataset estático para API,
-     caso uma fique disponível no futuro) não exige alterar nenhuma função pública
+     se houver uma mudança futura de fonte) não exige alterar nenhuma função pública
      de `bibleContent` nem nenhum componente de UI — só a implementação interna do
      provider.
 
 2. **Importação/sincronização.** O sistema deve popular as tabelas
    `bibleBooks` e `bibleVerses` a partir do provider configurado, para uma ou mais
-   versões da Bíblia (mínimo: 1 versão em português para o lançamento desta
-   feature).
+   versões da Bíblia, começando exclusivamente pela **AA**, conforme escolha
+   do usuário. Outras traduções não entram automaticamente nesta entrega.
    - Critério de aceite: a importação é idempotente — rodar duas vezes não duplica
      livros/versículos (upsert por chave natural: versão + abreviação do livro +
      capítulo + número do versículo).
@@ -120,7 +121,7 @@ spec).
 
 - **Sem chamada de API externa em tempo de leitura.** Toda leitura feita pelo
   app (web ou mobile) consulta exclusivamente o Convex — nenhuma requisição
-  direta do client a `abibliadigital.com.br`, a uma instância self-hosted, ou a
+  direta do client a `abibliadigital.api.br`, a uma instância self-hosted, ou a
   qualquer outro provedor. O provider só é acionado durante a importação
   administrativa.
 - **Custo de armazenamento dentro do free tier.** Uma versão completa da Bíblia
@@ -154,12 +155,11 @@ a usuários finais em nenhum papel.
   criação de devocional — as funções de leitura descritas aqui ficam prontas para
   essa ferramenta, mas construir a UI é uma spec futura (depende do "Painel
   Editorial" já citado como fora de escopo em `specs/001-devocional-diario §7`).
-- Comentários/anotações sobre versículos (`bibleMarkings`) — já modelado no
-  schema, tratado em spec própria quando "Fé Madura v3" for priorizado.
+- Comentários/anotações sobre versículos (`bibleMarkings`) — exigem spec própria
+  e não estão implementados na base atual.
 - Destaque visual de termo buscado (highlight) dentro do texto retornado pela
   busca.
-- Áudio da Bíblia (fora do escopo do produto atual; existe como issue em aberto
-  no próprio projeto abibliadigital, não faz parte deste app).
+- Áudio da Bíblia (fora do escopo desta feature).
 
 ## 8. Dados envolvidos
 
@@ -169,31 +169,18 @@ Tabelas novas no schema (`packages/backend/schema.ts`):
   quantidade de capítulos, grupo/gênero, autor.
 - `bibleVerses` — um documento por (versão, livro, capítulo, versículo): texto.
 
-Tabelas existentes não alteradas por esta spec: `bibleMarkings` (schema já
-preparado para v3, sem relação de leitura/escrita com as tabelas novas além de
-referenciar `book`/`chapter`/`verse` como já modelado).
+Essas tabelas são propostas, não implementação existente. Atualizar o modelo de
+dados em `docs/architecture.md` junto com qualquer alteração futura do schema.
 
 ## 9. Perguntas em aberto
 
 Estas precisam de decisão humana antes de `spec.md` passar de "rascunho" para
 "aprovada":
 
-1. **Qual provider sai primeiro?** Duas opções concretas levantadas:
-   - **(a) Dataset estático** — importar o JSON de
-     [`thiagobodruk/bible`](https://github.com/thiagobodruk/bible) (ou o
-     repositório irmão `thiagobodruk/biblia`, que já distribui em JSON/SQL/XML),
-     que contém `pt_acf` (Almeida Corrigida e Revisada Fiel) e `pt_nvi` em
-     português. Vantagem: zero infraestrutura nova, zero dependência de uptime de
-     terceiro, arquivos servidos como estáticos via GitHub raw.
-   - **(b) Self-host da abibliadigital** — subir o servidor (Node+Express+Mongo)
-     do próprio projeto `omarciovsena/abibliadigital` em algum host, e importar a
-     partir dele. Vantagem: mais versões disponíveis de fábrica (ACF, KJV, NVI,
-     BBE, RVR, APEE); desvantagem: infraestrutura extra fora do stack free-tier
-     atual, e é o mesmo tipo de dependência que acabou de falhar para o projeto
-     original.
-   - Recomendação técnica (não uma decisão de produto): (a) é mais consistente
-     com a arquitetura de baixo custo já adotada no projeto. Confirmar com o dono
-     do produto antes do `plan.md`.
+1. **Provider e consumo definidos.** O usuário escolheu
+   `https://abibliadigital.api.br` e confirmou importação para o banco em
+   04/10/2026. Não implementar cache sob demanda, consulta externa durante a
+   leitura, dataset de outro projeto ou hospedagem própria do provedor.
 
 2. **Licenciamento de cada versão.** Não presumir domínio público de ACF,
    NVI ou qualquer edição por estar disponível no GitHub. A SBTB publica
@@ -203,9 +190,11 @@ Estas precisam de decisão humana antes de `spec.md` passar de "rascunho" para
    02/10/2026](https://www.biblias.com.br/direitos-autorais).
 
 3. **Identificação de versão.** Escolher tradução, edição e fonte com a equipe
-   editorial. A constituição atual não determina uma tradução específica. ACF,
+   editorial. A versão inicial escolhida é **AA**. ACF,
    ARC e AA não são identificadores intercambiáveis; não mapear uma tradução
    para outra silenciosamente. Registrar edição e hash do dataset aprovado.
+   Confirmar o identificador `aa` e a edição na resposta real do provedor;
+   nenhuma substituição por NVI, NVT, ACF ou ARC é autorizada.
 
 4. **Frequência de atualização.** O texto bíblico não muda — a importação é
    majoritariamente um evento único (seed inicial). Faz sentido manter um cron

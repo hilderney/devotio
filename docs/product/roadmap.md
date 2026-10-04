@@ -8,6 +8,12 @@ Reconstrução web autorizada pelo usuário conforme spec 004 §10. Base técnic
 
 ## Etapas
 
+> Prioridade em 04/10/2026: concluir as três áreas na web local e só então
+> retomar o planejamento público. A sequência vigente está no
+> [plano do produto](development-plan.md), conforme [ADR 002](../adr/002-local-complete-product.md).
+> A tabela abaixo conserva o roteiro anterior do piloto; Bíblia deixa de ser
+> uma etapa posterior ao marco local.
+
 | Etapa | Entrega | Critério para avançar |
 |---|---|---|
 | 0 — Alinhar o piloto | Rever spec 004, confirmar web primeiro, acesso e tradução | Decisões registradas; spec aprovada antes de plano/tasks/código |

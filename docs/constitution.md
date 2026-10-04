@@ -58,7 +58,9 @@ para revisão do AG, nunca publicação direta.
 
 ## VIII. MVP é um compromisso, não uma limitação técnica
 
-A v1 entrega apenas Aba Devocional + Aba Comunidade (funções base). Clubes e Fé
-Madura são v2/v3 **por decisão de produto**, não porque sejam tecnicamente mais
-difíceis. Um agente não deve "adiantar" código de v2/v3 dentro de uma task de v1
-sem uma spec correspondente já aprovada.
+O ciclo atual entrega primeiro a web local com Devocional, leitura bíblica e
+Comunidades, conforme decisão do usuário de 04/10/2026 registrada na
+[ADR 002](adr/002-local-complete-product.md). A publicação será planejada depois
+da validação desse marco. Clubes e demais recursos de Fé Madura permanecem
+futuros **por decisão de produto**. A inclusão da leitura bíblica no ciclo não
+dispensa aprovação da spec correspondente nem autoriza antecipar outras features.

@@ -7,6 +7,7 @@
 - [Constituição](constitution.md): princípios permanentes; alterações exigem ADR.
 - [Visão e MVP](product/vision.md): público, proposta, escopo e critérios de sucesso.
 - [Roadmap](product/roadmap.md): etapas, dependências e decisões pendentes.
+- [Plano do produto completo](product/development-plan.md): levantamento de Devocional, Bíblia e Comunidades; decisões e dependências para aprovação.
 - [Catálogo de specs](../specs/README.md): contratos de cada funcionalidade.
 
 ## Design
@@ -18,6 +19,7 @@
 - [Stack](engineering/stack.md): escolha por camada; existente versus planejado.
 - [Arquitetura](architecture.md): fronteiras, fluxos, permissões e modelo de dados.
 - [Estado real](engineering/status.md): evidências no repositório e bloqueios.
+- [Fonte bíblica](engineering/bible-provider.md): documentação da ABíbliaDigital e pendências da integração.
 - [Desenvolvimento](engineering/development.md): instalação, comandos e validação.
 
 ## Operação
@@ -29,6 +31,7 @@
 ## Decisões
 
 - [ADR 001 — Web primeiro e stack do piloto](adr/001-web-first-free-launch.md).
+- [ADR 002 — Três áreas locais antes da publicação](adr/002-local-complete-product.md).
 
 ## Como manter os documentos
 

@@ -1,9 +1,12 @@
 # Plano Técnico: Conteúdo Bíblico — Importação, Cache e Leitura
 
-> Revisão de 02/10/2026: implementação futura. Schema já contém parte do desenho, mas importação permanece bloqueada pela licença e aprovação. O MVP pode usar trechos editoriais autorizados sem importar uma Bíblia completa.
+> Revisão de 04/10/2026: Bíblia priorizada para a web local. Fonte ABíbliaDigital
+> escolhida; nenhuma tabela bíblica implementada. D4 confirmou importação para
+> o banco e D5 definiu **AA** como versão inicial. Conferir edição/condições e
+> demais pendências antes de aprovar a spec e este plano para execução.
 
 **Spec relacionada:** ./spec.md
-**Status:** rascunho — depende das decisões da spec §9 (provider, licença, versões)
+**Status:** rascunho — fonte, importação e AA definidas; conferir demais pontos da spec §9
 antes de ser considerado aprovado para execução.
 
 ## 1. Impacto no schema (`packages/backend/schema.ts`)
@@ -49,20 +52,15 @@ interface BibleContentProvider {
 }
 ```
 
-Duas implementações previstas (a segunda só é construída se a decisão da spec §9
-optar por ela, ou como plano B futuro):
+A implementação prevista passa a ser `abibliaDigitalApiProvider.ts`, usando
+`https://abibliadigital.api.br/api/`. Ver [contrato documentado e pendências](../../docs/engineering/bible-provider.md).
+O provedor e a importação foram escolhidos; `syncVersion` deve começar somente
+pela versão AA, com seu identificador verificado no catálogo. Não construir também um provider de dataset ou hospedar
+uma cópia do serviço por antecipação.
 
-- `jsonDatasetProvider.ts` — lê os arquivos JSON de
-  `thiagobodruk/bible`/`thiagobodruk/biblia` (baixados uma vez para
-  `packages/backend/bibleContent/data/*.json` no repositório, **não** buscados em
-  tempo de importação via rede — evita qualquer dependência de rede até para o
-  processo de seed).
-- `abibliaDigitalApiProvider.ts` — chama os endpoints REST documentados do
-  projeto `omarciovsena/abibliadigital` (`/api/books`, `/api/verses/:version/:abbrev/:chapter`),
-  mantido no código como opção, mas **apenas alternativa de desenho, não implementação entregue**, dado que a API
-  oficial está fora do ar desde 01/08/2026 (ver spec §1). Só faz sentido ativar
-  este provider contra uma instância confirmada no ar (self-host validado) — não
-  assumir a URL oficial como disponível sem checar antes.
+Antes da execução, detalhar respostas validadas por Zod, importação por capítulos
+em lotes, retomada após falha, timeout e limites de concorrência. Não presumir um
+endpoint que devolva o livro inteiro nem disparar milhares de chamadas sem controle.
 
 A escolha de provider é uma constante de configuração
 (`packages/backend/bibleContent/config.ts`), não uma variável de ambiente lida em
@@ -83,7 +81,7 @@ app em produção".
 
 ```ts
 // args
-{ version: string }  // ex: "acf"
+{ version: string }  // primeira versão aprovada: AA; validar identificador "aa"
 
 // retorno
 {
@@ -134,24 +132,22 @@ Array<{ abbrev: string; bookName: string; chapter: number; number: number; text:
 
 ## 5. Impacto em `apps/web`
 
-- Nova seção sob a rota `fe-madura/biblia/` (dentro da futura Aba Fé Madura, v2):
+- Área de Bíblia no marco local; posição na navegação e URL ainda a aprovar.
+  Decomposição proposta de telas:
   `biblia/index.tsx` (lista de livros), `biblia/$abbrev.tsx` (lista de
   capítulos do livro), `biblia/$abbrev.$chapter.tsx` (leitura do capítulo),
   `biblia/busca.tsx` (campo de busca + resultados).
 - Componentes: `BookList`, `ChapterList`, `VerseList`, `SearchResults`.
-- Como esta spec cobre apenas a fundação de dados/leitura, a construção efetiva
-  dessas rotas no app web só entra em tasks quando "Fé Madura v2" for priorizada
-  — ver `tasks.md` para o que é entregável já e o que fica marcado como
-  dependente dessa priorização.
+- A leitura web foi priorizada pelo usuário em 04/10/2026; sua execução depende
+  da revisão aprovada desta spec, e não de uma futura priorização de Fé Madura.
 
 ## 6. Impacto em `apps/mobile`
 
 - Telas equivalentes sob `apps/mobile/app/(tabs)/fe-madura/biblia/`, mesma
   divisão de responsabilidade do web (ver `docs/architecture.md §7` — sem
   componente compartilhado entre plataformas, só os hooks de domínio).
-- Sem diferença de comportamento relevante entre web e mobile nesta feature —
-  é leitura de texto, sem dependência de recursos nativos como áudio ou
-  background.
+- Expo permanece adiado e sem workspace executável. Compartilhar contratos de
+  domínio não comprova equivalência de UI, armazenamento ou comportamento offline.
 
 ## 7. Estimativa de capacidade (Convex free tier)
 
@@ -169,11 +165,9 @@ Array<{ abbrev: string; bookName: string; chapter: number; number: number; text:
   campo indexado, comportamento com texto em português/acentuação) com uma
   importação de teste pequena (ex: um único livro) antes de rodar a importação
   completa.
-- **Qualidade do dataset de terceiro**: os arquivos de `thiagobodruk/bible` foram
-  gerados por um crawler e o próprio autor documenta que "podem conter pequenos
-  problemas de encoding/sintaxe" — validar uma amostra manualmente (ex: comparar
-  10 versículos conhecidos com uma Bíblia impressa/fonte confiável) antes de
-  considerar a importação como fonte de verdade para `devotionals.scripture`.
+- **Qualidade e identificação da edição**: conferir referências, codificação,
+  contagens e uma amostra de texto com a fonte editorial aprovada antes de
+  considerar os dados como referência para `devotionals.scripture`.
 
 ## 9. Plano de testes
 
@@ -183,6 +177,6 @@ Array<{ abbrev: string; bookName: string; chapter: number; number: number; text:
   provider de teste (mock com 1-2 livros) confirmando que a segunda execução não
   duplica documentos (idempotência).
 - Manual: importar 1 versão completa em ambiente de desenvolvimento, navegar por
-  3-4 livros distintos no app (web e mobile) e conferir visualmente contra uma
+  3-4 livros distintos no app web (mobile adiado) e conferir visualmente contra uma
   fonte impressa/confiável os mesmos versículos citados no risco de qualidade de
   dataset acima.

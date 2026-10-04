@@ -6,9 +6,9 @@ Requisitos aprovados orientam código; planos orientam implementação; tasks re
 |---|---|---|---|
 | [001](001-devocional-diario/spec.md) | Devocional diário | Spec aprovada historicamente; integração e aceites pendentes | Núcleo da v1 |
 | [002](002-comunidade-v1/spec.md) | Comunidade base | Spec aprovada historicamente; integração e divergências pendentes | Núcleo da v1 |
-| [003](003-conteudo-biblico/spec.md) | Importação e leitura bíblica | Rascunho; licença/provider não resolvidos | Futuro; não bloqueia devocional com trechos autorizados |
+| [003](003-conteudo-biblico/spec.md) | Importação e leitura bíblica | ABíbliaDigital, importação para o banco e AA inicial escolhidas | Integra o marco local das três áreas; spec em revisão |
 | [004](004-fundacao-lancamento/spec.md) | Fundação do lançamento web | Reconstrução autorizada e implementada localmente; homologação pendente | Auth, operação editorial, instalação e condições do piloto |
-| [005](005-piloto-publicacao/spec.md) | Publicação do piloto gratuito | Rascunho; canal Pages + Convex e um ambiente decididos; contas e deploy pendentes | Opera R1/R2 da 004: hospedagem, OAuth no URL público e abertura controlada |
+| [005](005-piloto-publicacao/spec.md) | Publicação do piloto gratuito | Rascunho; escolhas anteriores preservadas | Planejamento retomado após o produto local completo, conforme ADR 002 |
 
 [Roadmap](../docs/product/roadmap.md) determina a ordem proposta. A [ADR 001](../docs/adr/001-web-first-free-launch.md) registra distribuição web primeiro; tasks nativas permanecem abertas e adiadas.
 

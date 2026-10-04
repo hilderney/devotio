@@ -1,5 +1,9 @@
 # ADR 001 — Web primeiro e stack do piloto gratuito
 
+> Atualização de escopo em 04/10/2026: a [ADR 002](002-local-complete-product.md)
+> define três áreas locais antes de retomar o planejamento da publicação.
+> As referências abaixo ao escopo de duas áreas registram a decisão anterior.
+
 **Data:** 02/10/2026  
 **Status:** direção recomendada nesta revisão; requisitos novos aguardam aprovação da spec 004.  
 **Motivação:** publicação inicial gratuita, stack definida e experiência minimalista.
