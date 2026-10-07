@@ -1,5 +1,9 @@
 # Tasks: Devocional Diário
 
+> 04/10/2026: janela recente e favoritos foram implementados no backend SQLite
+> de desenvolvimento; evidências nas [tasks 006](../006-desenvolvimento-local/tasks.md).
+> Tasks de Convex/mobile abaixo não são concluídas por essa entrega local.
+
 > Revisão de 02/10/2026: arquivos presentes não comprovam o aceite. Tasks mobile permanecem abertas e adiadas conforme [ADR 001](../../docs/adr/001-web-first-free-launch.md). Fechar a entrega exige integração real, permissões verificadas, lint configurado e evidência.  
 > **Revisão de 04/10/2026:** T6–T8 e T-W4/T-W5 documentam janela de 7 dias e favoritos (spec §4 itens 11–13); todas abertas.
 

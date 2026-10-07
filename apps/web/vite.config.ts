@@ -1,9 +1,26 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
+import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
-export default defineConfig({
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  const local: Plugin = {
+    name: "devotio-local-backend",
+    apply: "serve",
+    async configureServer(server) {
+      if (command !== "serve" || mode !== "development" || env.VITE_CONVEX_URL || env.VITE_CONVEX_SITE_URL || process.env.VITE_CONVEX_URL || process.env.VITE_CONVEX_SITE_URL) return;
+      const { LocalDatabase } = await import("../../packages/backend/local/database.local");
+      const { createLocalHandler } = await import("../../packages/backend/local/http.local");
+      const root = resolve(import.meta.dirname, "../..");
+      const database = new LocalDatabase(resolve(root, ".data/devotio.sqlite"), resolve(root, ".data/bible"));
+      server.middlewares.use("/__local", createLocalHandler(database));
+      server.httpServer?.once("close", () => database.close());
+    },
+  };
+  return {
   plugins: [
     react(),
+    local,
     VitePWA({
       registerType: "prompt",
       includeAssets: [
@@ -46,6 +63,7 @@ export default defineConfig({
       },
     }),
   ],
-  server: { port: 3000, strictPort: true, host: "127.0.0.1" },
+  server: { port: 3000, strictPort: true, host: "127.0.0.1", fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/.data/**"] } },
   build: { target: "es2022", sourcemap: false },
+  };
 });

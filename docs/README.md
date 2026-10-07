@@ -21,6 +21,7 @@
 - [Estado real](engineering/status.md): evidências no repositório e bloqueios.
 - [Fonte bíblica](engineering/bible-provider.md): documentação da ABíbliaDigital e pendências da integração.
 - [Desenvolvimento](engineering/development.md): instalação, comandos e validação.
+- [Produto local](engineering/local-development.md): SQLite, perfis mock, AA e roteiro para testar as três áreas.
 
 ## Operação
 
@@ -32,6 +33,7 @@
 
 - [ADR 001 — Web primeiro e stack do piloto](adr/001-web-first-free-launch.md).
 - [ADR 002 — Três áreas locais antes da publicação](adr/002-local-complete-product.md).
+- [ADR 003 — SQLite e identidade simulada](adr/003-local-sqlite-mock.md).
 
 ## Como manter os documentos
 

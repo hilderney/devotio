@@ -1,5 +1,88 @@
 # Estado real do projeto
 
+## Correção da entrada travada — verificação de 06/10/2026
+
+Reproduzido travamento ao abrir `/` como visitante: a rota raiz decidia acesso
+pela localização ainda em transição e redirecionava repetidamente, impedindo a
+tela pública de concluir sua apresentação. API de sessão respondeu normalmente.
+
+Rotas públicas agora renderizam sob a raiz; Devocional, Bíblia, Comunidades e
+Editorial compartilham um layout de leitura separado. Redirecionamentos usam
+efeito com destino estável e preservam a rota protegida apresentada. Cada montagem
+da aplicação mantém sua instância do roteador, reutilizando o histórico do navegador.
+
+**Checks:** 85 testes passaram (60 domain + 19 backend + 6 web), sem skips.
+Os novos testes integrados usam React StrictMode, jsdom e HTTP simulado: visitante
+na raiz, sessão existente, login/logout, falha de conexão, retorno à rota pedida
+e navegação entre as três áreas. Lint/typecheck e `verify:web` passaram. O teste
+HTTP real da suíte precisou executar fora da restrição de rede do sandbox após
+`EACCES` ao conectar a loopback; passou na execução autorizada.
+
+Não houve nova inspeção visual no Chrome. Esta rodada comprova o fluxo integrado
+em DOM simulado e a compilação, preservando a pendência de revisão visual física.
+
+## Cache local e tráfego — verificação de 05/10/2026
+
+Revisão da spec 006 implementada a pedido do usuário. Removidos polling de sessão
+a cada 3 segundos, polling de cada leitura a cada 5 segundos e invalidação global
+após qualquer mutation. O modo Convex/publicação continua fora desta entrega.
+
+- Devocionais: um lote inicial de oito datas, cache persistente por conta e carga
+  somente das datas ausentes ao mudar o dia. Recarregar reutiliza os textos.
+- Bíblia: catálogo persistente e seis capítulos LRU, carregados sob demanda.
+- Sessão: token opaco HttpOnly por 30 dias, bootstrap deduplicado, expiração por
+  relógio local e eventos de storage para logout/troca entre abas. Sem polling.
+- Favoritos e comunidades: invalidação direcionada após escrita. Comunidades
+  atualizam ao entrar e manualmente, sem persistir dados de grupo no navegador.
+- Menu da conta: atualização manual de conteúdo e correções editoriais. Cache
+  permanece legível se uma tentativa de atualização falhar por falta de rede.
+
+**Evidências:** 79 testes passaram (60 domain + 19 backend), sem skips. Os 18
+testes do adaptador cobrem orçamento de rede, 10 minutos simulados sem consultas,
+recarga, diferença diária, ausência de vários dias, LRU, deduplicação, invalidação,
+expiração, armazenamento cheio e respostas em voo durante logout/virada do dia.
+Lint/typecheck do monorepo, build/PWA, `verify:web` e `verify:local` passaram.
+Verificação HTTP inclui o lote real de oito datas e cookie de 30 dias.
+
+**Limites:** as medições de chamadas são testes automatizados do adaptador, não
+uma captura do DevTools. Revisão visual continua pendente pelo bloqueio anterior
+da ferramenta. Correções em outras sessões exigem atualização manual; não há
+sincronização comunitária em tempo real. Reabrir exige validação da sessão no
+servidor. Cache bíblico corresponde ao corpus AA fixado; futuras atualizações do
+corpus precisam versionar/inutilizar esse cache. O aviso de chunk JS acima de
+500 kB permanece (533,35 kB minificado nesta rodada).
+
+## Produto local — verificação de 04/10/2026
+
+Implementado conforme [spec 006](../../specs/006-desenvolvimento-local/spec.md).
+Use o [guia local](local-development.md) para executar e testar os perfis.
+
+| Área | Evidência atual |
+|---|---|
+| Identidade | Quatro perfis fictícios, cookie HttpOnly, expiração/logout e vínculo de conta nas requisições |
+| Persistência | SQLite em `.data/devotio.sqlite`; teste fecha/reabre banco e confirma favoritos/retirada preservados |
+| Devocional | Oito datas calculadas no servidor por fuso validado; favoritos privados e snapshots imutáveis |
+| Espelho local | JSON no navegador, limpeza de sessão e rejeição de respostas em voo após logout testadas |
+| Bíblia AA | 66 livros, 1.189 capítulos, 31.104 versículos; importação idempotente e rollback integral testados |
+| Busca | FTS5, acentos normalizados e páginas de 40 resultados; dez referências comparadas com API oficial |
+| Comunidades | Permissões por grupo, convites, mural por cursor, listas/ticks e proteção do último admin |
+| Editorial local | Perfil separado publica/corrige/retira; auditoria no banco e sem atualizar favoritos existentes |
+| Web | Três abas, perfis, favoritos, Bíblia e editorial compilados; revisão visual desta rodada pendente |
+
+**Checks:** 63 testes passaram (45 domain + 18 backend), incluindo os dois testes
+do corpus AA real, sem skips nesta máquina. Typecheck/lint do monorepo e build/PWA
+passaram. `verify:web` confirmou ausência de fixtures, endpoints e adaptador mock
+nos assets públicos. `verify:local` confirmou login, leitura, busca, permissões e
+resposta 403 para tentativa de servir o arquivo SQLite pelo Vite.
+
+**Limites:** a ferramenta de navegador rejeitou o controle da página local por
+política de URL/protocolo; não houve inspeção visual nova em desktop/celular.
+Build avisa sobre um chunk JS acima de 500 kB e comentários de dependência
+ignorados pelo Rollup; não são erros de compilação. Google real, migração destas
+novas capacidades para Convex, publicação e mobile continuam pendentes.
+
+## Evidências anteriores — base Convex e prévia efêmera
+
 **Verificação local: 03/10/2026.** Nova base web implementada a partir da spec 004. Nenhuma implantação externa, migração de banco ou publicação editorial foi realizada.
 
 | Área | Implementado | Limite de verificação |

@@ -26,6 +26,9 @@ for (const asset of assets.filter((name) => name.endsWith(".js"))) {
     "Daniel Almeida",
     "Nem sempre o silêncio chega",
     "createPreviewRepository",
+    "devotio_local_session",
+    "/__local/",
+    "createLocalRepository",
   ])
     assert.ok(!content.includes(fixture), `Fixture encontrada em ${asset}`);
 }

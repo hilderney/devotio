@@ -3,14 +3,17 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  createBrowserHistory,
   RouterProvider,
   Outlet,
   Link,
-  Navigate,
   useLocation,
+  useMatches,
 } from "@tanstack/react-router";
 import {
   BookOpen,
+  BookText,
+  PenLine,
   Users,
   ArrowUpRight,
   LogOut,
@@ -19,25 +22,27 @@ import {
   ChevronDown,
   Leaf,
   WifiOff,
+  RefreshCw,
 } from "lucide-react";
 import { RepositoryProvider, useHome, useLocalDate } from "domain/react";
-import { initials, loginDestination, loginSearchSchema } from "domain/core";
+import { initials, loginDestination, loginSearchSchema, bibleParamsSchema, canPublish, type Devotional } from "domain/core";
 import {
   AppProvider,
   useApp,
   ReaderContext,
+  AudioSelectionContext,
   type AppContextValue,
 } from "./context";
 import { Brand, Loading, AudioPlayer, ErrorMessage } from "./components";
-import { DevotionalPage } from "./pages/devotional";
+import { ReadingPage } from "./pages/reading";
+import { BiblePage } from "./pages/bible";
+import { EditorialPage } from "./pages/editorial";
 import { CommunitiesPage, CommunityPage } from "./pages/community";
 import { SignInPage, InfoPage } from "./pages/access";
+import { RouteRedirect } from "./redirect";
 function Root() {
   const app = useApp();
   const location = useLocation();
-  const publicRoute = ["/entrar", "/privacidade", "/ajuda"].includes(
-    location.pathname,
-  );
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -52,12 +57,12 @@ function Root() {
     document.title =
       (location.pathname.startsWith("/comunidade")
         ? "Comunidade"
-        : location.pathname === "/entrar"
+        : location.pathname === "/biblia" ? "Bíblia" : location.pathname === "/editorial" ? "Editorial" : location.pathname === "/entrar"
           ? "Bem-vindo"
           : "Devocional") + " · Devotio";
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname]);
-  if (!online)
+  if (!online && !app.localProfile)
     return (
       <div className="offline-page">
         <Brand />
@@ -78,15 +83,18 @@ function Root() {
         <Loading />
       </div>
     );
-  if (!app.repository && !publicRoute)
+  return <Outlet />;
+}
+function ReaderLayout() {
+  const app = useApp();
+  const destination = useMatches({ select: matches => matches.at(-1)?.pathname ?? "/devocional" });
+  if (!app.repository)
     return (
-      <Navigate
+      <RouteRedirect
         to="/entrar"
-        search={{ redirect: loginDestination(location.pathname) }}
-        replace
+        redirect={loginDestination(destination)}
       />
     );
-  if (!app.repository) return <Outlet />;
   return (
     <RepositoryProvider repository={app.repository} key={app.userKey}>
       <ReaderShell />
@@ -99,6 +107,10 @@ function ReaderShell() {
   const home = useHome(date);
   const location = useLocation();
   const [logoutError, setLogoutError] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState("");
+  const [selectedAudio, setSelectedAudio] = useState<Devotional | null>(null);
+  const audio = app.repository?.reading ? selectedAudio : home.data?.devotional;
   useEffect(() => {
     const foreground = () => {
       if (document.visibilityState === "visible") refresh();
@@ -108,6 +120,7 @@ function ReaderShell() {
   }, [refresh]);
   const isReading = location.pathname === "/devocional";
   return (
+    <AudioSelectionContext.Provider value={setSelectedAudio}>
     <ReaderContext.Provider
       value={{ data: home.data, error: home.error, date }}
     >
@@ -124,6 +137,7 @@ function ReaderShell() {
               <BookOpen size={17} />
               Devocional
             </Link>
+            {app.repository?.reading && <Link to="/biblia" search={{ book: "jo", chapter: 1 }} activeProps={{ className: "active" }}><BookText size={17} />Bíblia</Link>}
             <Link
               to="/comunidade"
               activeOptions={{ exact: false }}
@@ -145,6 +159,15 @@ function ReaderShell() {
             </summary>
             <div className="account-popover">
               <p className="caption">{home.data?.user.name ?? "Minha conta"}</p>
+              {app.localProfile && <p className="caption">{app.localProfile.label}</p>}
+              {app.repository?.refresh && <button disabled={refreshing} onClick={async () => {
+                setRefreshing(true); setRefreshError("");
+                try { await app.repository?.refresh?.(); }
+                catch { setRefreshError("Não foi possível atualizar. Tente novamente quando estiver conectado."); }
+                finally { setRefreshing(false); }
+              }}><RefreshCw size={16} />{refreshing ? "Atualizando…" : "Atualizar conteúdo"}</button>}
+              {refreshError && <ErrorMessage message={refreshError} />}
+              {canPublish(app.localProfile?.editorial) && <Link to="/editorial"><PenLine size={16} />Editorial local</Link>}
               <Link to="/ajuda">
                 <HelpCircle size={16} />
                 Ajuda e instalação
@@ -163,7 +186,7 @@ function ReaderShell() {
                 }}
               >
                 <LogOut size={16} />
-                Sair
+                {app.localProfile ? "Sair / trocar perfil" : "Sair"}
               </button>
               {logoutError && <ErrorMessage message={logoutError} />}
             </div>
@@ -180,6 +203,7 @@ function ReaderShell() {
           </span>
         </div>
       )}
+      {app.localProfile && <div className="preview-strip"><span className="preview-dot" />Desenvolvimento local <span className="preview-long">· Login simulado · {app.localProfile.label}</span></div>}
       {isReading && home.data?.settings?.monthlyVerse && (
         <aside className="monthly-theme" aria-label="Tema do mês">
           <div>
@@ -195,11 +219,11 @@ function ReaderShell() {
       <main id="main" tabIndex={-1}>
         <Outlet />
       </main>
-      {home.data?.devotional?.audioUrl && (
+      {audio?.audioUrl && (
         <div className="persistent-audio">
           <AudioPlayer
-            key={home.data.devotional.id}
-            devotional={home.data.devotional}
+            key={audio.id + audio.audioUrl}
+            devotional={audio}
           />
         </div>
       )}
@@ -214,6 +238,7 @@ function ReaderShell() {
           <BookOpen size={21} />
           <span>Devocional</span>
         </Link>
+        {app.repository?.reading && <Link to="/biblia" search={{ book: "jo", chapter: 1 }} activeProps={{ className: "active" }}><BookText size={21} /><span>Bíblia</span></Link>}
         <Link
           to="/comunidade"
           activeOptions={{ exact: false }}
@@ -224,6 +249,7 @@ function ReaderShell() {
         </Link>
       </nav>
     </ReaderContext.Provider>
+    </AudioSelectionContext.Provider>
   );
 }
 const rootRoute = createRootRoute({
@@ -240,20 +266,27 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: () => <Navigate to="/devocional" />,
+  component: () => <RouteRedirect to="/devocional" />,
+});
+const readerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "_reader",
+  component: ReaderLayout,
 });
 const devotionalRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => readerRoute,
   path: "/devocional",
-  component: DevotionalPage,
+  component: ReadingPage,
 });
+const bibleRoute = createRoute({ getParentRoute: () => readerRoute, path: "/biblia", validateSearch: (search) => bibleParamsSchema.parse(search), component: BiblePage });
+const editorialRoute = createRoute({ getParentRoute: () => readerRoute, path: "/editorial", component: EditorialPage });
 const communitiesRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => readerRoute,
   path: "/comunidade",
   component: CommunitiesPage,
 });
 const communityRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => readerRoute,
   path: "/comunidade/$communityId",
   component: () => {
     const { communityId } = communityRoute.useParams();
@@ -267,7 +300,7 @@ const signInRoute = createRoute({
   component: SignInPage,
 });
 const listsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => readerRoute,
   path: "/comunidade/$communityId/listas",
   component: () => {
     const { communityId } = listsRoute.useParams();
@@ -275,7 +308,7 @@ const listsRoute = createRoute({
   },
 });
 const membersRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => readerRoute,
   path: "/comunidade/$communityId/membros",
   component: () => {
     const { communityId } = membersRoute.useParams();
@@ -294,22 +327,22 @@ const privacyRoute = createRoute({
 });
 const routeTree = rootRoute.addChildren([
   indexRoute,
-  devotionalRoute,
-  communitiesRoute,
-  communityRoute,
-  listsRoute,
-  membersRoute,
+  readerRoute.addChildren([devotionalRoute, bibleRoute, editorialRoute, communitiesRoute, communityRoute, listsRoute, membersRoute]),
   signInRoute,
   helpRoute,
   privacyRoute,
 ]);
-const router = createRouter({ routeTree, defaultPreload: "intent" });
+const history = createBrowserHistory();
+function createAppRouter() {
+  return createRouter({ routeTree, history, defaultPreload: "intent" });
+}
 declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router;
+    router: ReturnType<typeof createAppRouter>;
   }
 }
 export function App(props: AppContextValue) {
+  const [router] = useState(createAppRouter);
   return (
     <AppProvider value={props}>
       <RouterProvider router={router} />

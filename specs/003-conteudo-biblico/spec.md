@@ -1,5 +1,9 @@
 # Spec: Conteúdo Bíblico — Importação, Cache e Leitura
 
+> Implementação local autorizada e executada pela [spec 006](../006-desenvolvimento-local/spec.md):
+> corpus AA completo em SQLite, importação manual e leitura/busca locais. O desenho
+> Convex abaixo continua pendente de implementação; não confundir os dois bancos.
+
 > Revisão de 04/10/2026: leitura bíblica incluída no marco local das três áreas.
 > Fonte escolhida pelo usuário: ABíbliaDigital em `abibliadigital.api.br`.
 > O usuário confirmou importação para o banco e versão inicial **AA** em 04/10/2026.

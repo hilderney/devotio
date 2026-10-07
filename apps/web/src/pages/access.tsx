@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useSearch } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { loginDestination } from "domain/core";
 import {
   ArrowLeft,
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useApp } from "../context";
 import { Brand, Ornament, ErrorMessage } from "../components";
+import { RouteRedirect } from "../redirect";
 export function SignInPage() {
   const app = useApp();
   const search = useSearch({ from: "/entrar" });
@@ -20,7 +21,7 @@ export function SignInPage() {
       : "",
   );
   const [pending, setPending] = useState(false);
-  if (app.repository) return <Navigate to={destination} replace />;
+  if (app.repository) return <RouteRedirect to={destination} />;
   return (
     <div className="access-page">
       <Link to="/entrar">
@@ -38,7 +39,17 @@ export function SignInPage() {
           Um lugar para ler a Palavra, encontrar descanso
           <br className="desktop-only" /> e caminhar em comunidade.
         </p>
-        {app.configured || app.preview ? (
+        {app.localProfiles ? <div className="profile-picker" aria-label="Perfis de desenvolvimento">
+          <p className="eyebrow">ENTRAR COM UM PERFIL LOCAL</p>
+          {app.localProfiles.map(profile => <button key={profile.id} className="profile-card" disabled={pending} onClick={async () => {
+            setPending(true); setError("");
+            try { await app.onLogin(destination, profile.id); }
+            catch { setError("Não foi possível entrar. Verifique o servidor local."); }
+            finally { setPending(false); }
+          }}><span className="profile-monogram" aria-hidden="true">{profile.name[0]}</span><span><strong>{profile.name}</strong><span className="profile-role">{profile.label}</span><span className="profile-description">{profile.description}</span></span><ArrowRight size={17} /></button>)}
+          <p className="caption">Login simulado · pessoas fictícias · banco persistente nesta máquina.</p>
+          {app.localError && <ErrorMessage message={app.localError} />}
+        </div> : app.configured || app.preview ? (
           <button
             className="button login-button"
             disabled={pending}
@@ -134,10 +145,14 @@ export function InfoPage({ kind }: { kind: "help" | "privacy" }) {
               e procure “Instalar aplicativo” ou “Adicionar à tela inicial”.
             </p>
             <p>
-              A instalação é opcional. Para carregar o conteúdo, você precisa de
-              internet.
+              A instalação é opcional. Novos conteúdos precisam de conexão.
             </p>
           </section>
+          {app.localProfiles && <section>
+            <h2>Leituras guardadas</h2>
+            <p>Os oito dias de devocionais e os seis capítulos bíblicos mais recentemente acessados ficam guardados neste navegador, junto com seus favoritos. Você pode relê-los sem conexão enquanto a sessão estiver aberta.</p>
+            <p>No menu da conta, escolha “Atualizar conteúdo” para buscar correções de leitura e novidades da comunidade. Ao voltar à comunidade, as informações também são atualizadas.</p>
+          </section>}
           <section>
             <h2>Sua comunidade</h2>
             <p>
@@ -147,13 +162,14 @@ export function InfoPage({ kind }: { kind: "help" | "privacy" }) {
               membros.
             </p>
           </section>
-          {app.preview && (
+          {(app.preview || app.localProfiles) && (
             <section className="notice">
               <h2>Sobre esta prévia</h2>
               <p>
                 As pessoas, mensagens e textos deste ambiente são ilustrativos.
-                As alterações funcionam apenas nesta sessão e são descartadas ao
-                recarregar. Para experimentar convites, use{" "}
+                No modo de desenvolvimento, alterações ficam no banco SQLite
+                desta máquina, inclusive após reiniciar. Saia da conta para
+                experimentar outro perfil. Para entrar na Esperança, use{" "}
                 <strong>ESPERANC</strong>.
               </p>
             </section>
@@ -184,9 +200,11 @@ export function InfoPage({ kind }: { kind: "help" | "privacy" }) {
           <section>
             <h2>Na prévia local</h2>
             <p>
-              Usamos dados ilustrativos mantidos na memória. Não há autenticação
-              real, envio de mensagens a outras pessoas, analytics ou
-              armazenamento das suas marcações neste dispositivo.
+              Os perfis são fictícios e o login é simulado. Dados e marcações
+              ficam no banco local desta máquina. Devocionais recentes, os seis
+              capítulos acessados por último e favoritos também ficam guardados
+              neste navegador, até você sair, trocar de conta ou a sessão expirar.
+              Não há analytics.
             </p>
           </section>
           <section>
