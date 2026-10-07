@@ -1,5 +1,12 @@
 # Plano de desenvolvimento do produto completo
 
+> Atualização de execução em 04/10/2026: o usuário autorizou implementar e delegou
+> decisões restantes conforme a documentação. A [spec 006](../../specs/006-desenvolvimento-local/spec.md)
+> registra três abas, SQLite, login mockado, limpeza de favoritos no logout,
+> importação manual de AA e operação editorial local. Não é mais necessário
+> aguardar D3: foi adotada a recomendação já presente no plano 001. O levantamento
+> abaixo conserva as opções apresentadas; estado de execução nas tasks 006.
+
 **Data:** 04/10/2026. **Estado:** marco local, provedor, importação para o banco e versão inicial AA definidos; demais decisões pendentes antes da execução de requisitos novos.
 
 O pedido atual reúne Devocional, leitura bíblica e Comunidades. Este documento

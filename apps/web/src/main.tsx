@@ -1,4 +1,4 @@
-import React, { useMemo, useState, type ReactNode } from "react";
+import React, { useMemo, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { ConvexReactClient, useConvexAuth } from "convex/react";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
@@ -11,7 +11,6 @@ import { createConvexRepository } from "domain/convex";
 import {
   clientConfiguration,
   loginDestination,
-  type Repository,
 } from "domain/core";
 import { tokens } from "ui-kit";
 import { App } from "./router";
@@ -103,28 +102,8 @@ if (configuration.mode === "live") {
     </ConvexBetterAuthProvider>,
   );
 } else if (import.meta.env.DEV && configuration.mode === "preview") {
-  const { createPreviewRepository } = await import("domain/preview");
-  function PreviewApp() {
-    const [repository, setRepository] = useState<Repository | null>(() =>
-      createPreviewRepository(),
-    );
-    return (
-      <App
-        repository={repository}
-        preview
-        configured={false}
-        loading={false}
-        userKey={repository ? "preview" : "guest"}
-        onLogin={async () => {
-          setRepository(createPreviewRepository());
-        }}
-        onLogout={async () => {
-          setRepository(null);
-        }}
-      />
-    );
-  }
-  render(<PreviewApp />);
+  const { LocalApp } = await import("./local-app");
+  render(<LocalApp />);
 } else {
   if (
     import.meta.env.DEV &&

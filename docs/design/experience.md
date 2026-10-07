@@ -29,7 +29,10 @@ Acesso
       └─ Sair / privacidade / ajuda / instalar quando disponível
 ```
 
-Somente duas entradas na navegação principal: **Devocional** e **Comunidade**. Em celular, barra inferior com ícone e rótulo; respeitar área segura e reservar espaço no conteúdo. Em desktop, navegação compacta no topo. O menu de conta não precisa de uma terceira aba.
+Conforme a spec 006, o modo local possui três entradas: **Devocional**, **Bíblia**
+e **Comunidade**. Devocional é a entrada padrão. Em celular, barra inferior com
+ícone e rótulo; em desktop, navegação compacta no topo. O menu de conta mantém
+ajuda, privacidade, saída/troca de perfil e editorial somente para o perfil autorizado.
 
 URLs reais planejadas: `/devocional`, `/comunidade`, `/comunidade/$communityId`, subrotas `membros` e `listas`; acesso em `/entrar`. Links diretos preservam o destino após login. O histórico do navegador e o botão voltar devem funcionar.
 

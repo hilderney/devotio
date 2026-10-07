@@ -1,12 +1,15 @@
 import { createContext, useContext, type ReactNode } from "react";
-import type { Repository, HomeData } from "domain/core";
+import type { Repository, HomeData, LocalProfile, Devotional } from "domain/core";
 export interface AppContextValue {
   repository: Repository | null;
   preview?: boolean;
+  localProfiles?: LocalProfile[];
+  localProfile?: LocalProfile;
+  localError?: string;
   configured: boolean;
   loading: boolean;
   userKey: string;
-  onLogin: (destination: string) => Promise<void>;
+  onLogin: (destination: string, profileId?: string) => Promise<void>;
   onLogout: () => Promise<void>;
 }
 export const AppContext = createContext<AppContextValue | null>(null);
@@ -23,6 +26,7 @@ export const ReaderContext = createContext<{
 export function useReader() {
   return useContext(ReaderContext);
 }
+export const AudioSelectionContext = createContext<(devotional: Devotional | null) => void>(() => {});
 export function AppProvider({
   value,
   children,

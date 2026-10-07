@@ -69,7 +69,9 @@ export type Watch<T> = (
   onError: (error: Error) => void,
 ) => Unsubscribe;
 export interface Repository {
-  mode: "preview" | "live";
+  mode: "preview" | "live" | "local";
+  reading?: import("./reading").ReadingRepository;
+  refresh?(): Promise<void>;
   watchHome(date: string): Watch<HomeData>;
   watchCommunities(): Watch<Community[]>;
   watchCommunity(

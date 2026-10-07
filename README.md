@@ -2,7 +2,7 @@
 
 Um espaço calmo para ler a Palavra, meditar e orar. Um app devocional minimalista, com cuidado editorial e uma comunidade discreta sob supervisão pastoral.
 
-**Fase atual:** nova aplicação web implementada e validada localmente, com prévia interativa. Convex/Google e conteúdo real aguardam homologação. **Lançamento:** web responsiva instalável (PWA), gratuita para o usuário e planejada dentro de cotas gratuitas. Apps de loja ficam para depois.
+**Fase atual:** web de desenvolvimento com Devocional, Bíblia AA e Comunidades, login simulado por perfil e SQLite persistente. [Como usar o ambiente local](docs/engineering/local-development.md). Publicação será planejada depois; Google/Convex reais e apps de loja permanecem para etapas posteriores.
 
 ## Comece aqui
 
@@ -55,8 +55,12 @@ Inventário conferido em **03/10/2026** nos manifests, configurações e [packag
 | `@convex-dev/better-auth` | 0.12.5 | Componente de auth no Convex, adapter, provider React e integração entre domínios |
 | Google OAuth | Serviço externo | Único provedor de login configurado no código; credenciais e homologação pendentes |
 | Zod | 3.25.76 | Validação compartilhada de formulários, entradas, ambiente e destinos de login |
+| SQLite + `node:sqlite` | Incluídos no Node 24 | Banco local persistente, transações, constraints e busca FTS5; exclusivo de desenvolvimento |
+| HTTP + cookie HttpOnly/SameSite | APIs Node/navegador | Sessão mock revogável e autorização no servidor local, com checagem de origem e conta |
+| localStorage + cache do domínio | API nativa / implementação interna | Oito devocionais com carga diária incremental; catálogo AA, seis capítulos LRU e favoritos por conta; sem polling HTTP |
+| ABíbliaDigital — AA | Corpus fixado por commit/hash | 66 livros e 31.104 versículos importados do provedor para SQLite; sem API externa na leitura |
 
-Os pacotes internos são `backend`, `domain` e `ui-kit`. O backend concentra identidade, autorização e transações. O domínio expõe `domain/core` (contratos, regras e validadores), `domain/react` (hooks), `domain/convex` (integração real) e `domain/preview` (prévia efêmera exclusiva de desenvolvimento). O `ui-kit` compartilha tokens de cor, espaçamento e tipografia.
+Os pacotes internos são `backend`, `domain` e `ui-kit`. O backend concentra identidade, autorização e transações. O domínio expõe `domain/core` (contratos, regras e validadores), `domain/react` (hooks), `domain/convex` (integração real) e `domain/local` (adaptador HTTP do modo local). `domain/preview` é a prévia antiga em memória, não usada na entrada atual. O `ui-kit` compartilha tokens de cor, espaçamento e tipografia.
 
 ### PWA e distribuição
 
@@ -69,6 +73,12 @@ Os pacotes internos são `backend`, `domain` e `ui-kit`. O backend concentra ide
 | Convex Free | Backend planejado | Plano previsto para o piloto; configuração de contas e acompanhamento de cotas pendentes |
 
 O service worker não registra cache de APIs autenticadas, comunidade, sessão ou áudio. A operação gratuita depende dos [limites e condições do piloto](docs/operations/free-launch.md).
+
+No modo local, o cache de leitura é separado do service worker e persiste após
+recarregar. Sessão mock dura 30 dias; logout/troca/expiração limpam o cache pessoal.
+Comunidades atualizam ao entrar, após ações e em **Menu da conta → Atualizar
+conteúdo**. O mesmo botão busca correções editoriais. Detalhes e orçamento de
+chamadas no [guia local](docs/engineering/local-development.md).
 
 ### Testes e qualidade
 
@@ -97,14 +107,17 @@ Na raiz, com Node.js 24.19.0 e npm 11.6.2 disponíveis:
 
 ```sh
 npm ci
-npm run dev --workspace=web
+npm run setup:local
+npm run dev
 ```
 
-A prévia abre em `http://127.0.0.1:3000`. Sem as duas URLs Convex, o modo de desenvolvimento usa dados ilustrativos em memória. Isso não configura autenticação nem um backend de produção. Consulte o [guia de desenvolvimento](docs/engineering/development.md) e o [exemplo de ambiente](apps/web/.env.example) para conectar um ambiente real.
+Abra `http://127.0.0.1:3000` e escolha Daniel (AG), Marina (membro), Lucas (sem grupo) ou Ester (editorial). Sem as duas URLs Convex, o desenvolvimento usa SQLite em `.data/devotio.sqlite`. Alterações persistem após reiniciar; os devocionais iniciais são ilustrativos. AA é importada da fonte oficial. Nesta máquina a preparação já foi feita. Veja [perfis, dados e testes](docs/engineering/local-development.md).
 
 | Comando na raiz | Finalidade |
 |---|---|
-| `npm run dev` | Iniciar apenas a web |
+| `npm run dev` | Web e backend SQLite local, quando Convex não está configurado |
+| `npm run setup:local` | Baixar AA e catálogo oficiais para importação local |
+| `npm run verify:local` | Verificar o servidor local em execução e seus controles de acesso |
 | `npm run dev --workspace=backend` | Iniciar Convex em terminal separado, após configurar o projeto |
 | `npm run lint` | Executar ESLint nos workspaces e scripts |
 | `npm run typecheck` | Conferir os tipos do monorepo |

@@ -2,7 +2,14 @@
 
 Estende [regras gerais](../../AGENTS.md) e [arquitetura](../../docs/architecture.md).
 
-React 19 + Vite SPA + TanStack Router + Tailwind 3. Sem SSR. PWA guarda somente shell estático; dados autenticados exigem rede.
+React 19 + Vite SPA + TanStack Router + Tailwind 3. Sem SSR. Service worker guarda somente shell estático; cache de leitura local abaixo é separado.
+
+Exceção de desenvolvimento autorizada em 04/10/2026: [spec 006](../../specs/006-desenvolvimento-local/spec.md)
+usa SQLite em backend/local e login mockado somente no Vite DEV sem Convex.
+Revisão autorizada em 05/10/2026: oito devocionais, favoritos e seis capítulos LRU
+persistem por conta no navegador; limpeza no logout/troca/expiração, não na recarga.
+Sem polling HTTP. Relógio local e eventos de identidade não são consultas de rede.
+Isso não autoriza bypass de Google/Convex em produção nem cache privado no service worker.
 
 - Componentes consomem domain/react; contratos e validações vêm de domain/core. Regras e autorização continuam no núcleo.
 - Seguir [UI/UX](../../docs/design/experience.md) e tokens de ui-kit.

@@ -29,7 +29,7 @@ export function useRepository() {
   if (!repository) throw new Error("RepositoryProvider ausente.");
   return repository;
 }
-function useWatch<T>(watch: Watch<T>) {
+export function useWatch<T>(watch: Watch<T>) {
   const [state, setState] = useState<{
     watch: Watch<T>;
     data?: T;

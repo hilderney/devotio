@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=web",
+    "setup:local": "node scripts/prepare-local.mjs",
+    "verify:local": "node scripts/verify-local.mjs",
     "build": "turbo run build",
     "lint": "turbo run lint && eslint scripts",
     "typecheck": "turbo run typecheck",

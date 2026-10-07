@@ -9,10 +9,13 @@ Requisitos aprovados orientam código; planos orientam implementação; tasks re
 | [003](003-conteudo-biblico/spec.md) | Importação e leitura bíblica | ABíbliaDigital, importação para o banco e AA inicial escolhidas | Integra o marco local das três áreas; spec em revisão |
 | [004](004-fundacao-lancamento/spec.md) | Fundação do lançamento web | Reconstrução autorizada e implementada localmente; homologação pendente | Auth, operação editorial, instalação e condições do piloto |
 | [005](005-piloto-publicacao/spec.md) | Publicação do piloto gratuito | Rascunho; escolhas anteriores preservadas | Planejamento retomado após o produto local completo, conforme ADR 002 |
+| [006](006-desenvolvimento-local/spec.md) | Produto local completo | Implementado com SQLite, perfis mock e AA; revisão visual pendente | Desenvolvimento autorizado em 04/10/2026; não é publicação |
 
 [Roadmap](../docs/product/roadmap.md) determina a ordem proposta. A [ADR 001](../docs/adr/001-web-first-free-launch.md) registra distribuição web primeiro; tasks nativas permanecem abertas e adiadas.
 
 ## Navegação
+
+- 006: [spec](006-desenvolvimento-local/spec.md), [plano](006-desenvolvimento-local/plan.md), [tasks](006-desenvolvimento-local/tasks.md).
 
 - 001: [spec](001-devocional-diario/spec.md), [plano](001-devocional-diario/plan.md), [tasks](001-devocional-diario/tasks.md).
 - 002: [spec](002-comunidade-v1/spec.md), [plano](002-comunidade-v1/plan.md), [tasks](002-comunidade-v1/tasks.md).

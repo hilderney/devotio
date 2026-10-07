@@ -8,16 +8,23 @@ Node **24.19.0** em .node-version e npm **11.6.2**. Na raiz:
 
 ```sh
 npm ci
+npm run setup:local
 npm run dev
 ```
 
-Abra http://127.0.0.1:3000. Sem configuração Convex, desenvolvimento abre uma **prévia local** com dados ilustrativos em memória. Recarregar descarta alterações. Criar comunidade permite experimentar a liderança; a comunidade inicial representa um membro. Código ilustrativo: ESPERANC.
+Abra http://127.0.0.1:3000. Sem configuração Convex, desenvolvimento abre o
+**produto local com SQLite e login por perfil**. Recarregar preserva dados.
+`setup:local` prepara AA; nesta máquina já foi executado. Código de convite
+inicial: ESPERANC. Veja [perfis, persistência e roteiro](local-development.md).
 
-Em produção, a prévia é eliminada do bundle. Sem configuração, o acesso fica indisponível.
+Em produção, o adaptador de desenvolvimento é eliminado do bundle e os endpoints
+locais não são montados. Sem configuração, o acesso fica indisponível.
 
 | Comando na raiz | Finalidade |
 |---|---|
 | npm run dev | Web em 127.0.0.1:3000 |
+| npm run setup:local | Preparar corpus AA oficial para SQLite |
+| npm run verify:local | Verificar servidor local aberto em outro terminal |
 | npm run dev --workspace=backend | Convex dev; requer conta e projeto |
 | npm run build | Domain/ui-kit e web/PWA; não implanta Convex |
 | npm run verify:web | Build e inspeção de PWA, licenças, ícones e exclusão de fixtures |
@@ -63,7 +70,7 @@ A mesma data corrige o registro existente e gera novo evento de auditoria. Retir
 - domain/core: tipos, regras e Zod; subpath evita colisão com o módulo nativo Node domain.
 - domain/react: provider e hooks sem DOM.
 - domain/convex: subscriptions/mutations reais.
-- domain/preview: adaptador efêmero exclusivo de DEV.
+- domain/local: adaptador HTTP do SQLite de desenvolvimento; domain/preview é a prévia antiga, não usada na entrada atual.
 - apps/web/src: apresentação, rotas e APIs do navegador.
 - packages/backend: identidade, autorização, schema, transações e editorial.
 

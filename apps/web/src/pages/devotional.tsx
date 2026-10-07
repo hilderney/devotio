@@ -10,22 +10,14 @@ export function DevotionalPage() {
         <div>
           <p className="eyebrow">
             <Sun size={15} />
-            PALAVRA, PRESENÇA E ORAÇÃO
-          </p>
-          <h1>
-            Um tempo para
-            <br />
-            <em>o que permanece.</em>
-          </h1>
-          <p className="intro-copy">
             Deixe o ruído lá fora. Acolha a Palavra aqui.
           </p>
         </div>
         <Ornament />
       </section>
       <div className="reading-meta">
-        <span className="date-label">{formatDate(date)}</span>
         <a href="#palavra" className="text-button">
+          <span className="date-label">{formatDate(date)}</span>
           Começar a leitura <ArrowDown size={14} />
         </a>
       </div>
@@ -50,7 +42,7 @@ export function DevotionalPage() {
           <article className="reading-column" id="palavra">
             <header className="section-heading">
               <span className="section-number">01</span>
-              <span className="eyebrow">A PALAVRA</span>
+              <span className="eyebrow">PALAVRA</span>
               <span className="section-rule" />
             </header>
             <h2 className="scripture-reference">{data.devotional.reference}</h2>
@@ -75,10 +67,9 @@ export function DevotionalPage() {
             </div>
             <header className="section-heading">
               <span className="section-number">02</span>
-              <span className="eyebrow">PARA MEDITAR</span>
+              <span className="eyebrow">MEDITAR</span>
               <span className="section-rule" />
             </header>
-            <h2 className="reflection-heading">A Palavra encontra a vida.</h2>
             <div className="reflection-text">
               {data.devotional.reflection
                 .split("\n")
@@ -87,13 +78,17 @@ export function DevotionalPage() {
                   <p key={index}>{paragraph}</p>
                 ))}
             </div>
-            <section className="prayer-card">
-              <div className="section-heading">
+            <div className="section-heading">
                 <span className="section-number">03</span>
-                <span className="eyebrow">UMA ORAÇÃO</span>
-                <Leaf size={17} />
-              </div>
-              <h2>Converse com Deus.</h2>
+                <span className="eyebrow">ORAÇÃO</span>
+                <span className="section-rule" />
+            </div>
+            <div className="reading-divider">
+              <span />
+              <Leaf size={18} />
+              <span />
+            </div>
+            <section className="prayer-card">
               <p>{data.devotional.prayerSuggestion}</p>
               <span className="prayer-end" aria-hidden="true">
                 ✧

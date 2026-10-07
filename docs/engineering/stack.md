@@ -12,6 +12,9 @@
 | Fontes | Lora + Inter via Fontsource | Locais; licenças OFL em public/licenses |
 | PWA | vite-plugin-pwa + Workbox | Shell estático; conteúdo privado exige rede |
 | Backend | Convex 1.45 | Builders oficiais, schema e transações; deployment pendente |
+| Backend local | SQLite via node:sqlite no Node 24 | Persistência/FTS5/transações em `.data`, servido pelo Vite DEV; não exige Docker ou Convex |
+| Login local | Cookie HttpOnly e perfis fictícios | Sessão revogável e autorização por grupo/editorial no servidor |
+| Bíblia local | AA da ABíbliaDigital | Importada uma vez; 66 livros, 1.189 capítulos, 31.104 versículos |
 | Autenticação | Better Auth ~1.6.15 + integração Convex 0.12 | Google único; credenciais e OAuth real pendentes |
 | Validação | Zod 3 em domain/core | Forms e servidor compartilham contratos |
 | Client de dados | domain/react + domain/convex | Subscriptions oficiais, sem cache adicional |
@@ -22,6 +25,9 @@
 
 O package-lock.json fixa as resoluções. Better Auth permanece na faixa compatível com @convex-dev/better-auth. A integração usa CORS, trustedOrigins, crossDomain e provider oficial. [Guia React/Vite](https://labs.convex.dev/better-auth/framework-guides/react).
 
-Sem backend paralelo, ORM, API bíblica na leitura, e-mail transacional, push, analytics ou geração editorial automática. O orçamento depende de acompanhar [cotas e limites gratuitos](../operations/free-launch.md).
+O backend SQLite de desenvolvimento foi autorizado pela [ADR 003](../adr/003-local-sqlite-mock.md).
+Produção permanece Convex. Sem ORM, API bíblica na leitura, e-mail transacional,
+push, analytics ou publicação editorial automática. O orçamento público depende
+de acompanhar [cotas e limites gratuitos](../operations/free-launch.md).
 
 Expo deverá validar versões e sessão própria quando priorizado; não há equivalência nativa já entregue.
