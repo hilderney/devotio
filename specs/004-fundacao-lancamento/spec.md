@@ -27,6 +27,10 @@ O protótipo demonstra leitura e comunidade, mas ainda não permite uma operaç�
 
 ## 4. Requisitos funcionais propostos
 
+### Revisão visual autorizada — cabeçalho desktop, 08/10/2026
+
+Nas telas que já usam a navegação comum, manter o cabeçalho acessível durante a rolagem em telas grandes. No topo, apresentação completa; ao descer, marca devotio, links Devocional/Bíblia/Comunidade em ícones com nomes acessíveis, sino visualmente menor e círculo do perfil clicável. A faixa mensal existente fica mais estreita, preservando texto e tema; não criar faixa nas rotas onde ela não existe. Retornar ao topo restaura o cabeçalho completo. Transição discreta, respeitando movimento reduzido, sem saltos da leitura nem consultas de rede. Mobile e formulários editoriais independentes mantêm os layouts previstos nas suas specs.
+
 1. Permitir acesso pelo navegador no celular e desktop, com instalação opcional na tela inicial quando suportada; instalar não é obrigatório para ler.
 2. Autenticar antes de ler, preservando spec 001. Proposta inicial: conta Google, sem senha própria. Cancelamento, falha e expiração devem permitir recuperação clara.
 3. Criar/vincular uma única conta de produto por identidade autenticada; retornar ao destino após login. Criar comunidade não concede papel editorial.

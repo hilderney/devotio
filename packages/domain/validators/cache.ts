@@ -16,6 +16,7 @@ export const localCacheSchema = z.object({
   homes: z.record(dateSchema, home).refine(value => Object.keys(value).length <= 8),
   favorites: z.array(z.object({ devotional, favoritedAt: z.number() })),
   catalog: z.object({ books: z.array(book), version: z.literal("aa"), verses: z.number(), importedAt: z.number().nullable(), source: z.string() }).optional(),
+  chapterVisits: z.array(z.string()).max(6).optional(),
   chapters: z.array(z.object({
     book, chapter: z.number(),
     verses: z.array(z.object({ abbrev: z.string(), bookName: z.string(), chapter: z.number(), number: z.number(), text: z.string() })),

@@ -2,6 +2,8 @@ import type { Repository, Watch, HomeData, Community, CommunityDetail } from "./
 import { dateInZone, recentDates, type LocalProfile, type ReadingData, type BibleCatalog, type BibleChapter, type BibleResults, type EditorialEntry } from "./reading";
 import { localCommandSchema, localQuerySchema, type LocalCommand, type LocalQuery } from "./validators/local";
 import { localCacheSchema, type LocalCache, type LocalCacheStorage } from "./local-cache";
+import { notificationSummarySchema, type NotificationSummary, type NotificationPage, type CommunityQuoteDraft } from "./sharing";
+import { chapterWindow } from "./preferences";
 export type { LocalCacheStorage, LocalCache } from "./local-cache";
 
 export async function localRequest<T>(path: string, body?: unknown, profileId?: string): Promise<T> {
@@ -27,7 +29,7 @@ interface Entry { observers: Set<Observer>; value?: unknown; ready: boolean; rev
 interface Options { now?: () => Date; timeZone?: string; sessionExpiresAt?: number; onStorageWarning?: (message: string) => void }
 export function createLocalRepository(storage: LocalCacheStorage, onExpired: () => void, profileId: string, options: Options = {}) {
   const now = options.now ?? (() => new Date());
-  const timeZone = options.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const timeZone = options.timeZone ?? "America/Sao_Paulo";
   const today = () => dateInZone(timeZone, now());
   const empty = (): LocalCache => ({ version: 1, owner: profileId, day: today(), homes: {}, favorites: [], chapters: [] });
   let cache = empty(), disposed = false, revision = 0, storageWarning: string | undefined;
@@ -35,6 +37,8 @@ export function createLocalRepository(storage: LocalCacheStorage, onExpired: () 
   const entries = new Map<string, Entry>();
   const requests = new Map<string, Promise<unknown>>();
   const dirtyDates = new Set<string>();
+  const searchCache = new Map<string, BibleResults>();
+  let notificationSummary: NotificationSummary | undefined;
   let observedDay = today();
   let windowRequest: Promise<void> | undefined;
   let favoritesRequest: Promise<ReadingData> | undefined;
@@ -161,15 +165,19 @@ export function createLocalRepository(storage: LocalCacheStorage, onExpired: () 
   }
   async function afterCommand(input: LocalCommand, result: unknown) {
     switch (input.action) {
-      case "publish": case "withdraw": {
-        const date = input.action === "publish" ? input.input.date : input.date;
+      case "publish": case "schedule": case "withdraw": {
+        const date = input.action === "withdraw" ? input.date : input.input.date;
         revision++; delete cache.homes[date]; dirtyDates.add(date); persist();
         await invalidate(key => key === "editorial" || key === "home:" + date); break;
       }
-      case "setFavorite": reading = undefined; await favoritesRequest; reading = undefined; await invalidate(key => key === "reading"); break;
+      case "setFavorite": case "restoreFavorite": reading = undefined; await favoritesRequest; reading = undefined; await invalidate(key => key === "reading"); break;
       case "createCommunity": case "joinCommunity":
         await invalidate(key => key === "communities" || key.startsWith("community:" + String(result) + ":")); break;
-      case "sendMessage": case "createChecklist": case "updateScripture": case "removeMember":
+      case "readNotification": await acceptNotificationEvent(result); break;
+      case "saveQuoteDrafts": await invalidate(key => input.ids.some(id => key === "drafts:" + id)); break;
+      case "updateQuoteDraft": case "deleteQuoteDraft": case "publishQuoteDraft":
+        await invalidate(key => key === "drafts:" + input.id || (input.action === "publishQuoteDraft" && key.startsWith("community:" + input.id + ":"))); break;
+      case "sendQuote": case "sendMessage": case "createChecklist": case "updateScripture": case "removeMember":
         await invalidate(key => key.startsWith("community:" + input.id + ":") || (input.action === "removeMember" && key === "communities")); break;
       case "setTick":
         await invalidate(key => {
@@ -177,6 +185,14 @@ export function createLocalRepository(storage: LocalCacheStorage, onExpired: () 
           return key.startsWith("community:") && !!detail?.lists.some(list => list.items.some(item => item.id === input.itemId));
         }); break;
     }
+  }
+  async function acceptNotificationEvent(value: unknown) {
+    const parsed = notificationSummarySchema.safeParse(value);
+    if (disposed || !parsed.success || (notificationSummary && parsed.data.revision <= notificationSummary.revision)) return;
+    notificationSummary = parsed.data;
+    const entry = entries.get("notifications:summary");
+    if (entry) { entry.revision++; entry.value = notificationSummary; entry.ready = true; entry.observers.forEach(observer => observer.next(notificationSummary)); }
+    await invalidate(key => key.startsWith("notifications:page:"));
   }
   async function command<T>(input: LocalCommand): Promise<T> {
     try {
@@ -186,19 +202,65 @@ export function createLocalRepository(storage: LocalCacheStorage, onExpired: () 
       return result;
     } catch (error) { if ((error as { status?: number })?.status === 401) expire(); throw error; }
   }
-  async function chapter(abbrev: string, number: number): Promise<BibleChapter | null> {
+  let pinnedChapters: string[] = [], visitedChapters = cache.chapterVisits ?? cache.chapters.map(value => `${value.book.abbrev}:${value.chapter}`), chapterGeneration = 0;
+  let prefetches = 0;
+  const prefetchQueue: (() => void)[] = [];
+  async function chapter(abbrev: string, number: number, preload = false): Promise<BibleChapter | null> {
+    const key = `${abbrev}:${number}`;
+    const generation = preload ? chapterGeneration : ++chapterGeneration;
+    if (preload && !pinnedChapters.includes(key)) return null;
+    while (preload && prefetches >= 2) await new Promise<void>(resolve => prefetchQueue.push(resolve));
+    if (preload) prefetches++;
     const cached = cache.chapters.find(value => value.book.abbrev === abbrev && value.chapter === number);
-    const value = cached ?? await query<BibleChapter | null>({ query: "chapter", abbrev, chapter: number });
-    if (!disposed && value) {
-      cache.chapters = [value, ...cache.chapters.filter(item => item.book.abbrev !== abbrev || item.chapter !== number)].slice(0, 6);
-      persist();
+    try {
+      if (disposed || (preload && !pinnedChapters.includes(key))) return null;
+      const value = cached ?? await query<BibleChapter | null>({ query: "chapter", abbrev, chapter: number });
+      if (!disposed && value && generation === chapterGeneration && (!preload || pinnedChapters.includes(key))) {
+        if (!preload) {
+          pinnedChapters = chapterWindow(number, value.book.chapters).map(item => `${abbrev}:${item}`);
+          visitedChapters = [key, ...visitedChapters.filter(item => item !== key)].slice(0, 6);
+          cache.chapterVisits = visitedChapters;
+        }
+        const values = [value, ...cache.chapters.filter(item => item.book.abbrev !== abbrev || item.chapter !== number)];
+        const rank = (item: BibleChapter) => {
+          const id = `${item.book.abbrev}:${item.chapter}`, visit = visitedChapters.indexOf(id);
+          return pinnedChapters.includes(id) ? -1 : visit < 0 ? 99 : visit;
+        };
+        const kept = new Set([...values].sort((a, b) => rank(a) - rank(b)).slice(0, 6));
+        cache.chapters = values.filter(item => kept.has(item));
+        if (!cached || !preload) persist();
+      }
+      return value;
+    } finally {
+      if (preload) { prefetches--; prefetchQueue.shift()?.(); }
     }
-    return value;
   }
   const repository: Repository = {
     mode: "local",
+    notifications: {
+      watchSummary: () => watch("notifications:summary", async () => {
+        if (notificationSummary) return notificationSummary;
+        const value = notificationSummarySchema.parse(await query<NotificationSummary>({ query: "notificationSummary" }));
+        // SSE may have assigned a newer summary while the request was awaiting.
+        const current = notificationSummary as NotificationSummary | undefined;
+        if (!current || value.revision >= current.revision) notificationSummary = value;
+        return notificationSummary ?? value;
+      }),
+      watchPage: cursor => watch("notifications:page:" + cursor, () => query<NotificationPage>({ query: "notifications", cursor })),
+      markRead: async id => { await command<NotificationSummary>({ action: "readNotification", id }); },
+      refresh: async () => { notificationSummary = undefined; await invalidate(key => key.startsWith("notifications:")); },
+    },
+    sharing: {
+      watchDrafts: id => watch("drafts:" + id, () => query<CommunityQuoteDraft[]>({ query: "quoteDrafts", id })),
+      saveDrafts: (ids, selection, requestId) => command<CommunityQuoteDraft[]>({ action: "saveQuoteDrafts", ids, selection, requestId }),
+      updateDraft: (id, draftId, selection, comment) => command({ action: "updateQuoteDraft", id, draftId, selection, comment }),
+      publishDraft: (id, draftId, selection, comment) => command({ action: "publishQuoteDraft", id, draftId, selection, comment }),
+      deleteDraft: (id, draftId) => command({ action: "deleteQuoteDraft", id, draftId }),
+      sendQuote: (id, selection, comment, requestId) => command<string>({ action: "sendQuote", id, selection, comment, requestId }),
+      message: (id, messageId) => query({ query: "communityMessage", id, messageId }),
+    },
     async refresh() {
-      revision++; recentDates(today()).forEach(date => dirtyDates.add(date)); reading = undefined;
+      revision++; recentDates(today()).forEach(date => dirtyDates.add(date)); reading = undefined; notificationSummary = undefined;
       await windowRequest?.catch(() => {}); await favoritesRequest?.catch(() => {}); reading = undefined;
       await loadWindow();
       await invalidate(() => true);
@@ -216,22 +278,32 @@ export function createLocalRepository(storage: LocalCacheStorage, onExpired: () 
     removeMember: (id, memberId) => command<void>({ action: "removeMember", id, memberId }),
     reading: {
       watchReading: () => watch("reading", readFavorites),
-      setFavorite: (date, saved) => command<void>({ action: "setFavorite", date, saved, timeZone }),
+      setFavorite: (date, saved) => command<string | null>({ action: "setFavorite", date, saved, timeZone }),
+      restoreFavorite: token => command<void>({ action: "restoreFavorite", token }),
       watchBible: () => watch("bible", async () => {
         if (cache.catalog) return cache.catalog;
         const value = await query<BibleCatalog>({ query: "bible" });
         if (!disposed && value.books.length) { cache.catalog = value; persist(); }
         return value;
       }),
-      watchChapter: (abbrev, number) => watch("chapter:" + abbrev + ":" + number, () => chapter(abbrev, number)),
-      watchSearch: (text, page) => watch("search:" + text + ":" + page, () => query<BibleResults>({ query: "search", text, page })),
+      watchChapter: (abbrev, number, preload = false) => watch((preload ? "prefetch:" : "chapter:") + abbrev + ":" + number, () => chapter(abbrev, number, preload)),
+      watchSearch: (text, page) => watch("search:" + text + ":" + page, async () => {
+        const key = text.trim().toLowerCase() + ":" + page;
+        const cached = searchCache.get(key);
+        if (cached) { searchCache.delete(key); searchCache.set(key, cached); return cached; }
+        const value = await query<BibleResults>({ query: "search", text, page });
+        if (!disposed) { searchCache.set(key, value); if (searchCache.size > 20) searchCache.delete(searchCache.keys().next().value!); }
+        return value;
+      }),
       watchEditorial: () => watch("editorial", () => query<EditorialEntry[]>({ query: "editorial" })),
       publish: input => command<void>({ action: "publish", input }),
+      schedule: input => command<void>({ action: "schedule", input }),
       withdraw: (date, reason) => command<void>({ action: "withdraw", date, reason }),
     },
   };
   return {
     repository,
+    acceptNotificationEvent,
     async checkDay() {
       if (options.sessionExpiresAt && now().getTime() >= options.sessionExpiresAt) { expire(); return; }
       if (!disposed && observedDay !== today()) {

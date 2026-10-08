@@ -1,0 +1,30 @@
+import type { BibleQuote, BibleSelection } from "./sharing";
+import type { Devotional } from "./types";
+import { dateInZone } from "./reading";
+
+export interface EditorialDraft {
+  scripture: string; reference: string; translation: string; selection?: BibleSelection;
+  reflection: string; prayerSuggestion: string; date: string; licenseEvidence: string;
+  programming: boolean; query: string;
+}
+export function editorialDraft(existing?: Devotional, quote?: BibleQuote): EditorialDraft {
+  return {
+    scripture: quote?.text ?? existing?.scripture ?? "", reference: quote?.reference ?? existing?.reference ?? "",
+    translation: quote?.versionName ?? existing?.translation ?? "", selection: quote ?? existing?.selection,
+    reflection: existing?.reflection ?? "", prayerSuggestion: existing?.prayerSuggestion ?? "",
+    date: existing?.date ?? dateInZone("America/Sao_Paulo"),
+    licenseEvidence: existing?.licenseEvidence ?? "AA · ABíbliaDigital; uso no ambiente local. Distribuição pública depende de validação de licença.",
+    programming: false, query: "",
+  };
+}
+export function applyEditorialQuote(draft: EditorialDraft, quote: BibleQuote): EditorialDraft {
+  return { ...draft, scripture: quote.text, reference: quote.reference, translation: quote.versionName, selection: quote };
+}
+export interface CommunityWritingDraft {
+  communityId: string; draftId: string | null; quote: BibleQuote | null; comment: string;
+  query: string; open: boolean; requestId: string;
+}
+export interface BiblePickerState {
+  target: { kind: "devotional"; key: string; date?: string } | { kind: "community"; communityId: string; draftId?: string | null };
+  book: string; chapter: number; selection: BibleSelection | null; query: string; scrollY?: number;
+}

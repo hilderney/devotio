@@ -1,9 +1,12 @@
+import { IconButton, Button } from "./ui/button";
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type ReactNode,
   type FormEvent,
+  type RefObject,
 } from "react";
 import {
   AlertCircle,
@@ -88,36 +91,56 @@ export function Modal({
   title,
   children,
   onClose,
+  initialFocusRef,
+  returnFocusRef,
+  id,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  initialFocusRef?: RefObject<HTMLElement | null>;
+  returnFocusRef?: RefObject<HTMLElement | null>;
+  id?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   useEffect(() => {
     const dialog = ref.current;
     const previous = document.activeElement as HTMLElement | null;
     dialog?.showModal();
+    initialFocusRef?.current?.focus({ preventScroll: true });
     return () => {
       dialog?.close();
-      previous?.focus();
+      (returnFocusRef?.current ?? previous)?.focus({ preventScroll: true });
     };
-  }, []);
+  }, [initialFocusRef, returnFocusRef]);
   return (
     <dialog
+      id={id}
       ref={ref}
       className="modal"
-      aria-labelledby="dialog-title"
-      onCancel={onClose}
+      aria-labelledby={titleId}
+      onCancel={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onClose();
+      }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target !== e.currentTarget) return;
+        const bounds = e.currentTarget.getBoundingClientRect();
+        const outside =
+          e.clientX <= bounds.left ||
+          e.clientX >= bounds.right ||
+          e.clientY <= bounds.top ||
+          e.clientY >= bounds.bottom;
+        if (outside) onClose();
       }}
     >
       <div className="modal-head">
-        <h2 id="dialog-title">{title}</h2>
-        <button className="icon-button" aria-label="Fechar" onClick={onClose}>
+        <h2 id={titleId}>{title}</h2>
+        <IconButton variant="ghost" aria-label="Fechar" onClick={onClose}>
           <X size={20} />
-        </button>
+        </IconButton>
       </div>
       {children}
     </dialog>
@@ -154,10 +177,10 @@ export function ActionForm({
     <form onSubmit={submit} className="form" aria-busy={pending}>
       {children}
       {error && <ErrorMessage message={error} />}
-      <button className="button" disabled={pending}>
+      <Button type="submit" disabled={pending}>
         {pending ? "Um instante…" : label}
         <ArrowRight size={16} />
-      </button>
+      </Button>
     </form>
   );
 }
@@ -221,7 +244,7 @@ export function AudioPlayer({ devotional }: { devotional: Devotional }) {
         <Headphones size={17} />
         <span>Ouvir a Palavra</span>
       </div>
-      <button
+      <IconButton
         className="audio-toggle"
         aria-label={playing ? "Pausar devocional" : "Ouvir devocional"}
         onClick={async () => {
@@ -235,7 +258,7 @@ export function AudioPlayer({ devotional }: { devotional: Devotional }) {
         }}
       >
         {playing ? <Pause size={18} /> : <Play size={18} />}
-      </button>
+      </IconButton>
       <audio
         ref={audio}
         src={devotional.audioUrl}

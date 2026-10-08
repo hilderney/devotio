@@ -38,6 +38,17 @@ impressão de "sobriedade" que o produto se propõe a ter.
 
 ## 4. Requisitos funcionais
 
+### Revisão visual autorizada — 08/10/2026
+
+- A faixa superior reúne `Devocional dd/MM/aaaa`, seta independente para abrir os recentes, `Favoritos` e ação de favoritar a leitura exibida (marcador sem check/com check).
+- A seta abre um modal com os oito dias do cache: data, referência e prévia do texto base. Escolher um item fecha o modal e abre a leitura sem nova consulta de dados já carregados.
+- Alternar entre Devocional e Favoritos preserva a data recente selecionada. Favoritos mantém suas cópias pessoais e seleção.
+- Remover introdução ornamental, data duplicada e Começar a leitura acima de Palavra; preservar conteúdo, temas e escala de fonte.
+- Revisão para web local; mobile adiado.
+- Revisão autorizada: página ocupa ao menos a altura disponível; rodapé compacto no fim do conteúdo/tela, sem sobrepor leitura ou navegação móvel. Ícone de favorito sempre visível, desabilitado se não houver leitura nem remoção para desfazer. Ao remover o último favorito, novo clique restaura a mesma cópia pessoal (inclusive fora da janela recente), enquanto permanecer nessa tela. Sair da tela cancela essa oportunidade; perfil e conteúdo continuam privados.
+- Ícones da faixa têm superfície e contorno próprios, feedback discreto em hover/foco/toque e estado visível de modal aberto/favorito. Alvos de toque de pelo menos 44 px; respeitar preferência por movimento reduzido. Ações de texto e ícones permanecem independentes.
+
+
 1. **Tema do mês.** O sistema deve exibir `globalSettings.monthlyVerse` fixo no
    topo da tela, para todo usuário autenticado.
    - Critério de aceite: o bloco permanece visível ao rolar a tela durante a

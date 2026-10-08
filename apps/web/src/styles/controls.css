@@ -1,0 +1,293 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-size: max(0.875rem, 14px);
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+  transition:
+    background-color var(--ease),
+    border-color var(--ease),
+    color var(--ease);
+}
+
+.button--primary {
+  background: var(--dark);
+  color: var(--inverse);
+  border-color: var(--dark);
+}
+
+.button--secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.button--ghost {
+  background: transparent;
+  color: var(--muted);
+}
+
+.button--compact {
+  padding: 8px 12px;
+}
+
+.button--icon {
+  flex-shrink: 0;
+  width: 44px;
+  min-width: 44px;
+  padding: 10px;
+}
+
+.button[aria-pressed="true"],
+.button--icon[aria-expanded="true"] {
+  background: var(--prayer);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button--primary:hover:not(:disabled) {
+    background: var(--ink);
+  }
+  .button--secondary:hover:not(:disabled),
+  .button--ghost:hover:not(:disabled) {
+    background: var(--wash);
+    border-color: var(--gold);
+    color: var(--ink);
+  }
+}
+
+.button:active:not(:disabled) {
+  filter: brightness(0.94);
+}
+
+:where(.field, .devotional-editor) :is(input:not([type="range"]), textarea) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: max(1rem, 16px);
+  line-height: 1.5;
+}
+
+.modal {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 28px;
+  max-width: 480px;
+  width: calc(100% - 32px);
+  max-height: 90dvh;
+  box-shadow: 0 24px 80px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.modal::backdrop {
+  background: color-mix(in srgb, var(--ink) 32%, transparent);
+  backdrop-filter: blur(3px);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 15px;
+}
+
+.modal h2 {
+  font-size: 1.5rem;
+}
+
+.dialog-description {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-bottom: 25px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form > .button {
+  align-self: stretch;
+  margin-top: 4px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.field > span {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .modal {
+    padding: 22px;
+    overscroll-behavior: contain;
+  }
+
+  .modal h2 {
+    font-size: 1.375rem;
+  }
+
+  .dialog-description {
+    font-size: 0.75rem;
+  }
+}
+
+.modal {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal-head h2 {
+  overflow-wrap: anywhere;
+}
+
+.modal-head .button--icon {
+  flex-shrink: 0;
+}
+
+.field {
+  font-size: max(0.875rem, 14px);
+}
+.dropdown {
+  width: 100%;
+  min-width: 0;
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  line-height: 1.5;
+  transition:
+    border-color var(--ease),
+    background var(--ease);
+}
+
+.dropdown-trigger > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dropdown-trigger > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition: transform var(--ease);
+}
+
+.dropdown-trigger[aria-expanded="true"] > svg {
+  transform: rotate(180deg);
+}
+
+.dropdown-trigger:hover:not(:disabled),
+.dropdown-trigger[aria-expanded="true"] {
+  border-color: var(--gold);
+  background: var(--wash);
+}
+
+.dropdown-options {
+  max-height: min(60dvh, 480px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--ink);
+  font: inherit;
+  font-size: max(0.875rem, 14px);
+  line-height: 1.5;
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  color: var(--ink);
+  background: transparent;
+  min-height: 44px;
+  padding: 14px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dropdown-option > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dropdown-option > svg {
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+.dropdown-option[aria-selected="true"] {
+  background: var(--prayer);
+}
+
+.dropdown-option:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+  background: var(--wash);
+}
+
+.dropdown-option:hover:not(:disabled) {
+  background: var(--wash);
+}
+
+.dropdown-group {
+  padding: 12px 12px 6px;
+  color: var(--muted);
+  font-size: 0.875em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-trigger,
+  .dropdown-trigger > svg {
+    transition: none;
+  }
+}

@@ -1,0 +1,561 @@
+.section-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.section-top h2 {
+  font-size: 1.4375rem;
+}
+
+.section-top .caption {
+  margin-top: 8px;
+}
+
+.community-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.community-card {
+  border: 1px solid var(--line);
+  padding: 30px;
+  background: var(--surface);
+  border-radius: 10px;
+  transition:
+    border-color var(--ease),
+    transform var(--ease);
+}
+
+.community-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.community-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+
+.community-symbol {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: var(--prayer);
+  color: var(--gold);
+  border-radius: 50%;
+}
+
+.community-card .eyebrow {
+  font-size: 0.5625rem;
+}
+
+.community-card h2 {
+  margin-top: 12px;
+  font-size: 1.6875rem;
+}
+
+.community-card p {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-top: 14px;
+  max-width: 320px;
+}
+
+.card-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+  font-size: 0.6875rem;
+}
+
+.create-community {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin-top: 40px;
+  padding: 26px 0;
+}
+
+.create-community p {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.community-note {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+  color: var(--gold);
+  margin: 54px 0 76px;
+}
+
+.community-note p {
+  font-family: Lora, Georgia, serif;
+  font-size: 0.9375rem;
+  color: var(--ink);
+}
+
+.community-note p span {
+  font-family: Inter, sans-serif;
+  font-size: 0.6875rem;
+  color: var(--muted);
+}
+
+.community-detail {
+  padding-top: 30px;
+  min-height: 75vh;
+  padding-bottom: 70px;
+}
+
+.group-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.group-heading h1 {
+  font-size: clamp(1.875rem, 4vw, 2.625rem);
+  margin-top: 15px;
+}
+
+.group-heading .intro-copy {
+  margin-top: 12px;
+}
+
+.group-scripture {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--prayer);
+  padding: 22px 26px;
+  border-radius: 6px;
+  margin-top: 32px;
+  color: var(--gold);
+}
+
+.group-scripture p {
+  font:
+    italic 1.0625rem/1.7 Lora,
+    Georgia,
+    serif;
+  flex: 1;
+  color: var(--muted);
+}
+
+.group-tabs {
+  display: flex;
+  gap: 32px;
+  border-bottom: 1px solid var(--line);
+  margin-top: 24px;
+}
+
+.group-tabs a {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  gap: 9px;
+  padding: 20px 2px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  justify-content: center;
+
+  &:first-child {
+    justify-content: flex-start;
+  }
+
+  &:last-child {
+    justify-content: flex-end;
+  }
+}
+
+.group-tabs a.active {
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+.community-section {
+  padding-top: 36px;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.message-card {
+  padding: 26px 30px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+.message-card header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.message-card header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.message-card strong,
+.member-list strong {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.message-card header > div span {
+  font-size: 0.625rem;
+  color: var(--muted);
+}
+
+.message-author {
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  margin-left: auto;
+}
+
+.message-card > p {
+  font-size: 0.875rem;
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+
+.load-more {
+  display: flex;
+  margin: 0 auto 18px;
+}
+
+.checklist-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 28px;
+}
+
+.checklist-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.3125rem;
+  margin-bottom: 18px;
+}
+
+.checklist-card h3 svg {
+  color: var(--gold);
+}
+
+.checklist-card ul,
+.member-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 18px 0;
+  cursor: pointer;
+  position: relative;
+  min-height: 64px;
+}
+
+.checklist-card li + li {
+  border-top: 1px solid var(--line);
+}
+
+.checklist-item input {
+  position: absolute;
+  left: 0;
+  top: 19px;
+  width: 23px;
+  height: 23px;
+  opacity: 0;
+}
+
+.check-visual {
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  color: transparent;
+  background: var(--surface);
+}
+
+.checklist-item input:focus-visible + .check-visual {
+  outline:;
+  outline-offset: 4px;
+}
+
+.checklist-item input:disabled + .check-visual {
+  opacity: 0.4;
+}
+
+.check-text {
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.check-text small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.625rem;
+  margin-top: 4px;
+}
+
+.member-list {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 0 26px;
+}
+
+.member-list li {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 0;
+}
+
+.member-list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.member-list li > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.member-list li > div > span {
+  font-size: 0.625rem;
+  color: var(--muted);
+}
+
+.invitation-preview {
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.invitation-preview h3 {
+  font-size: 1.5rem;
+}
+
+.invite-content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: center;
+}
+
+.invite-content p {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.invite-content code {
+  font-family: Inter, sans-serif;
+  font-size: 1.625rem;
+  letter-spacing: 0.15em;
+  background: var(--wash);
+  padding: 18px 24px;
+  border-radius: 6px;
+}
+
+.invite-content button {
+  align-self: stretch;
+}
+
+@media (max-width: 640px) {
+  .section-top {
+    gap: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .section-top h2 {
+    font-size: 1.375rem;
+  }
+
+  .section-top .caption {
+    font-size: 0.625rem;
+  }
+
+  .community-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .community-card {
+    padding: 25px;
+  }
+
+  .community-card h2 {
+    font-size: 1.625rem;
+  }
+
+  .create-community {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .community-note {
+    margin: 38px 0 44px;
+  }
+
+  .community-note p {
+    font-size: 0.875rem;
+  }
+
+  .community-note span {
+    line-height: 1.7;
+    display: inline-block;
+    margin-top: 6px;
+  }
+
+  .community-detail {
+    padding-top: 20px;
+    padding-bottom: 45px;
+  }
+
+  .group-heading {
+    display: block;
+  }
+
+  .group-heading h1 {
+    font-size: 1.9375rem;
+    overflow-wrap: anywhere;
+  }
+
+  .group-heading .button {
+    margin-top: 20px;
+  }
+
+  .group-scripture {
+    padding: 18px;
+    gap: 12px;
+    margin-top: 26px;
+  }
+
+  .group-scripture p {
+    font-size: 0.9375rem;
+  }
+
+  .group-tabs {
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .group-tabs a {
+    font-size: 0.6875rem;
+    gap: 7px;
+    padding: 19px 0;
+  }
+
+  .community-section {
+    padding-top: 28px;
+  }
+
+  .message-card {
+    padding: 21px;
+  }
+
+  .message-card strong {
+    font-size: 0.6875rem;
+  }
+
+  .message-card > p {
+    font-size: 0.8125rem;
+  }
+
+  .message-author {
+    font-size: 0.5rem;
+  }
+
+  .checklist-card {
+    padding: 20px;
+  }
+
+  .checklist-card h3 {
+    font-size: 1.3125rem;
+  }
+
+  .check-text {
+    font-size: 0.8125rem;
+  }
+
+  .member-list {
+    padding: 0 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .message-author {
+    display: none;
+  }
+}
+
+.community-quote {
+  padding: 18px;
+  border-left: 2px solid var(--gold);
+  background: var(--wash);
+  margin: 16px 0;
+}
+
+.community-quote p {
+  white-space: pre-line;
+  font-family: Lora, Georgia, serif;
+  line-height: 1.8;
+}
+
+.community-quote footer {
+  font-size: 0.75rem;
+  margin: 10px 0;
+}
+
+.community-quote a {
+  font-size: 0.8125rem;
+  text-decoration: underline;
+}
+
+.community-composer {
+  padding: 24px;
+  margin: 20px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}

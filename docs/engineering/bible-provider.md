@@ -1,13 +1,24 @@
 # Fonte bíblica — ABíbliaDigital
 
-**Consulta:** 04/10/2026. **Escolha do provedor:** feita pelo usuário.
+**Revisão documental:** 08/10/2026. **Verificação da importação:** 04/10/2026. **Escolha do provedor:** feita pelo usuário.
+
+## Estado atual e destino proposto
+
+| Camada | Disponível hoje | Proposta |
+|---|---|---|
+| Fonte | AA importada do arquivo oficial identificado abaixo | Preservar essa fonte congelada; outras edições exigem identificação e condições de uso próprias |
+| Servidor local | Corpus no mesmo SQLite das contas; leitura e busca sem API externa | SQLite bíblico separado, conforme [plano do corpus](bible-corpus-plan.md) |
+| Navegador | Cache de seis por perfil, incluindo atual/anterior/próximo preparados nos dois modos (08/10/2026) | Pacote offline integral em migração separada |
+| Preferências | Modal com tema/fonte/modo aplicado na hora, conforme [spec 009](../../specs/009-configuracoes-leitura/spec.md), implementada localmente em 08/10/2026; não aciona o provedor | Seletor de outras edições somente após validação/migração |
+
+O contrato abaixo documenta a fonte de importação. Não é uma lista de chamadas que a tela deve executar. A revisão de hoje consultou os READMEs oficiais; não repetiu a importação nem os testes de endpoints de 04/10.
 
 O [site indicado](https://abibliadigital.api.br) aponta para a
 [documentação oficial](https://github.com/omarcoscardoso/abibliadigital-api-br).
 Esse projeto dá continuidade ao anterior; a referência histórica ao encerramento
 do domínio `.com.br` não descreve a disponibilidade do novo `.api.br`.
 
-## Contrato documentado
+## Contrato documentado da fonte
 
 Base: `https://abibliadigital.api.br/api/`.
 
@@ -21,11 +32,12 @@ Base: `https://abibliadigital.api.br/api/`.
 | POST | `verses/search` | Busca; corpo com `version` e `search` |
 
 A apresentação menciona 26 versões, mas a descrição de `versions` menciona 19.
-Validar o catálogo real na integração. O usuário escolheu **AA** e informou ter
-conferido sua presença no Swagger; o README também a lista. Registrar a edição
-exata e confirmar o identificador `aa` na resposta real antes da importação.
+O usuário escolheu **AA** e informou ter conferido sua presença no Swagger; o
+README também a lista. O identificador `aa` foi confirmado na importação de
+04/10/2026, registrada abaixo. A identificação editorial exata continua pendente;
+divergências de quantidade no README não devem substituir as contagens verificadas.
 
-## Verificação inicial da documentação
+## Levantamento inicial — histórico anterior à importação
 
 O site e o README foram consultados. A ferramenta de pesquisa não conseguiu
 acessar `check` e `versions`; isso não comprova indisponibilidade da API.
@@ -33,13 +45,13 @@ Não foram validados payloads reais, autenticação, cotas ou comportamento de e
 O README consultado não detalha token obrigatório nem limites de requisição.
 A licença de software informada não esclarece as condições de cópia de cada edição.
 
-## Pendências para o nosso plano
+## Pendências vigentes
 
-- Registrar edição AA e condições aplicáveis com o contato do usuário.
-- Detalhar importação de AA para o banco, opção confirmada pelo usuário.
-- Validar respostas, identificadores e erros antes de escrever o adaptador.
-- Definir limites de concorrência, timeout, retomada e tratamento de indisponibilidade.
-- Manter integração e validação em backend/domain, conforme a arquitetura do projeto.
+- Registrar edição AA e condições de redistribuição com o contato do usuário, antes da publicação.
+- Na migração do corpus, validar hash, contagens e geração atômica a partir da cópia congelada; não depender de novo download externo.
+- Para cada edição candidata, fixar arquivo, tag/commit, hash e condições de uso antes de habilitá-la. Uma indicação no README de terceiros não substitui esse registro.
+
+Importação, normalização e consumo local já foram implementados. Regras e validações permanecem em backend/domain. Concorrência, cache e carregamento dos vizinhos foram implementados pela spec 009 em 08/10/2026; suas diretrizes estão no [plano do corpus, §5](bible-corpus-plan.md#5-configurações-de-leitura). A migração do corpus continua proposta separada.
 
 O levantamento inicial não importou conteúdo. A implementação local subsequente,
 autorizada pelo usuário em 04/10/2026, está registrada abaixo. Não houve criação
@@ -65,3 +77,11 @@ de conta ou contato com terceiros.
 
 Identificação editorial exata e condições para redistribuição pública continuam
 na etapa posterior de publicação. Não inferir autorização pública pela licença de software.
+
+A proposta de 07/10/2026 para congelar a fonte também no processo de preparação, separar o corpus do banco de contas e entregar pacotes offline está no [plano do corpus bíblico](bible-corpus-plan.md). Essa migração ainda não está implementada. A ausência de chamadas externas durante leitura/busca já é comportamento atual; não deve ser anunciada como novidade da migração.
+
+## Configurações e desempenho
+
+Tema e tamanho da fonte alteram somente a apresentação. Trocar o modo de leitura reutiliza capítulos disponíveis e solicita apenas vizinhos ausentes à nossa própria fonte local. Prefetch não chama `books`, `verses` ou `search` da ABíbliaDigital, não refaz importação e não consulta o servidor repetidamente quando o usuário permanece no mesmo capítulo.
+
+A primeira entrega de configurações mantém AA. A lista de edições do plano do corpus é uma proposta posterior; não anuncia traduções já instaladas. O README de [damarals/biblias](https://github.com/damarals/biblias), consultado em 07/10/2026, identifica três candidatas com †; sua classificação e a rastreabilidade de cada arquivo devem ser verificadas antes de distribuição.

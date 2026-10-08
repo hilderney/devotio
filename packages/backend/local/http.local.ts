@@ -37,6 +37,23 @@ export function createLocalHandler(database: LocalDatabase) {
       const path = url.pathname.replace(/^\/__local/, "");
       const sessionToken = token(req);
       if (req.method === "GET" && path === "/session") return send(200, { profile: database.session(sessionToken), profiles, expiresAt: database.sessionExpiresAt(sessionToken) });
+      if (req.method === "GET" && path === "/events") {
+        const user = database.session(sessionToken), expiresAt = database.sessionExpiresAt(sessionToken);
+        if (!user || !expiresAt || url.searchParams.get("profile") !== user.id) throw new LocalError("Sua sessão mudou. Entre novamente.", 401);
+        res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", "Connection": "keep-alive", "X-Accel-Buffering": "no" });
+        res.flushHeaders();
+        res.write("retry: 10000\n\n");
+        const write = (value: unknown) => res.write(`event: notifications\ndata: ${JSON.stringify(value)}\n\n`);
+        write(database.notificationSummary(user.id));
+        const stop = database.subscribeNotifications(user.id, summary => {
+          if (!database.session(sessionToken)) { res.end(); return; }
+          write(summary);
+        });
+        // Transport heartbeat only; no SQLite query while idle.
+        const heartbeat = setInterval(() => { if (Date.now() >= expiresAt) res.end(); else res.write(": keepalive\n\n"); }, 25000);
+        res.on("close", () => { clearInterval(heartbeat); stop(); });
+        return;
+      }
       if (req.method === "GET" && path === "/query") {
         const user = database.session(sessionToken);
         if (!user || req.headers["x-devotio-profile"] !== user.id) throw new LocalError("Sua sessão mudou. Entre novamente.", 401);

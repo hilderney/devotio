@@ -1,17 +1,6 @@
-import React, { useMemo, type ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import { ConvexReactClient, useConvexAuth } from "convex/react";
-import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
-import { createAuthClient } from "better-auth/react";
-import {
-  convexClient,
-  crossDomainClient,
-} from "@convex-dev/better-auth/client/plugins";
-import { createConvexRepository } from "domain/convex";
-import {
-  clientConfiguration,
-  loginDestination,
-} from "domain/core";
+import { clientConfiguration } from "domain/core";
 import { tokens } from "ui-kit";
 import { App } from "./router";
 import { PwaNotice } from "./pwa";
@@ -40,6 +29,7 @@ const variables: Record<string, string> = {
   "error-bg": colors.audio.errorBg,
   theme: colors.monthlyVerse.bg,
   "theme-ink": colors.monthlyVerse.text,
+  "radius-control": tokens.radii.md,
 };
 Object.entries(variables).forEach(([key, value]) =>
   document.documentElement.style.setProperty("--" + key, value),
@@ -59,48 +49,8 @@ const configuration = clientConfiguration(
   import.meta.env.VITE_CONVEX_SITE_URL,
 );
 if (configuration.mode === "live") {
-  const client = new ConvexReactClient(configuration.url);
-  const auth = createAuthClient({
-    baseURL: configuration.site,
-    plugins: [convexClient(), crossDomainClient()],
-  });
-  function LiveApp() {
-    const { isAuthenticated, isLoading } = useConvexAuth();
-    const session = auth.useSession();
-    const repository = useMemo(() => createConvexRepository(client), []);
-    return (
-      <App
-        repository={isAuthenticated && session.data ? repository : null}
-        loading={isLoading || session.isPending}
-        configured
-        userKey={session.data?.user.id ?? "guest"}
-        onLogin={async (destination) => {
-          const redirect = loginDestination(destination);
-          const result = await auth.signIn.social({
-            provider: "google",
-            callbackURL: location.origin + redirect,
-            errorCallbackURL:
-              location.origin +
-              "/entrar?error=oauth&redirect=" +
-              encodeURIComponent(redirect),
-          });
-          if (result.error)
-            throw new Error("Não foi possível entrar. Tente novamente.");
-        }}
-        onLogout={async () => {
-          const result = await auth.signOut();
-          if (result.error)
-            throw new Error("Não foi possível sair. Tente novamente.");
-          location.assign("/entrar");
-        }}
-      />
-    );
-  }
-  render(
-    <ConvexBetterAuthProvider client={client} authClient={auth}>
-      <LiveApp />
-    </ConvexBetterAuthProvider>,
-  );
+  const { createLiveApp } = await import("./live-app");
+  render(createLiveApp(configuration.url, configuration.site));
 } else if (import.meta.env.DEV && configuration.mode === "preview") {
   const { LocalApp } = await import("./local-app");
   render(<LocalApp />);

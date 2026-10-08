@@ -52,13 +52,17 @@ export function LocalApp() {
       clear: clearCache,
     }, () => { setSession(null); setRepository(null); notifySession(); }, session.profile.id, { sessionExpiresAt: session.expiresAt, onStorageWarning: setStorageWarning });
     setRepository(connection.repository);
+    const events = typeof EventSource === "undefined" ? null : new EventSource("/__local/events?profile=" + encodeURIComponent(session.profile.id));
+    events?.addEventListener("notifications", event => {
+      try { void connection.acceptNotificationEvent(JSON.parse((event as MessageEvent<string>).data)); } catch { /* Ignore malformed transport data; explicit refresh remains available. */ }
+    });
     const checkClock = () => { void connection.checkDay(); };
     // This timer reads only the device clock. HTTP occurs only when the day changes.
     const timer = setInterval(checkClock, 30_000);
     const foreground = () => { if (document.visibilityState === "visible") checkClock(); };
     document.addEventListener("visibilitychange", foreground);
     checkClock();
-    return () => { clearInterval(timer); document.removeEventListener("visibilitychange", foreground); connection.dispose(); };
+    return () => { events?.close(); clearInterval(timer); document.removeEventListener("visibilitychange", foreground); connection.dispose(); };
   }, [session]);
   return <>
     {storageWarning && <p className="notice" role="status">{storageWarning}</p>}

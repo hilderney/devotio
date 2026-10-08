@@ -5,7 +5,7 @@ export const loginDestinationSchema = z
   .string()
   .max(300)
   .regex(
-    /^\/(?:devocional|biblia|editorial|comunidade(?:\/[a-zA-Z0-9_-]+(?:\/(?:listas|membros))?)?)(?:#[a-zA-Z0-9_-]+)?$/,
+    /^\/(?:devocional|biblia|editorial(?:\/cadastro)?|comunidade(?:\/[a-zA-Z0-9_-]+(?:\/(?:listas|membros))?)?)(?:#[a-zA-Z0-9_-]+)?$/,
   )
   .refine((value) => !/\s/.test(value));
 export const loginSearchSchema = z.object({

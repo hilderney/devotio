@@ -1,0 +1,98 @@
+.editorial-page h1 {
+  font-family: Lora, serif;
+  font-size: 2.625rem;
+  line-height: 1.2;
+  margin: 18px 0;
+}
+
+.editorial-list {
+  margin: 32px 0;
+}
+
+.editorial-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.editorial-list h2 {
+  margin: 10px 0 0;
+  font-family: Lora, serif;
+  font-weight: 400;
+  font-size: 1.375rem;
+}
+
+.editorial-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+body:has(.devotional-editor) {
+  background: var(--surface);
+}
+
+.devotional-editor {
+  min-height: 100dvh;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 40px 24px;
+  font:
+    400 1rem/1.6 Inter,
+    system-ui,
+    sans-serif;
+}
+
+.devotional-editor form {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.devotional-editor p,
+.devotional-editor h1,
+.devotional-editor label,
+.devotional-editor input,
+.devotional-editor textarea {
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.devotional-editor label {
+  display: block;
+  margin: 24px 0;
+}
+
+.devotional-editor :is(input, textarea) {
+  margin-top: 8px;
+}
+
+.devotional-editor textarea {
+  resize: vertical;
+}
+
+.devotional-editor input[readonly] {
+  background: var(--wash);
+}
+
+.devotional-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.devotional-editor [role="alert"] {
+  color: var(--error);
+}
+
+@media (max-width: 600px) {
+  .devotional-editor {
+    padding: 24px 16px;
+  }
+}

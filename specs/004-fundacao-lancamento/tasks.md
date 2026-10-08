@@ -1,6 +1,19 @@
 # Tasks — reconstrução web
 
+- [x] W-H1 Cabeçalho desktop compacto na rolagem, links acessíveis, perfil/sino e faixa mensal reduzida; reserva de altura completa e movimento reduzido. Passaram 34 testes web, lint/typecheck do monorepo e build/PWA. Integração verifica rolagem/retorno, altura reservada, aviso acionável e desativação da compactação fora do desktop sem consultas por rolagem. Homologação visual/física pendente.
+
 **Plano:** [plan.md](plan.md). Evidências devem distinguir execução local de produção.
+
+## Consolidação para testes — 08/10/2026
+
+- [ ] W-C1 — Consolidar botões e retorno bíblico; preservar semântica e estados acessíveis.
+- [ ] W-C2 — Separar casca/menu das rotas; feedback de falha visível e retorno de foco.
+- [ ] W-C3 — Organizar CSS por área, remover duplicações e corrigir navegação estreita.
+- [ ] W-C4 — Padronizar editor/formulários e fechamento dos modais.
+- [ ] Q-C1 — Testes de regressão, lint/typecheck, build/PWA e inspeção visual possível.
+- [ ] Q-C2 — Registrar roteiro de testes, evidências e bloqueios reais da publicação.
+
+Backend/domain: sem regra nova prevista. Mobile: adiado, sem entrega nativa.
 
 ## Backend / domain
 

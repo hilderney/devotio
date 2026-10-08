@@ -1,6 +1,14 @@
 # Documentação do Devotio
 
-**Revisão:** 02/10/2026. A leitura é organizada por decisão, separando intenção de produto de capacidades implementadas.
+**Revisão:** 08/10/2026. A leitura é organizada por decisão, separando intenção de produto de capacidades implementadas.
+
+## Revisão atual: configurações e leitura
+
+- [Configurações de aparência e leitura — spec 009](../specs/009-configuracoes-leitura/spec.md): modal do perfil, cinco temas, escala de fonte e leitura contínua/paginada implementados na web local; homologação visual/física pendente.
+- [Plano do corpus bíblico](engineering/bible-corpus-plan.md): proposta de armazenamento separado e pacotes offline; inclui diretrizes de cache e desempenho. A migração não é requisito para começar as configurações com AA local.
+- [Fonte e importação da AA](engineering/bible-provider.md): procedência, hash e verificação histórica da cópia existente; pendências para publicação e distinção entre importação e leitura.
+
+Hoje, a Bíblia usa o SQLite local da aplicação e mantém até seis capítulos no cache por perfil, incluindo a janela atual/anterior/próximo. Tema, fonte e modo são aplicados imediatamente e persistem por perfil/aparelho. Leitura e busca não consultam a API bíblica externa. Isolamento do corpus e pacote integral offline continuam propostas separadas. Consulte o [estado real](engineering/status.md) para as evidências de implementação.
 
 ## Produto
 
@@ -19,7 +27,8 @@
 - [Stack](engineering/stack.md): escolha por camada; existente versus planejado.
 - [Arquitetura](architecture.md): fronteiras, fluxos, permissões e modelo de dados.
 - [Estado real](engineering/status.md): evidências no repositório e bloqueios.
-- [Fonte bíblica](engineering/bible-provider.md): documentação da ABíbliaDigital e pendências da integração.
+- [Fonte bíblica](engineering/bible-provider.md): contrato do provedor, AA importada e pendências de redistribuição.
+- [Plano do corpus bíblico](engineering/bible-corpus-plan.md): proposta de isolamento, pacotes offline, edições candidatas e desempenho da leitura.
 - [Desenvolvimento](engineering/development.md): instalação, comandos e validação.
 - [Produto local](engineering/local-development.md): SQLite, perfis mock, AA e roteiro para testar as três áreas.
 

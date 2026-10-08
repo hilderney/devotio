@@ -62,7 +62,73 @@ Bíblia completa, clubes, orações privadas e marcações futuras não integram
 
 ### Modelo SQLite do desenvolvimento (spec 006)
 
-O schema está em `packages/backend/local/database.local.ts`, versão 1. Não são tabelas
+Revisão 008 (07/10/2026): schema local versão 3. Migração mantém mensagens anteriores
+e adiciona `messages.quote` JSON opcional: seleção AA, snapshot do texto canônico,
+referência e nome da versão. `sendQuote` recebe identificadores, comentário separado
+e requestId UUID; confere administração e corpus no servidor. Repetir exatamente o
+mesmo envio não duplica postagem/avisos; reutilizar a chave com outro conteúdo falha.
+
+Nova tabela local `notifications`: seq/id, userId, type, entity, text, communityId,
+messageId, createdAt, readAt e sourceKey único. Índice userId/seq serve paginação
+de 30 itens. Mensagem e avisos aos demais participantes atuais são transacionais;
+autor não recebe o próprio aviso. Sistema registra uma saudação informativa por
+conta, sem repetir no login. Metadados mantêm revisão do resumo por destinatário.
+Leitura explícita, consultas e resumo conferem destinatário/associação. Saída do
+grupo remove seus avisos da lista/contador. Consulta dedicada abre mensagens antigas
+sem percorrer o mural. Nenhuma nova tabela ou alteração no schema público Convex.
+
+HTTP local `/__local/events` usa SSE com cookie e perfil esperado: um stream por
+sessão, resumo de não lidas/revisão, heartbeat de transporte sem SQL e reconexão
+automática (10 segundos). Logout/expiração encerra stream; frontend fecha ao trocar
+conta/desmontar. Eventos chegam após commit. Adaptador aplica contador diretamente,
+sem HTTP adicional; só invalida páginas de avisos com observadores. Revisões iguais
+evitam repetir invalidação quando mutation e SSE confirmam a mesma mudança.
+Mensagens do mural em outro cliente continuam podendo ser abertas/atualizadas
+manualmente; SSE não sincroniza todas as áreas nem amplia caches privados.
+
+Seleções contíguas e payload externo numerado (`n - texto`, referência, versão)
+vêm de domain; Compartilhar usa clipboard ou cópia manual. A tabela local
+`quoteDrafts` guarda id, userId, communityId, requestId, quote, comment, createdAt e
+state (draft/published/discarded). Índice autor/destino/data e chave única
+autor/destino/requestId garantem privacidade e retry sem duplicação. Envio em lote
+é atômico e exige administrar todos os destinos. Até 100 rascunhos ativos por
+autor/comunidade; os anteriores não são sobrescritos. Escrever consulta somente os
+rascunhos próprios, pode alterar trecho/comentário, publicar ou descartar. Publicar
+retira da lista e grava mensagem/avisos na mesma transação; tombstones conservam
+a chave de envio para impedir recriação por retry após publicação/descarte.
+
+O estado de formulários e seleção contextual fica em memória por conta durante
+navegação, sem HTTP por tecla; logout/troca limpa. `pick` validado na rota distingue
+seleção para cadastro/comunidade de leitura principal. Botão flutuante retorna
+ao destino com corpo, referência e versão; gestos ficam no web. Busca FTS por termos/prefixos
+normalizados começa após quatro caracteres/debounce 350 ms; até 20 resultados de
+consultas recentes ficam em memória por sessão. Não há polling ou novos dados
+privados persistidos no navegador; caches de leitura anteriores são preservados.
+
+Revisão 007 (07/10/2026): a capacidade local `users.data.editorial` representa
+Gestor do sistema, independente de `members.role`. Ester recebeu novo rótulo,
+sem remover sessões, dados ou associações existentes. O servidor consulta essa
+capacidade no banco em cada operação editorial, sem confiar no papel do client.
+Nenhuma nova tabela ou alteração de schema Convex nesta entrega local.
+
+`schedule(create)` insere somente em data livre e `schedule(update)` altera
+somente um registro existente. A transação reserva a data e impede substituição
+silenciosa; `publish` legado agora apenas corrige existentes. O servidor calcula
+`publishedAt` à meia-noite em America/Sao_Paulo e registra autoria/revisão a partir
+da sessão. Retirada lógica mantém audit, reserva da data e favoritos snapshots.
+O calendário padrão local também usa Brasília, evitando guardar como ausente um
+devocional antes da meia-noite do seu agendamento. Sem cron, IA ou polling: as
+leituras autorizadas verificam disponibilidade pelo instante programado.
+
+Palavra não é editável. `schedule(create)` exige seleção bíblica; o servidor deriva
+corpo numerado, endereço e versão do corpus AA. Edição preserva a Palavra de
+registros legados até escolher outro trecho. Formulário em memória preserva os
+campos e os versos nas idas e voltas, descartando ao cancelar/salvar/trocar conta.
+Não há autosave editorial nem envio para IA. Rascunhos comunitários persistem no
+SQLite, não no cache do navegador. Escritas invalidam apenas o destino observado;
+programação invalida somente sua data e a listagem editorial.
+
+O schema está em `packages/backend/local/database.local.ts`, versão 3 após a revisão 008. Não são tabelas
 adicionadas ao deployment Convex; seu schema permanece inalterado nesta entrega.
 
 | Tabelas locais | Responsabilidade / unicidade |
@@ -70,6 +136,8 @@ adicionadas ao deployment Convex; seu schema permanece inalterado nesta entrega.
 | users, sessions | Perfis fictícios; token opaco, expiração, revogação |
 | communities, members | Grupos; código único; associação única grupo/usuário |
 | messages | Mural; cursor por sequência, índice grupo/seq |
+| quoteDrafts | Rascunhos privados autor/destino, seleção canônica; chave idempotente e estado final |
+| notifications | Avisos por destinatário, leitura explícita; sourceKey único e índice usuário/seq |
 | checklists, items, ticks | Listas e ordem; tick único item/usuário |
 | devotionals, audit | Publicação única por data, revisão/retirada e trilha editorial |
 | favorites | Snapshot JSON privado único usuário/data, sem dependência de retenção do original |

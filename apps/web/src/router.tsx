@@ -1,3 +1,4 @@
+import { buttonClassName } from "./ui/button";
 import { useEffect, useState } from "react";
 import {
   createRootRoute,
@@ -8,38 +9,29 @@ import {
   Outlet,
   Link,
   useLocation,
-  useMatches,
 } from "@tanstack/react-router";
-import {
-  BookOpen,
-  BookText,
-  PenLine,
-  Users,
-  ArrowUpRight,
-  LogOut,
-  HelpCircle,
-  Shield,
-  ChevronDown,
-  Leaf,
-  WifiOff,
-  RefreshCw,
-} from "lucide-react";
-import { RepositoryProvider, useHome, useLocalDate } from "domain/react";
-import { initials, loginDestination, loginSearchSchema, bibleParamsSchema, canPublish, type Devotional } from "domain/core";
-import {
-  AppProvider,
-  useApp,
-  ReaderContext,
-  AudioSelectionContext,
-  type AppContextValue,
-} from "./context";
-import { Brand, Loading, AudioPlayer, ErrorMessage } from "./components";
+import { WifiOff } from "lucide-react";
+import { loginSearchSchema, bibleParamsSchema, dateSchema } from "domain/core";
+import { AppProvider, useApp, type AppContextValue } from "./context";
+import { Brand, Loading } from "./components";
 import { ReadingPage } from "./pages/reading";
 import { BiblePage } from "./pages/bible";
 import { EditorialPage } from "./pages/editorial";
+import { DevotionalEditorPage } from "./pages/devotional-editor";
 import { CommunitiesPage, CommunityPage } from "./pages/community";
 import { SignInPage, InfoPage } from "./pages/access";
 import { RouteRedirect } from "./redirect";
+import { ReaderLayout } from "./reader-shell";
+
+const pageTitles: Record<string, string> = {
+  "/devocional": "Devocional",
+  "/biblia": "Bíblia",
+  "/editorial": "Gestão de devocionais",
+  "/editorial/cadastro": "Cadastro de devocional",
+  "/entrar": "Bem-vindo",
+  "/ajuda": "Ajuda e instalação",
+  "/privacidade": "Privacidade",
+};
 function Root() {
   const app = useApp();
   const location = useLocation();
@@ -54,12 +46,10 @@ function Root() {
     };
   }, []);
   useEffect(() => {
-    document.title =
-      (location.pathname.startsWith("/comunidade")
-        ? "Comunidade"
-        : location.pathname === "/biblia" ? "Bíblia" : location.pathname === "/editorial" ? "Editorial" : location.pathname === "/entrar"
-          ? "Bem-vindo"
-          : "Devocional") + " · Devotio";
+    const title = location.pathname.startsWith("/comunidade")
+      ? "Comunidade"
+      : pageTitles[location.pathname] ?? "Devotio";
+    document.title = `${title} · Devotio`;
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname]);
   if (!online && !app.localProfile)
@@ -85,179 +75,12 @@ function Root() {
     );
   return <Outlet />;
 }
-function ReaderLayout() {
-  const app = useApp();
-  const destination = useMatches({ select: matches => matches.at(-1)?.pathname ?? "/devocional" });
-  if (!app.repository)
-    return (
-      <RouteRedirect
-        to="/entrar"
-        redirect={loginDestination(destination)}
-      />
-    );
-  return (
-    <RepositoryProvider repository={app.repository} key={app.userKey}>
-      <ReaderShell />
-    </RepositoryProvider>
-  );
-}
-function ReaderShell() {
-  const app = useApp();
-  const { date, refresh } = useLocalDate();
-  const home = useHome(date);
-  const location = useLocation();
-  const [logoutError, setLogoutError] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
-  const [refreshError, setRefreshError] = useState("");
-  const [selectedAudio, setSelectedAudio] = useState<Devotional | null>(null);
-  const audio = app.repository?.reading ? selectedAudio : home.data?.devotional;
-  useEffect(() => {
-    const foreground = () => {
-      if (document.visibilityState === "visible") refresh();
-    };
-    document.addEventListener("visibilitychange", foreground);
-    return () => document.removeEventListener("visibilitychange", foreground);
-  }, [refresh]);
-  const isReading = location.pathname === "/devocional";
-  return (
-    <AudioSelectionContext.Provider value={setSelectedAudio}>
-    <ReaderContext.Provider
-      value={{ data: home.data, error: home.error, date }}
-    >
-      <a className="skip-link" href="#main">
-        Pular para o conteúdo
-      </a>
-      <header className="site-header">
-        <div className="header-inner">
-          <Link to="/devocional" aria-label="Devotio, página inicial">
-            <Brand />
-          </Link>
-          <nav className="desktop-nav" aria-label="Navegação principal">
-            <Link to="/devocional" activeProps={{ className: "active" }}>
-              <BookOpen size={17} />
-              Devocional
-            </Link>
-            {app.repository?.reading && <Link to="/biblia" search={{ book: "jo", chapter: 1 }} activeProps={{ className: "active" }}><BookText size={17} />Bíblia</Link>}
-            <Link
-              to="/comunidade"
-              activeOptions={{ exact: false }}
-              activeProps={{ className: "active" }}
-            >
-              <Users size={17} />
-              Comunidade
-            </Link>
-          </nav>
-          <details className="account-menu">
-            <summary aria-label="Abrir menu da conta">
-              <span className="avatar">
-                {initials(home.data?.user.name ?? "Leitor")}
-              </span>
-              <span className="account-name">
-                {home.data?.user.name.split(" ")[0] ?? "Minha conta"}
-              </span>
-              <ChevronDown size={14} />
-            </summary>
-            <div className="account-popover">
-              <p className="caption">{home.data?.user.name ?? "Minha conta"}</p>
-              {app.localProfile && <p className="caption">{app.localProfile.label}</p>}
-              {app.repository?.refresh && <button disabled={refreshing} onClick={async () => {
-                setRefreshing(true); setRefreshError("");
-                try { await app.repository?.refresh?.(); }
-                catch { setRefreshError("Não foi possível atualizar. Tente novamente quando estiver conectado."); }
-                finally { setRefreshing(false); }
-              }}><RefreshCw size={16} />{refreshing ? "Atualizando…" : "Atualizar conteúdo"}</button>}
-              {refreshError && <ErrorMessage message={refreshError} />}
-              {canPublish(app.localProfile?.editorial) && <Link to="/editorial"><PenLine size={16} />Editorial local</Link>}
-              <Link to="/ajuda">
-                <HelpCircle size={16} />
-                Ajuda e instalação
-              </Link>
-              <Link to="/privacidade">
-                <Shield size={16} />
-                Privacidade
-              </Link>
-              <button
-                onClick={async () => {
-                  try {
-                    await app.onLogout();
-                  } catch {
-                    setLogoutError("Não foi possível sair. Tente novamente.");
-                  }
-                }}
-              >
-                <LogOut size={16} />
-                {app.localProfile ? "Sair / trocar perfil" : "Sair"}
-              </button>
-              {logoutError && <ErrorMessage message={logoutError} />}
-            </div>
-          </details>
-        </div>
-      </header>
-      {app.preview && (
-        <div className="preview-strip">
-          <span className="preview-dot" />
-          Prévia local
-          <span className="preview-long">
-            {" "}
-            · Conteúdo ilustrativo, sem publicação pastoral
-          </span>
-        </div>
-      )}
-      {app.localProfile && <div className="preview-strip"><span className="preview-dot" />Desenvolvimento local <span className="preview-long">· Login simulado · {app.localProfile.label}</span></div>}
-      {isReading && home.data?.settings?.monthlyVerse && (
-        <aside className="monthly-theme" aria-label="Tema do mês">
-          <div>
-            <Leaf size={16} />
-            <span className="theme-label">PARA GUARDAR NO CORAÇÃO</span>
-            <p>{home.data.settings.monthlyVerse}</p>
-            <span className="theme-reference">
-              {home.data.settings.monthlyReference}
-            </span>
-          </div>
-        </aside>
-      )}
-      <main id="main" tabIndex={-1}>
-        <Outlet />
-      </main>
-      {audio?.audioUrl && (
-        <div className="persistent-audio">
-          <AudioPlayer
-            key={audio.id + audio.audioUrl}
-            devotional={audio}
-          />
-        </div>
-      )}
-      <footer className="site-footer">
-        <span>Um pouco de silêncio. Um encontro com a Palavra.</span>
-        <Link to="/ajuda">
-          Feito para estar presente <ArrowUpRight size={13} />
-        </Link>
-      </footer>
-      <nav className="mobile-nav" aria-label="Navegação no celular">
-        <Link to="/devocional" activeProps={{ className: "active" }}>
-          <BookOpen size={21} />
-          <span>Devocional</span>
-        </Link>
-        {app.repository?.reading && <Link to="/biblia" search={{ book: "jo", chapter: 1 }} activeProps={{ className: "active" }}><BookText size={21} /><span>Bíblia</span></Link>}
-        <Link
-          to="/comunidade"
-          activeOptions={{ exact: false }}
-          activeProps={{ className: "active" }}
-        >
-          <Users size={21} />
-          <span>Comunidade</span>
-        </Link>
-      </nav>
-    </ReaderContext.Provider>
-    </AudioSelectionContext.Provider>
-  );
-}
 const rootRoute = createRootRoute({
   component: Root,
   notFoundComponent: () => (
     <div className="page narrow">
       <h1>Este caminho não existe.</h1>
-      <Link className="button" to="/devocional">
+      <Link className={buttonClassName({})} to="/devocional">
         Voltar ao devocional
       </Link>
     </div>
@@ -278,8 +101,25 @@ const devotionalRoute = createRoute({
   path: "/devocional",
   component: ReadingPage,
 });
-const bibleRoute = createRoute({ getParentRoute: () => readerRoute, path: "/biblia", validateSearch: (search) => bibleParamsSchema.parse(search), component: BiblePage });
-const editorialRoute = createRoute({ getParentRoute: () => readerRoute, path: "/editorial", component: EditorialPage });
+const bibleRoute = createRoute({
+  getParentRoute: () => readerRoute,
+  path: "/biblia",
+  validateSearch: (search) => bibleParamsSchema.parse(search),
+  component: BiblePage,
+});
+const editorialRoute = createRoute({
+  getParentRoute: () => readerRoute,
+  path: "/editorial",
+  component: EditorialPage,
+});
+const editorFormRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/editorial/cadastro",
+  validateSearch: (search: Record<string, unknown>) => ({
+    date: dateSchema.optional().catch(undefined).parse(search.date),
+  }),
+  component: DevotionalEditorPage,
+});
 const communitiesRoute = createRoute({
   getParentRoute: () => readerRoute,
   path: "/comunidade",
@@ -288,9 +128,19 @@ const communitiesRoute = createRoute({
 const communityRoute = createRoute({
   getParentRoute: () => readerRoute,
   path: "/comunidade/$communityId",
+  validateSearch: (search: Record<string, unknown>): { message?: string } => ({
+    message:
+      typeof search.message === "string" &&
+      /^[a-zA-Z0-9_-]{1,100}$/.test(search.message)
+        ? search.message
+        : undefined,
+  }),
   component: () => {
     const { communityId } = communityRoute.useParams();
-    return <CommunityPage key={communityId} id={communityId} />;
+    const { message } = communityRoute.useSearch();
+    return (
+      <CommunityPage key={communityId} id={communityId} messageId={message} />
+    );
   },
 });
 const signInRoute = createRoute({
@@ -327,7 +177,16 @@ const privacyRoute = createRoute({
 });
 const routeTree = rootRoute.addChildren([
   indexRoute,
-  readerRoute.addChildren([devotionalRoute, bibleRoute, editorialRoute, communitiesRoute, communityRoute, listsRoute, membersRoute]),
+  editorFormRoute,
+  readerRoute.addChildren([
+    devotionalRoute,
+    bibleRoute,
+    editorialRoute,
+    communitiesRoute,
+    communityRoute,
+    listsRoute,
+    membersRoute,
+  ]),
   signInRoute,
   helpRoute,
   privacyRoute,

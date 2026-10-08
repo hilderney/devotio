@@ -1,5 +1,13 @@
 # Tasks: Devocional Diário
 
+## Revisão web — 08/10/2026
+
+- [x] W8 — Rodapé compacto no fim da tela, favorito sempre visível e desfazer remoção do último snapshot por recibo privado. Passaram 31 testes web, 78 domain e 12 SQLite (incluindo snapshot retirado/antigo, isolamento e consumo único), lint/typecheck do monorepo e build/PWA. Primeira execução web teve timeout no carregamento inicial; repetição completa passou. Homologação visual e mobile nativo pendentes.
+
+- [x] W7 — Diferenciar ícones independentes com superfície/contorno, hover, foco e resposta ao toque; manter alvos de 44 px, estados ARIA e movimento reduzido. Lint/typecheck do monorepo, 29 testes web e build/PWA passaram; conferência física das animações pendente. Sem alteração de negócio, rede ou mobile.
+
+- [x] W6 — Unificar faixa de navegação, modal de recentes com data/texto base e favorito da leitura exibida; preservar seleção e cache; remover introdução e data repetida. Evidência: 29 testes web (26 integrados + 3 Dropdown), lint/typecheck do monorepo e build/PWA passaram. Teste integrado comprova ausência de novas chamadas ao escolher leitura em cache e adicionar/remover favorito. Mobile adiado; conferência visual em dispositivo permanece pendente.
+
 > 04/10/2026: janela recente e favoritos foram implementados no backend SQLite
 > de desenvolvimento; evidências nas [tasks 006](../006-desenvolvimento-local/tasks.md).
 > Tasks de Convex/mobile abaixo não são concluídas por essa entrega local.

@@ -10,10 +10,20 @@ Requisitos aprovados orientam código; planos orientam implementação; tasks re
 | [004](004-fundacao-lancamento/spec.md) | Fundação do lançamento web | Reconstrução autorizada e implementada localmente; homologação pendente | Auth, operação editorial, instalação e condições do piloto |
 | [005](005-piloto-publicacao/spec.md) | Publicação do piloto gratuito | Rascunho; escolhas anteriores preservadas | Planejamento retomado após o produto local completo, conforme ADR 002 |
 | [006](006-desenvolvimento-local/spec.md) | Produto local completo | Implementado com SQLite, perfis mock e AA; revisão visual pendente | Desenvolvimento autorizado em 04/10/2026; não é publicação |
+| [007](007-cadastro-devocionais/spec.md) | Cadastro de devocionais pelo Gestor do sistema | CRUD local implementado; revisão visual física pendente | Palavra pela Bíblia, estado preservado, datas livres, edição/retirada; Peregrino placeholder |
+| [008](008-selecao-compartilhamento-notificacoes/spec.md) | Seleção bíblica, compartilhamento e notificações | Implementado localmente; revisão visual/gestos físicos pendente | Cópia numerada, multi-select, rascunhos persistentes, seleção contextual e sino SSE |
+| [009](009-configuracoes-leitura/spec.md) | Configurações de aparência e leitura | Aprovada em 08/10; implementada localmente, homologação visual/física pendente | Cinco temas, escala de fonte, modos contínuo/paginado e janela de três capítulos; independente da migração do corpus |
+| [010](010-temas-mensal-semanal/spec.md) | Gestão dos temas mensal e semanal | Rascunho; aprovação e vigência pendentes | Gestor do sistema escolhe escrituras e escreve temas de 256/512 caracteres; sem implementação |
 
 [Roadmap](../docs/product/roadmap.md) determina a ordem proposta. A [ADR 001](../docs/adr/001-web-first-free-launch.md) registra distribuição web primeiro; tasks nativas permanecem abertas e adiadas.
 
 ## Navegação
+
+- 009: [spec](009-configuracoes-leitura/spec.md), [plano](009-configuracoes-leitura/plan.md), [tasks](009-configuracoes-leitura/tasks.md); [diretrizes do corpus e desempenho](../docs/engineering/bible-corpus-plan.md).
+
+- 008: [spec](008-selecao-compartilhamento-notificacoes/spec.md), [plano](008-selecao-compartilhamento-notificacoes/plan.md), [tasks](008-selecao-compartilhamento-notificacoes/tasks.md).
+
+- 007: [spec](007-cadastro-devocionais/spec.md), [plano](007-cadastro-devocionais/plan.md), [tasks](007-cadastro-devocionais/tasks.md).
 
 - 006: [spec](006-desenvolvimento-local/spec.md), [plano](006-desenvolvimento-local/plan.md), [tasks](006-desenvolvimento-local/tasks.md).
 

@@ -31,7 +31,7 @@ Não usar `--host 0.0.0.0`: o backend simulado só aceita loopback.
 | Daniel Almeida — AG | Administra Esperança; publica no mural, cria listas e remove membros |
 | Marina Oliveira — membro | Participa de Esperança; lê e marca seus próprios itens |
 | Lucas Santos — leitor | Começa sem comunidade; pode entrar por código ou criar um grupo |
-| Ester Costa — editorial | Menu de conta → Editorial local; também é administradora da comunidade de teste Caminho |
+| Ester Costa — Gestor do sistema | Menu de conta → Gestão de devocionais; também é administradora da comunidade de teste Caminho |
 
 AG é associação por comunidade; editorial é uma capacidade independente. Ester
 tem uma associação inicial explícita em Caminho, não acesso a todos os grupos.
@@ -43,12 +43,61 @@ AC/clube continua adiado pela spec 002. Todos podem ler e guardar favoritos pess
 3. Abra Esperança: consulte mural/listas/membros e marque um item.
 4. No menu da conta, use **Sair / trocar perfil**. Entre como Daniel para testar
    gestão. Lucas pode entrar com **ESPERANC**, após confirmar o nome do grupo.
-5. Entre como Ester e abra **Editorial local** para criar/corrigir/retirar um
-   devocional. Use textos de teste; revisão, licença e motivo são obrigatórios.
+5. Entre como Ester e abra **Gestão de devocionais** → **Cadastrar devocional**.
+   Escolha Palavra pela busca/leitura bíblica e escreva Meditação e Oração.
+   Palavra, referência e versão são somente leitura. Programar revela data e fonte;
+   confirme com o mesmo botão. Disponibilidade à meia-noite de Brasília; criação
+   somente em datas livres, hoje ou futuras. Use Editar existente para corrigir
+   mantendo a data, ou Excluir / retirar com confirmação. A retirada reserva a
+   data e preserva favoritos. Autoria/revisão e auditoria são registradas pelo servidor.
+   Na Bíblia normal, selecione versos e use Criar devocional para iniciar um cadastro.
+   No cadastro, Buscar na Bíblia ou o botão flutuante abre a escolha contextual:
+   não há menu lateral, apenas retorno com o trecho; campos e seleção são preservados.
+   Cancelar descarta o rascunho; Auxílio apenas apresenta o futuro Peregrino, sem IA.
 6. Recarregue e reinicie o servidor: dados persistem. Volte à Marina para conferir
    que a cópia favorita permaneceu igual após a edição editorial.
 
 ## Dados locais e privacidade
+
+### Seleção e notificações (spec 008)
+
+Na Bíblia, clique/toque um verso ou use Shift + clique para um intervalo. Manter
+pressionado e arrastar também forma seleção contígua; teclado oferece Espaço/Enter
+e Shift + setas. Menu lateral abre com seleção e fecha por X/Limpar.
+O painel ocupa toda a altura junto à direita: a seta abaixo de X
+alterna entre texto/ícones e somente ícones. Arraste o painel à direita para
+contrair e à esquerda para expandir; no celular, deslize a leitura rapidamente
+à esquerda para expandir a faixa compacta. Arrastar o painel preserva os versos
+selecionados e não executa seus botões ao soltar. Compartilhar
+copia versos no formato `1 - texto`, referência e Almeida Atualizada (AA), com
+fallback de cópia manual. Criar devocional aparece para Ester e inicia um novo
+cadastro com corpo numerado, referência e versão.
+
+Daniel administra Esperança e Ester administra Caminho. Selecionar Enviar para
+comunidade permite marcar vários grupos administrados e clicar **Enviar** (ícone).
+O trecho fica salvo como rascunho privado em cada grupo, sem publicar/notificar.
+Abra a comunidade → **Escrever**, escolha o rascunho e acrescente comentário se
+quiser. **Publicar na comunidade** publica; **Guardar e fechar** salva alterações;
+**Descartar rascunho** retira da lista. Novos envios preservam os anteriores.
+No compositor, pesquise/escolha Palavra na Bíblia: botão flutuante retorna com o
+trecho, sem menu lateral. Comentário, capítulo e seleção permanecem na navegação.
+Pelo menu principal, a Bíblia continua no fluxo normal. Não substitui escritura fixada.
+Rascunhos enviados persistem após recarga/reinício; formulários e seleção de telas
+ficam na sessão em memória até recarregar/sair. Nenhuma gravação por tecla.
+
+Busca lista trechos automaticamente após quatro caracteres e uma pausa na digitação.
+Resultados abrem o capítulo no verso encontrado. Consultas recentes são reutilizadas
+em memória; não modificam o cache dos seis capítulos.
+
+O sino junto à conta reúne avisos do Devotio e de mensagens dos grupos. Abrir o
+modal ou o destino não marca leitura: use Lida em cada item. O estado é particular
+e persiste no SQLite. SSE atualiza o número automaticamente, sem polling; a lista
+é paginada e Atualizar avisos permite recuperar em caso de falha de conexão. Para
+testar entre sessões diferentes, use navegadores/perfis de navegador separados;
+abas normais do mesmo navegador compartilham o cookie de login.
+
+Não há Lida na Bíblia, marcações de progresso, push ou IA nesta entrega. A tela
+branca de cadastro continua sem sino/header e com seus três botões.
 
 - `.data/devotio.sqlite`: contas/sessões fictícias, conteúdo, grupos e Bíblia.
 - `.data/devotio.sqlite-wal` / `-shm`: arquivos auxiliares enquanto o banco está aberto.

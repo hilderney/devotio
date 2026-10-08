@@ -27,6 +27,8 @@ function setup(mirror = storage()) {
     const input = JSON.parse(new URL(path, "http://localhost").searchParams.get("input")!) as LocalQuery;
     let value: unknown;
     switch (input.query) {
+      case "notificationSummary": value = { unread: 1, revision: 1 }; break;
+      case "notifications": value = { items: [], nextCursor: null }; break;
       case "devotionals": value = Object.fromEntries(input.dates.map(d => [d, home(d)])); break;
       case "reading": value = { dates: recentDates(now.toISOString().slice(0, 10)), favorites: [fixture] }; break;
       case "chapter": value = chapter(input.chapter); break;
@@ -51,9 +53,92 @@ async function once<T>(watch: Watch<T>): Promise<T> {
   const value = await new Promise<T>((resolve, reject) => { stop = watch(resolve, reject); });
   stop(); await Promise.resolve(); return value;
 }
+
+describe("invalidação de rascunhos", () => {
+  it("gravar um destino atualiza somente rascunhos observados dele, sem recarregar capítulos ou outro mural", async () => {
+    const state = setup(), sharing = state.repository.sharing!;
+    const stops = [sharing.watchDrafts("esperanca")(() => {}, () => {}), sharing.watchDrafts("caminho")(() => {}, () => {}), state.repository.watchCommunity("esperanca", null)(() => {}, () => {}), state.repository.reading!.watchChapter("jo", 1)(() => {}, () => {})];
+    dispose.push(...stops);
+    await vi.waitFor(() => expect(state.calls()).toHaveLength(4));
+    const before = state.calls().length;
+    await sharing.updateDraft("esperanca", "3537e982-5116-45df-95d9-c2c9f7f1cbbf", { book: "jo", chapter: 1, first: 1, last: 1, version: "aa" }, "Comentário");
+    expect(state.calls().slice(before)).toEqual([{ query: "quoteDrafts", id: "esperanca" }]);
+  });
+});
+describe("janela bíblica antecipada", () => {
+  it("deduplica vizinhos e avançar consulta somente o novo capítulo", async () => {
+    const app = setup(), reading = app.repository.reading!;
+    await once(reading.watchChapter("jo", 3));
+    await Promise.all([once(reading.watchChapter("jo", 2, true)), once(reading.watchChapter("jo", 4, true)), once(reading.watchChapter("jo", 4, true))]);
+    expect(app.calls().filter(call => call.query === "chapter")).toHaveLength(3);
+    await once(reading.watchChapter("jo", 4));
+    await Promise.all([once(reading.watchChapter("jo", 3, true)), once(reading.watchChapter("jo", 5, true))]);
+    expect(app.calls().filter(call => call.query === "chapter")).toHaveLength(4);
+    expect((app.mirror.read() as LocalCache).chapterVisits).toEqual(["jo:4", "jo:3"]);
+  });
+  it("não acumula capítulos, conserva visitas em vez de promover antecipações e reabre sem rede", async () => {
+    const app = setup(), reading = app.repository.reading!;
+    for (let number = 3; number <= 9; number++) {
+      await once(reading.watchChapter("jo", number));
+      await Promise.all([once(reading.watchChapter("jo", number - 1, true)), once(reading.watchChapter("jo", number + 1, true))]);
+      expect((app.mirror.read() as LocalCache).chapters.length).toBeLessThanOrEqual(6);
+    }
+    const cache = app.mirror.read() as LocalCache;
+    expect(cache.chapters.map(value => value.chapter)).toEqual(expect.arrayContaining([8, 9, 10, 7, 6, 5]));
+    expect(cache.chapterVisits).not.toContain("jo:10");
+    const before = app.calls().length;
+    app.dispose(); const reopened = app.connect();
+    await once(reopened.repository.reading!.watchChapter("jo", 6));
+    expect(app.calls()).toHaveLength(before);
+  });
+  it("não solicita capítulo fora da janela por antecipação", async () => {
+    const app = setup(), reading = app.repository.reading!;
+    await once(reading.watchChapter("jo", 1));
+    expect(await once(reading.watchChapter("jo", 0, true))).toBeNull();
+    expect(await once(reading.watchChapter("jo", 20, true))).toBeNull();
+    expect(app.calls().filter(call => call.query === "chapter")).toHaveLength(1);
+  });
+});
 async function flush() { for (let i = 0; i < 30; i++) await Promise.resolve(); }
 
 describe("cache local: orçamento de rede e persistência", () => {
+  it("SSE atualiza o contador sem HTTP e só recarrega a página de avisos observada", async () => {
+    const app = setup(), next = vi.fn(), page = vi.fn();
+    const stop = app.repository.notifications!.watchSummary()(next, vi.fn());
+    await vi.waitFor(() => expect(next).toHaveBeenCalledWith({ unread: 1, revision: 1 }));
+    app.fetcher.mockClear();
+    await app.acceptNotificationEvent({ unread: 2, revision: 2 });
+    expect(next).toHaveBeenLastCalledWith({ unread: 2, revision: 2 });
+    expect(app.fetcher).not.toHaveBeenCalled();
+    const stopPage = app.repository.notifications!.watchPage(null)(page, vi.fn());
+    await vi.waitFor(() => expect(page).toHaveBeenCalled()); app.fetcher.mockClear();
+    await app.acceptNotificationEvent({ unread: 3, revision: 3 });
+    expect(app.calls()).toEqual([{ query: "notifications", cursor: null }]);
+    app.fetcher.mockClear(); await app.acceptNotificationEvent({ unread: 3, revision: 3 });
+    expect(app.fetcher).not.toHaveBeenCalled(); stop(); stopPage();
+    app.dispose(); await app.acceptNotificationEvent({ unread: 4, revision: 4 });
+    expect(next).toHaveBeenLastCalledWith({ unread: 3, revision: 3 });
+  });
+  it("reutiliza busca parcial em memória sem ultrapassar o limite de capítulos", async () => {
+    const app = setup(); app.fetcher.mockResolvedValue(new Response(JSON.stringify({ verses: [], total: 0, page: 0 })));
+    await once(app.repository.reading!.watchSearch("amor", 0));
+    await once(app.repository.reading!.watchSearch("amor", 0));
+    expect(app.fetcher).toHaveBeenCalledTimes(1);
+    expect((app.mirror.read() as LocalCache | undefined)?.chapters ?? []).toHaveLength(0);
+  });
+  it("o calendário padrão só acrescenta um dia à meia-noite de Brasília", async () => {
+    const app = setup(); app.dispose();
+    let now = new Date("2026-10-05T02:59:00Z");
+    const connection = createLocalRepository(storage(), vi.fn(), "marina", { now: () => now });
+    dispose.push(connection.dispose);
+    await once(connection.repository.watchHome("2026-10-04"));
+    expect(app.calls()).toEqual([{ query: "devotionals", dates: recentDates("2026-10-04"), timeZone: "America/Sao_Paulo" }]);
+    now = new Date("2026-10-05T03:00:00Z");
+    await connection.checkDay();
+    await once(connection.repository.watchHome("2026-10-05"));
+    expect(app.calls().at(-1)).toEqual({ query: "devotionals", dates: ["2026-10-05"], timeZone: "America/Sao_Paulo" });
+    expect(app.calls()).toHaveLength(2);
+  });
   it("baixa os oito dias em um lote, compartilha assinaturas e não consulta durante ociosidade", async () => {
     const app = setup(), next = vi.fn();
     const first = app.repository.watchHome(date)(next, vi.fn());
@@ -130,6 +215,18 @@ describe("cache local: orçamento de rede e persistência", () => {
     app.fetcher.mockClear(); await app.repository.setTick("tick", true);
     expect(app.calls()).toEqual([{ query: "community", id: "esperanca", cursor: null }]); stops.forEach(stop => stop());
   });
+  it("restaurar favorito valida recibo e atualiza somente favoritos", async () => {
+    const app = setup();
+    const stops = [app.repository.watchHome(date)(vi.fn(), vi.fn()), app.repository.reading!.watchReading()(vi.fn(), vi.fn()), app.repository.reading!.watchChapter("jo", 1)(vi.fn(), vi.fn())];
+    await vi.waitFor(() => expect(app.calls()).toHaveLength(3));
+    app.fetcher.mockClear();
+    await app.repository.reading!.restoreFavorite("3537e982-5116-45df-95d9-c2c9f7f1cbbf");
+    expect(app.calls()).toEqual([{ query: "reading", timeZone: "UTC" }]);
+    expect(app.fetcher).toHaveBeenCalledTimes(2);
+    await expect(app.repository.reading!.restoreFavorite("inválido")).rejects.toThrow();
+    expect(app.fetcher).toHaveBeenCalledTimes(2);
+    stops.forEach(stop => stop());
+  });
   it("consulta comunidades novamente ao reentrar e nunca as persiste", async () => {
     const app = setup(); await once(app.repository.watchCommunities()); await once(app.repository.watchCommunities());
     expect(app.fetcher).toHaveBeenCalledTimes(2);
@@ -154,6 +251,18 @@ describe("cache local: orçamento de rede e persistência", () => {
     app.fetcher.mockClear(); await app.repository.reading!.withdraw(date, "Teste");
     expect(app.calls()).toEqual([{ query: "devotionals", dates: [date], timeZone: "UTC" }]);
     expect((app.mirror.read() as LocalCache).favorites).toEqual([fixture]); stop();
+  });
+  it("programação invalida só a data e editorial, reutilizando capítulos e grupos", async () => {
+    const app = setup(), next = vi.fn();
+    const stop = app.repository.watchHome(date)(next, vi.fn());
+    await once(app.repository.reading!.watchChapter("jo", 1));
+    await once(app.repository.reading!.watchEditorial());
+    await vi.waitFor(() => expect(next).toHaveBeenCalled());
+    app.fetcher.mockClear();
+    await app.repository.reading!.schedule({ mode: "update", date, reference: "João 1:1", scripture: "Palavra", reflection: "Meditação", prayerSuggestion: "Oração", licenseEvidence: "Fonte de teste" });
+    await once(app.repository.reading!.watchChapter("jo", 1));
+    expect(app.calls()).toEqual([{ query: "devotionals", dates: [date], timeZone: "UTC" }]);
+    stop();
   });
 });
 

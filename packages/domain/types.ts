@@ -13,6 +13,8 @@ export interface Devotional {
   prayerSuggestion: string;
   credit: string;
   audioUrl?: string;
+  licenseEvidence?: string;
+  selection?: import("./sharing").BibleSelection;
 }
 export interface HomeData {
   user: User;
@@ -43,6 +45,7 @@ export interface Message {
   content: string;
   name: string;
   sentAt: number;
+  quote?: import("./sharing").BibleQuote;
 }
 export interface ChecklistItem {
   id: string;
@@ -71,6 +74,8 @@ export type Watch<T> = (
 export interface Repository {
   mode: "preview" | "live" | "local";
   reading?: import("./reading").ReadingRepository;
+  notifications?: import("./sharing").NotificationsRepository;
+  sharing?: import("./sharing").SharingRepository;
   refresh?(): Promise<void>;
   watchHome(date: string): Watch<HomeData>;
   watchCommunities(): Watch<Community[]>;

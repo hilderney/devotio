@@ -1,5 +1,6 @@
-import { createContext, useContext, type ReactNode } from "react";
-import type { Repository, HomeData, LocalProfile, Devotional } from "domain/core";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import type { Repository, HomeData, LocalProfile, Devotional, EditorialDraft, CommunityWritingDraft, BiblePickerState } from "domain/core";
+import { PreferencesProvider } from "./preferences";
 export interface AppContextValue {
   repository: Repository | null;
   preview?: boolean;
@@ -27,6 +28,14 @@ export function useReader() {
   return useContext(ReaderContext);
 }
 export const AudioSelectionContext = createContext<(devotional: Devotional | null) => void>(() => {});
+interface WritingState { editors: Record<string, EditorialDraft>; communities: Record<string, CommunityWritingDraft>; picker: BiblePickerState | null }
+const emptyWriting: WritingState = { editors: {}, communities: {}, picker: null };
+const WritingContext = createContext<WritingState & {
+  setEditor: (key: string, draft: EditorialDraft | null) => void;
+  setCommunity: (id: string, draft: CommunityWritingDraft | null) => void;
+  setPicker: (picker: BiblePickerState | null) => void;
+}>({ ...emptyWriting, setEditor: () => {}, setCommunity: () => {}, setPicker: () => {} });
+export function useWriting() { return useContext(WritingContext); }
 export function AppProvider({
   value,
   children,
@@ -34,5 +43,11 @@ export function AppProvider({
   value: AppContextValue;
   children: ReactNode;
 }) {
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  const [writing, setWriting] = useState<{ owner: string; data: WritingState }>({ owner: value.userKey, data: emptyWriting });
+  const updateWriting = useCallback((update: (data: WritingState) => WritingState) => setWriting(current => ({ owner: value.userKey, data: update(current.owner === value.userKey ? current.data : emptyWriting) })), [value.userKey]);
+  const setEditor = useCallback((key: string, draft: EditorialDraft | null) => updateWriting(data => { const editors = { ...data.editors }; if (draft) editors[key] = draft; else delete editors[key]; return { ...data, editors }; }), [updateWriting]);
+  const setWriterCommunity = useCallback((id: string, draft: CommunityWritingDraft | null) => updateWriting(data => { const communities = { ...data.communities }; if (draft) communities[id] = draft; else delete communities[id]; return { ...data, communities }; }), [updateWriting]);
+  const setPicker = useCallback((picker: BiblePickerState | null) => updateWriting(data => ({ ...data, picker })), [updateWriting]);
+  useEffect(() => { setWriting({ owner: value.userKey, data: emptyWriting }); }, [value.userKey]);
+  return <AppContext.Provider value={value}><PreferencesProvider key={value.userKey} owner={value.userKey}><WritingContext.Provider value={{ ...(writing.owner === value.userKey ? writing.data : emptyWriting), setEditor, setCommunity: setWriterCommunity, setPicker }}>{children}</WritingContext.Provider></PreferencesProvider></AppContext.Provider>;
 }

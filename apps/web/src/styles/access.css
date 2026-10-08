@@ -1,0 +1,237 @@
+.access-page {
+  min-height: 100dvh;
+  padding: 42px 56px;
+  display: flex;
+  flex-direction: column;
+}
+
+.access-content {
+  max-width: 540px;
+  width: 100%;
+  margin: 45px auto;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.access-content .ornament {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 34px;
+}
+
+.access-content h1 {
+  font-size: clamp(2.875rem, 6vw, 4rem);
+  margin: 20px 0;
+}
+
+.access-content > p:not(.eyebrow):not(.caption):not(.privacy-note) {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.85;
+}
+
+.login-button {
+  margin: 34px 0 14px;
+  min-width: 276px;
+}
+
+.privacy-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.6875rem;
+  color: var(--muted);
+  margin-top: 30px;
+}
+
+.access-footer {
+  text-align: center;
+  font-size: 0.625rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+.info-page {
+  max-width: 760px;
+  margin: auto;
+  padding: 40px 40px 80px;
+}
+
+.info-page h1 {
+  white-space: pre-line;
+  font-size: 2.625rem;
+  margin: 20px 0 28px;
+}
+
+.info-page .lead {
+  font:
+    1.125rem/1.8 Lora,
+    Georgia,
+    serif;
+  color: var(--muted);
+}
+
+.info-page section {
+  margin-top: 38px;
+}
+
+.info-page h2 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 1.375rem;
+  margin-bottom: 14px;
+}
+
+.info-page section p {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.offline-page {
+  max-width: 520px;
+  padding: 60px 28px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+}
+
+.offline-page h1 {
+  font-size: 2.25rem;
+}
+
+.offline-page > svg {
+  color: var(--gold);
+  margin-top: 40px;
+}
+
+.offline-page p {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .access-page {
+    padding: 25px 23px;
+  }
+
+  .access-content {
+    margin: 36px auto;
+  }
+
+  .access-content .ornament {
+    width: 72px;
+    height: 72px;
+  }
+
+  .access-content .eyebrow {
+    font-size: 0.5625rem;
+  }
+
+  .access-content h1 {
+    font-size: 2.9375rem;
+  }
+
+  .access-content > p:not(.eyebrow):not(.caption):not(.privacy-note) {
+    font-size: 0.8125rem;
+  }
+
+  .info-page {
+    padding: 24px 23px 60px;
+  }
+
+  .info-page h1 {
+    font-size: 2.125rem;
+  }
+
+  .info-page .lead {
+    font-size: 1.0625rem;
+  }
+
+  .info-page section p {
+    font-size: 0.8125rem;
+  }
+}
+.profile-picker {
+  max-width: 510px;
+  margin: 32px auto 0;
+  text-align: left;
+}
+
+.profile-picker > .eyebrow,
+.profile-picker > .caption {
+  text-align: center;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 10px 0;
+  padding: 18px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.15s;
+}
+
+.profile-card:hover {
+  border-color: var(--gold);
+}
+
+.profile-card > span:nth-child(2) {
+  flex: 1;
+}
+
+.profile-card strong {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.profile-monogram {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  height: 40px;
+  background: var(--wash);
+  border-radius: 50%;
+  font-family: Lora, serif;
+  font-size: 1.375rem;
+}
+
+.profile-role {
+  display: block;
+  margin-top: 4px;
+  color: var(--gold);
+  font-size: 0.75rem;
+}
+
+.profile-description {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .profile-card {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .profile-description {
+    font-size: 0.6875rem;
+  }
+}

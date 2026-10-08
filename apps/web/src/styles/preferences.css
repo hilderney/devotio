@@ -1,0 +1,42 @@
+html[data-theme="night"],
+html[data-theme="contrast"] {
+  color-scheme: dark;
+}
+
+html[data-theme="day"],
+html[data-theme="papyrus"] {
+  color-scheme: light;
+}
+
+.settings-controls {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-controls .field {
+  margin: 0;
+}
+
+.settings-controls input[type="range"] {
+  width: 100%;
+  accent-color: var(--gold);
+}
+
+.settings-sample {
+  font-size: 1.25rem;
+  font-family: Lora, Georgia, serif;
+  line-height: 1.8;
+}
+
+[data-theme="contrast"] :focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+[data-theme="contrast"] .selection-menu {
+  background: var(--surface);
+}
+
+[data-theme="contrast"] [aria-checked="true"] {
+  outline: 2px solid var(--gold);
+}

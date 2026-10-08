@@ -1,3 +1,4 @@
+import { Button } from "../ui/button";
 import { useState } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
 import { loginDestination } from "domain/core";
@@ -39,19 +40,53 @@ export function SignInPage() {
           Um lugar para ler a Palavra, encontrar descanso
           <br className="desktop-only" /> e caminhar em comunidade.
         </p>
-        {app.localProfiles ? <div className="profile-picker" aria-label="Perfis de desenvolvimento">
-          <p className="eyebrow">ENTRAR COM UM PERFIL LOCAL</p>
-          {app.localProfiles.map(profile => <button key={profile.id} className="profile-card" disabled={pending} onClick={async () => {
-            setPending(true); setError("");
-            try { await app.onLogin(destination, profile.id); }
-            catch { setError("Não foi possível entrar. Verifique o servidor local."); }
-            finally { setPending(false); }
-          }}><span className="profile-monogram" aria-hidden="true">{profile.name[0]}</span><span><strong>{profile.name}</strong><span className="profile-role">{profile.label}</span><span className="profile-description">{profile.description}</span></span><ArrowRight size={17} /></button>)}
-          <p className="caption">Login simulado · pessoas fictícias · banco persistente nesta máquina.</p>
-          {app.localError && <ErrorMessage message={app.localError} />}
-        </div> : app.configured || app.preview ? (
-          <button
-            className="button login-button"
+        {app.localProfiles ? (
+          <div
+            className="profile-picker"
+            aria-label="Perfis de desenvolvimento"
+          >
+            <p className="eyebrow">ENTRAR COM UM PERFIL LOCAL</p>
+            {app.localProfiles.map((profile) => (
+              <button
+                key={profile.id}
+                className="profile-card"
+                disabled={pending}
+                onClick={async () => {
+                  setPending(true);
+                  setError("");
+                  try {
+                    await app.onLogin(destination, profile.id);
+                  } catch {
+                    setError(
+                      "Não foi possível entrar. Verifique o servidor local.",
+                    );
+                  } finally {
+                    setPending(false);
+                  }
+                }}
+              >
+                <span className="profile-monogram" aria-hidden="true">
+                  {profile.name[0]}
+                </span>
+                <span>
+                  <strong>{profile.name}</strong>
+                  <span className="profile-role">{profile.label}</span>
+                  <span className="profile-description">
+                    {profile.description}
+                  </span>
+                </span>
+                <ArrowRight size={17} />
+              </button>
+            ))}
+            <p className="caption">
+              Login simulado · pessoas fictícias · banco persistente nesta
+              máquina.
+            </p>
+            {app.localError && <ErrorMessage message={app.localError} />}
+          </div>
+        ) : app.configured || app.preview ? (
+          <Button
+            className="login-button"
             disabled={pending}
             onClick={async () => {
               setPending(true);
@@ -71,7 +106,7 @@ export function SignInPage() {
                 ? "Explorar a prévia local"
                 : "Continuar com Google"}
             <ArrowRight size={17} />
-          </button>
+          </Button>
         ) : (
           <div className="setup-notice">
             <BookOpen size={23} />
@@ -144,15 +179,24 @@ export function InfoPage({ kind }: { kind: "help" | "privacy" }) {
               “Adicionar à Tela de Início”. No Android, abra o menu do navegador
               e procure “Instalar aplicativo” ou “Adicionar à tela inicial”.
             </p>
-            <p>
-              A instalação é opcional. Novos conteúdos precisam de conexão.
-            </p>
+            <p>A instalação é opcional. Novos conteúdos precisam de conexão.</p>
           </section>
-          {app.localProfiles && <section>
-            <h2>Leituras guardadas</h2>
-            <p>Os oito dias de devocionais e os seis capítulos bíblicos mais recentemente acessados ficam guardados neste navegador, junto com seus favoritos. Você pode relê-los sem conexão enquanto a sessão estiver aberta.</p>
-            <p>No menu da conta, escolha “Atualizar conteúdo” para buscar correções de leitura e novidades da comunidade. Ao voltar à comunidade, as informações também são atualizadas.</p>
-          </section>}
+          {app.localProfiles && (
+            <section>
+              <h2>Leituras guardadas</h2>
+              <p>
+                Os oito dias de devocionais e os seis capítulos bíblicos mais
+                recentemente acessados ficam guardados neste navegador, junto
+                com seus favoritos. Você pode relê-los sem conexão enquanto a
+                sessão estiver aberta.
+              </p>
+              <p>
+                No menu da conta, escolha “Atualizar conteúdo” para buscar
+                correções de leitura e novidades da comunidade. Ao voltar à
+                comunidade, as informações também são atualizadas.
+              </p>
+            </section>
+          )}
           <section>
             <h2>Sua comunidade</h2>
             <p>
@@ -203,8 +247,8 @@ export function InfoPage({ kind }: { kind: "help" | "privacy" }) {
               Os perfis são fictícios e o login é simulado. Dados e marcações
               ficam no banco local desta máquina. Devocionais recentes, os seis
               capítulos acessados por último e favoritos também ficam guardados
-              neste navegador, até você sair, trocar de conta ou a sessão expirar.
-              Não há analytics.
+              neste navegador, até você sair, trocar de conta ou a sessão
+              expirar. Não há analytics.
             </p>
           </section>
           <section>

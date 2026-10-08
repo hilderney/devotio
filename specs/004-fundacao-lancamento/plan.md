@@ -1,5 +1,7 @@
 # Plano técnico — nova aplicação web
 
+Cabeçalho desktop: agrupar cabeçalho/faixas na casca comum. Acima de 900 px, fixar o grupo no topo com espaço reservado pela altura completa medida; reduzir após 64 px de rolagem e expandir ao retornar até 16 px. Listener passivo com requestAnimationFrame agrupado; observar altura completa via ResizeObserver e viewport via matchMedia, removendo listeners ao desmontar. Reutilizar os mesmos links, sino e perfil, ocultando somente rótulos visuais na versão compacta. CSS nos tokens, transições curtas e prefers-reduced-motion. Mobile mantém o tema sticky e navegação existentes; CRUD editorial independente preservado. Sem mudanças de domínio, banco ou rede.
+
 **Spec:** [spec.md](spec.md). **Status:** em execução, autorizado em 02/10/2026.
 
 ## 1. Reconstrução e fronteiras
@@ -62,3 +64,34 @@ Configuração parcial/inválida não pode selecionar a prévia DEV; validar o p
 de endereços públicos antes de criar clients. Testar essas decisões no domain.
 Automatizar a inspeção do build para fixtures, manifest e ausência de cache de
 APIs, sem publicar ou exigir credenciais para executar os checks locais.
+
+## 8. Consolidação da interface para testes — 08/10/2026
+
+Revisão de manutenção solicitada pelo usuário: padronizar botões, reduzir estilos
+repetidos e tornar os componentes semânticos e legíveis. Executa os requisitos
+visuais/acessíveis existentes de 004 e preserva os fluxos aprovados de 001/006–009;
+não implementa a proposta 010 nem migra funcionalidades locais para produção.
+
+1. Inventariar controles e regras CSS. Consolidar ações em `Button`/`IconButton`,
+   com variantes explícitas primária, secundária e discreta, tamanho consistente,
+   foco visível, estados desabilitado/selecionado e redução de movimento.
+   Links continuam links; selects, listas de opções e seleção bíblica preservam
+   suas semânticas próprias. Reaproveitar o botão de retorno à Bíblia.
+2. Separar casca de leitura e menu da conta da definição das rotas. Erros de
+   atualização/logout devem continuar visíveis depois de o menu fechar; retornar
+   foco de Configurações a um acionador visível.
+3. Organizar CSS por responsabilidade (base, controles, casca e áreas), remover
+   regras obsoletas e sobrescritas concorrentes. Usar tokens existentes, preservar
+   temas/fonte e corrigir estouros em navegação/ações em telas pequenas.
+4. Unificar formulários e modais: ação principal distinguível, campo de data
+   utilizável, fechamento apenas no backdrop e preservação de foco/diálogos filhos.
+5. Executar testes existentes e regressões dos comportamentos corrigidos,
+   lint/typecheck do monorepo e build/PWA. Inspecionar navegador quando disponível,
+   registrando dimensões e limitações sem confundir DOM simulado com teste físico.
+6. Entregar roteiro de homologação local e matriz explícita de pendências para
+   publicação: paridade Convex, autenticação real, conteúdo e operação. Mobile
+   continua adiado. Não declarar a publicação pronta apenas porque o build passa.
+
+Evitar novas bibliotecas, abstrações genéricas de formulários/negócio e alterações
+de schema. Cada componente deve resolver repetição existente, com API curta e
+nomes de intenção; classes de página ficam responsáveis pelo layout.

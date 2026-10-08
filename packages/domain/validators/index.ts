@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { bibleSelectionSchema } from "./sharing";
 export * from "./access";
 export const dateSchema = z
   .string()
@@ -55,6 +56,16 @@ export const publicationSchema = z.object({
   publishedAt: z.number().finite().nonnegative(),
   reason: z.string().trim().min(1).max(1000),
   audioUrl: z.string().url().startsWith("https://").optional(),
+});
+export const scheduleSchema = publicationSchema.pick({ date: true, reference: true, scripture: true, reflection: true, prayerSuggestion: true, licenseEvidence: true }).extend({
+  mode: z.enum(["create", "update"]),
+  selection: bibleSelectionSchema.optional(),
+}).superRefine((input, context) => {
+  if (input.mode === "create" && !input.selection) context.addIssue({ code: z.ZodIssueCode.custom, path: ["selection"], message: "Escolha a Palavra na leitura bíblica." });
+});
+export const devotionalSelectionSchema = z.object({
+  scripture: publicationSchema.shape.scripture,
+  reference: publicationSchema.shape.reference,
 });
 export function validationMessage(error: unknown): string {
   if (error instanceof z.ZodError)

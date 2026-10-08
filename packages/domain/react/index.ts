@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { localDate } from "../rules";
+import { dateInZone } from "../reading";
 import type { Repository, Watch } from "../types";
 const RepositoryContext = createContext<Repository | null>(null);
 export function RepositoryProvider({
@@ -59,15 +60,17 @@ export function useWatch<T>(watch: Watch<T>) {
     ? state
     : { watch, data: undefined, error: undefined };
 }
-export function useLocalDate() {
-  const [date, setDate] = useState(localDate);
+export function useLocalDate(timeZone?: string) {
+  const current = useCallback(() => timeZone ? dateInZone(timeZone) : localDate(), [timeZone]);
+  const [date, setDate] = useState(current);
   useEffect(() => {
-    const update = () => setDate(localDate());
+    const update = () => setDate(current());
+    update();
     const timer = setInterval(update, 30_000);
     return () => clearInterval(timer);
-  }, []);
+  }, [current]);
   // Presentation adapters may also call refresh on foreground without importing DOM here.
-  const refresh = useCallback(() => setDate(localDate()), []);
+  const refresh = useCallback(() => setDate(current()), [current]);
   return { date, refresh };
 }
 export function useHome(date: string) {

@@ -8,9 +8,15 @@ import { recentDates, localQuerySchema, type CommunityDetail, type ReadingData, 
 const stores: LocalDatabase[] = [];
 const dirs: string[] = [];
 const fixed = Date.parse("2026-10-04T15:00:00Z");
+const selection = { book: "jo", chapter: 1, first: 1, last: 1, version: "aa" as const };
+function setupBible(db: LocalDatabase) {
+  db.run("INSERT INTO bibleBooks VALUES ('jo',?,43)", JSON.stringify({ abbrev: "jo", name: "João", chapters: 21, testament: "NT", order: 43 }));
+  db.run("INSERT INTO bibleVerses(abbrev,chapter,number,text) VALUES ('jo',1,1,'Texto canônico de teste')");
+}
 function setup() {
   let now = fixed;
   const db = new LocalDatabase(":memory:", undefined, () => now); stores.push(db);
+  setupBible(db);
   return { db, advance: (days: number) => { now += days * 86400000; }, leader: db.profile("daniel"), member: db.profile("marina"), outsider: db.profile("lucas"), editor: db.profile("ester") };
 }
 const publication: PublicationInput = { date: "2026-10-04", reference: "Salmos 23:1", translation: "AA", scripture: "Texto para teste", reflection: "Reflexão de teste", prayerSuggestion: "Oração de teste", credit: "Teste", licenseEvidence: "Fixture de teste", reviewedBy: "Ester", reason: "Verificação", publishedAt: fixed - 1 };
@@ -19,6 +25,42 @@ afterEach(() => { stores.splice(0).forEach(db => db.close()); dirs.splice(0).for
   rmSync(dir, { recursive: true, force: true });
 }); });
 describe("SQLite local: autorização, snapshots e persistência", () => {
+  it("só cria em datas livres e exige editar existente, inclusive após retirada", () => {
+    const { db, editor } = setup();
+    const input = { ...publication, mode: "create" as const, date: "2026-10-05", selection };
+    db.command(editor, { action: "schedule", input });
+    expect(() => db.command(editor, { action: "schedule", input: { ...input, scripture: "Substituição" } })).toThrow("Editar existente");
+    expect(() => db.command(editor, { action: "schedule", input: { ...input, mode: "update", date: "2026-10-06" } })).toThrow("não foi encontrado");
+    expect(() => db.command(editor, { action: "schedule", input: { ...input, date: "2026-09-01" } })).toThrow("futura");
+    db.command(editor, { action: "withdraw", date: input.date, reason: "Teste" });
+    expect(() => db.command(editor, { action: "schedule", input })).toThrow("data já possui");
+    db.command(editor, { action: "schedule", input: { ...input, mode: "update", scripture: "Edição" } });
+    expect(db.get<{ data: string; withdrawn: number }>("SELECT data,withdrawn FROM devotionals WHERE date=?", input.date)).toMatchObject({ withdrawn: 0 });
+    expect(db.all("SELECT * FROM audit")).toHaveLength(3);
+  });
+  it("nega CRUD a gestores comunitários e confere papel no banco, não no client", () => {
+    const { db, leader, member, outsider } = setup();
+    const input = { ...publication, mode: "create" as const, date: "2026-10-05", selection };
+    for (const user of [leader, member, outsider, { ...leader, editorial: true }]) {
+      expect(() => db.command(user, { action: "schedule", input })).toThrow("Gestor do sistema");
+      expect(() => db.command(user, { action: "withdraw", date: publication.date, reason: "Teste" })).toThrow("Gestor do sistema");
+      expect(() => db.query(user, { query: "editorial" })).toThrow("Gestor do sistema");
+    }
+    expect(db.all("SELECT * FROM audit")).toHaveLength(0);
+  });
+  it("disponibiliza exatamente à meia-noite de Brasília com autoria verificada", () => {
+    let now = fixed;
+    const db = new LocalDatabase(":memory:", undefined, () => now); stores.push(db);
+    setupBible(db);
+    db.command(db.profile("ester"), { action: "schedule", input: { ...publication, mode: "create", date: "2026-10-05", selection } });
+    const row = db.get<{ data: string; publishedAt: number }>("SELECT data,publishedAt FROM devotionals WHERE date='2026-10-05'")!;
+    expect(JSON.parse(row.data)).toMatchObject({ credit: "Ester Costa", reviewedBy: "Ester Costa", publishedBy: "ester" });
+    expect(row.publishedAt).toBe(Date.parse("2026-10-05T03:00:00Z"));
+    now = row.publishedAt - 1;
+    const home = () => db.query(db.profile("marina"), { query: "home", date: "2026-10-05", timeZone: "UTC" }) as HomeData;
+    expect(home().devotional).toBeNull(); now++;
+    expect(home().devotional?.scripture).toBe("1 - Texto canônico de teste");
+  });
   it("entrega lote limitado à janela e permite solicitar somente uma nova data", () => {
     const { db, member, advance } = setup();
     const dates = recentDates("2026-10-04");
@@ -75,7 +117,13 @@ describe("SQLite local: autorização, snapshots e persistência", () => {
     advance(9);
     expect(() => db.query(member, { query: "home", date: publication.date, timeZone: "UTC" })).toThrow("janela");
     expect(favorites(member)).toHaveLength(1);
-    db.command(member, { ...save, saved: false }); expect(favorites(member)).toHaveLength(0);
+    const snapshot = favorites(member)[0];
+    const token = db.command(member, { ...save, saved: false }) as string;
+    expect(favorites(member)).toHaveLength(0);
+    expect(() => db.command(leader, { action: "restoreFavorite", token })).toThrow("desfazer");
+    db.command(member, { action: "restoreFavorite", token });
+    expect(favorites(member)).toEqual([snapshot]);
+    expect(() => db.command(member, { action: "restoreFavorite", token })).toThrow("desfazer");
   });
   it("mantém agendados fora da leitura e audita somente operações autorizadas", () => {
     const { db, leader, editor, member } = setup();
@@ -99,11 +147,19 @@ describe("SQLite local: autorização, snapshots e persistência", () => {
     const dir = mkdtempSync(join(tmpdir(), "devotio-test-")); dirs.push(dir);
     const path = join(dir, "test.sqlite");
     const first = new LocalDatabase(path, undefined, () => fixed);
+    setupBible(first);
+    first.command(first.profile("daniel"), { action: "saveQuoteDrafts", ids: ["esperanca"], selection, requestId: "3537e982-5116-45df-95d9-c2c9f7f1cbbf" });
     const session = first.login("marina");
+    first.command(session.profile, { action: "readNotification", id: "welcome-marina" });
+    first.command(first.profile("ester"), { action: "schedule", input: { ...publication, mode: "create", date: "2026-10-06", selection } });
     first.command(session.profile, { action: "setFavorite", date: "2026-10-04", timeZone: "UTC", saved: true });
     first.command(first.profile("ester"), { action: "withdraw", date: "2026-10-04", reason: "Teste" }); first.close();
     const second = new LocalDatabase(path, undefined, () => fixed); stores.push(second);
     expect(second.session(session.token)?.id).toBe("marina");
+    expect(second.query(second.profile("daniel"), { query: "quoteDrafts", id: "esperanca" })).toEqual([expect.objectContaining({ quote: expect.objectContaining({ text: "1 - Texto canônico de teste", reference: "João 1:1" }) })]);
+    expect(second.notificationSummary("marina").unread).toBe(0);
+    expect(second.profile("ester").label).toBe("Gestor do sistema");
+    expect(second.get("SELECT date FROM devotionals WHERE date='2026-10-06'")).toBeDefined();
     expect((second.query(session.profile, { query: "reading", timeZone: "UTC" }) as ReadingData).favorites).toHaveLength(1);
     expect(second.get<{ withdrawn: number }>("SELECT withdrawn FROM devotionals WHERE date='2026-10-04'")?.withdrawn).toBe(1);
     second.logout(session.token); expect(second.session(session.token)).toBeNull();

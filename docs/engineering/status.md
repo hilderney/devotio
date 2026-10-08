@@ -1,5 +1,213 @@
 # Estado real do projeto
 
+## Cabeçalho desktop na rolagem — revisão de 08/10/2026
+
+Casca comum mantém cabeçalho fixo acima de 900 px: completo no topo e compacto
+após 64 px de rolagem, expandindo ao retornar até 16 px. Marca devotio, ícones
+de Devocional/Bíblia/Comunidade com nomes acessíveis, sino menor e perfil
+clicável reutilizam os controles existentes. Faixa mensal presente no
+devocional fica mais estreita e mantém o conteúdo. Altura completa reservada
+para estabilizar a leitura; medição ignora a transição de 180 ms e é retomada
+após assentamento visual. Scroll passivo agrupado com requestAnimationFrame,
+ResizeObserver e listeners removidos ao desmontar; sem consultas de rede.
+Movimento reduzido desativa transições. Mobile e editor independente mantêm
+seus layouts; homologação visual/física permanece pendente.
+
+Verificação: 34 testes web passaram, lint/typecheck do monorepo e build/PWA
+passaram. Integração confirma altura reservada, compacto/retorno ao topo,
+sino acionável e ausência de consultas por rolagem. Aviso de bundle >500 kB
+já existente permanece.
+
+## Selects em modal de opções — revisão de 08/10/2026
+
+Os seis campos compartilhados (tema, modo de leitura, livro, capítulo,
+data favorita e rascunho comunitário) agora abrem o mesmo Modal/dialog usado
+pelos devocionais recentes. Título do campo, lista rolável, grupos e check da
+opção atual seguem os temas. Escolher aplica e fecha; X, Escape e backdrop
+cancelam a escolha, devolvendo foco ao campo. Teclado mantém setas, Home/End,
+digitação e Enter/Espaço; Tab permanece no dialog nativo.
+
+Modal filho em Configurações usa portal no body e títulos com IDs únicos;
+fechá-lo preserva o modal pai. Removidos painel ancorado, Popover API e
+listeners de posicionamento/scroll. Sem nova dependência, consulta ou regra
+de negócio. Homologação visual física permanece pendente.
+
+Verificação: 33 testes web passaram sem skips (28 integração + 5 componente),
+lint/typecheck do monorepo e build/PWA passaram. Sem tags select, Popover API
+ou painel ancorado remanescente na web. Domain/backend não foram alterados
+nesta revisão. Mantido o aviso existente de bundle acima de 500 kB.
+
+## Menu da conta e favoritos vazios — revisão de 08/10/2026
+
+Menu da conta fecha em pointerdown/clique externo, Escape e botões/links
+internos sem cancelar a ação. Casca web ocupa ao menos a viewport; conteúdo
+expande para deixar o rodapé compacto no fim, reservando a navegação móvel
+e safe area sem sobreposição.
+
+Marcador de favorito sempre visível; desabilitado sem leitura nem remoção
+para desfazer. Remover o último favorito na aba Favoritos permite restaurar
+a mesma cópia ao tocar novamente, até sair dessa tela. Backend retém um único
+snapshot removido por perfil em memória com recibo opaco de uso único;
+restauração preserva conteúdo e data originais inclusive fora da janela ou
+após retirada editorial, rejeitando recibos de outros perfis. Logout/reinício
+do servidor encerra os recibos. Nenhum conteúdo do client é aceito para
+restaurar, nenhuma tabela nova e apenas favoritos são reconsultados ao salvar.
+Homologação visual em aparelho e mobile nativo permanecem pendentes.
+
+Verificação desta revisão: 31 testes web, 78 domain e 12 SQLite passaram,
+além de lint/typecheck do monorepo e build/PWA. Houve timeout inicial em
+um teste web; repetição completa passou sem skips. Teste do menu repetido
+após incluir clique externo. Mantido aviso existente de bundle >500 kB.
+
+## Navegação do devocional — revisão de 08/10/2026
+
+Faixa superior com `Devocional dd/MM/aaaa`, seta independente para modal dos
+oito dias recentes (data, referência e prévia do texto base), `Favoritos` e
+marcador com/sem check para salvar ou remover a leitura exibida. Mantido o
+seletor e as cópias pessoais da tela de favoritos; alternar telas preserva a
+data recente. Removidos introdução ornamental, data duplicada e atalho
+Começar a leitura acima de Palavra. Temas e escala de fonte preservados.
+
+Sem alterações em domain/backend ou armazenamento. Teste integrado confirma
+que abrir o modal e escolher uma leitura em cache não acrescenta chamadas
+ao servidor. 29 testes web passaram (26 integração + 3 Dropdown), lint e
+typecheck do monorepo e build/PWA passaram. Mantido aviso existente de bundle
+acima de 500 kB; conferência visual em dispositivo e mobile pendentes.
+Ver [spec 001](../../specs/001-devocional-diario/spec.md).
+
+Os ícones da faixa agora têm superfície e contorno próprios, alvos de toque
+de 44 px, transições de 160 ms no hover (somente ponteiro preciso), feedback
+de pressão no toque e foco visível por teclado. Seta indica modal aberto;
+favorito mantém destaque quando salvo. Cores seguem os tokens dos temas;
+movimento reduzido desativa transições e transformações. Implementação em
+CSS, sem listeners, timers ou chamadas de rede adicionais. Conferência
+visual das interações em dispositivo físico permanece pendente.
+
+## Dropdowns dos temas — revisão de 08/10/2026
+
+Os seis selects da web foram substituídos por um componente Dropdown: tema,
+modo de leitura, livro, capítulo, data do devocional e rascunho comunitário.
+Trigger e painel usam tokens dos temas, opção selecionada com check, grupos dos
+testamentos, rolagem interna e posicionamento na viewport. Painel em portal,
+com Popover API quando disponível para aparecer sobre modais; fallback sem a API.
+Teclado: setas, Home/End, digitação por prefixo, Enter/Espaço, Escape e Tab;
+clique externo fecha sem alterar valor. Opções/campos desabilitados preservados.
+Sem nova dependência, regra de negócio ou consulta de rede. A revisão visual em
+aparelho físico permanece pendente, como na spec 009.
+
+Verificação: 28 testes web passaram sem skips (25 integração + 3 componente),
+lint, typecheck e build/PWA passaram. Nenhum select nativo permanece na web; domain/backend
+não foram alterados nesta revisão. Mantém o aviso existente de bundle >500 kB.
+
+## Configurações de leitura — implementação de 08/10/2026
+
+[Spec 009](../../specs/009-configuracoes-leitura/spec.md) aprovada pelo usuário em
+08/10/2026 e implementada na web local. Menu do perfil → Configurações abre modal
+com Dia/Noite/Papiro/Contraste/Pelo horário, escala de oito tamanhos (14–32 px) e
+modo Paginado/Contínuo. Aplicação imediata, preferências isoladas por perfil/aparelho
+e persistência agrupada, inclusive ao fechar/sair. Relógio local usa um timer para
+a próxima transição 06h/18h e reavalia ao retornar; sem consultas de rede.
+
+Os dois modos preparam atual/anterior/próximo após priorizar o atual. Domain fixa
+a janela no cache de seis, preserva histórico de visitas separado das antecipações
+e deduplica requisições. Contínuo renderiza só três capítulos com âncora/compensação;
+Paginado aceita gesto horizontal grande (esquerda anterior/direita próximo).
+Seleção e menu têm prioridade; rolagem vertical/arraste curto não paginam. Fluxos
+contextuais de devocional/comunidade permanecem preservados. Tokens dos temas em
+ui-kit e escala relativa incluem menus, modal e editor.
+
+Sem migração de banco, novas traduções ou dependências externas. O
+[plano do corpus](bible-corpus-plan.md) continua proposta separada; AA permanece
+no SQLite da aplicação. Pacote integral offline e implementação nativa não foram
+entregues. Homologação visual de temas/fonte e gestos físicos permanece pendente.
+
+**Verificação de 08/10:** 131 testes passaram sem skips (77 domain + 30 backend +
+24 web), incluindo HTTP/SSE. Integração comprova troca imediata sem consultas
+extras, preferências restauradas/isoladas no logout, navegação por gesto e janela
+contínua limitada com reutilização ao retornar. Build/PWA verificado sem fixtures
+ou cache de API; mantém 19 recursos estáticos e aviso de bundle acima de 500 kB.
+Lint e typecheck passaram no monorepo; links locais e diff verificados.
+
+## Seleção, compartilhamento e notificações — verificação de 07/10/2026
+
+[Spec 008](../../specs/008-selecao-compartilhamento-notificacoes/spec.md) implementada
+no modo web local. Seleção simples e intervalo contíguo por clique/Shift/teclado,
+arraste e long-press; destaque e menu lateral com X/Limpar. O painel ocupa toda a
+altura à direita e alterna entre texto/ícones e faixa compacta por seta ou swipe.
+Swipe no painel não seleciona versos nem aciona botões ao soltar; swipe rápido à
+esquerda na leitura móvel expande a faixa compacta. Compartilhar inclui
+versos numerados, referência e Almeida Atualizada (AA), por clipboard/cópia manual.
+Administrador marca múltiplos grupos e Enviar salva rascunhos privados persistentes;
+Escrever permite escolher um deles, comentar, guardar, publicar ou descartar.
+Gestor do sistema inicia cadastro com Palavra somente leitura e metadados separados.
+Busca e botão flutuante navegam à Bíblia/retornam, preservando os dois formulários,
+capítulo e seleção, sem menu lateral contextual. Menu principal mantém leitura normal.
+
+SQLite versão 3 mantém quote opcional às mensagens antigas, avisos por destinatário
+e acrescenta quoteDrafts por autor/destino. Lote atômico, consulta/escrita/publicação
+autorizadas e tombstone de idempotência impedem duplicação/recriação por retry.
+Criação editorial exige seleção; servidor reconstrói corpo, referência e versão,
+preservando Palavra dos registros legados até nova seleção. Todas as alterações são
+com migração não destrutiva. Servidor confere intervalo no corpus AA, administração
+e idempotência; mensagem/avisos são transacionais. Autor não recebe o próprio aviso,
+novos membros não recebem histórico como novidade e removidos perdem acesso.
+
+Sino junto à conta abre modal paginado, com entidade em negrito/data à direita.
+Lida é ação explícita por aviso; abrir modal/destino não marca leitura. Resumo muda
+por SSE autenticado, sem polling ou nova consulta para atualizar contador. Apenas
+a página de avisos observada é invalidada. Stream fecha no logout/troca/expiração;
+reconexão automática e atualização manual em caso de falha. Nenhuma marcação de
+leitura bíblica foi criada, conforme esclarecimento do usuário.
+
+Busca automática após quatro caracteres/debounce 350 ms, FTS por termos/prefixos e
+até 20 consultas recentes reutilizadas em memória por sessão. Não amplia caches
+persistentes dos oito devocionais/seis capítulos nem guarda rascunhos/notificações
+comunitárias no navegador. Mural em outra sessão não recebeu sincronização global;
+notificação abre mensagem alvo por consulta própria quando necessário.
+
+**Checks da revisão atual:** 121 testes passaram, sem skips (71 domain + 30 backend + 20 web).
+Os 20 testes web foram executados nesta revisão do menu; domain/backend foram
+reutilizados do cache verificado, pois não houve alteração nessas áreas. Novos
+testes cobrem seta, preservação de destinos, swipe e supressão de clique após arraste.
+HTTP/SSE real passou na execução autorizada fora da restrição de loopback do sandbox.
+Lint/typecheck e `verify:web` passaram; build/PWA sem fixtures/cache de API, com
+aviso já existente de bundle acima de 500 kB.
+Web verificada em React StrictMode/jsdom, incluindo arraste simulado. Inspeção visual,
+long-press/rolagem físicos e comportamento da área de transferência seguem pendentes.
+Sem serviços externos novos, IA, push, deployment público ou Expo.
+
+## CRUD de devocionais — verificação de 07/10/2026
+
+[Spec 007](../../specs/007-cadastro-devocionais/spec.md) implementada no modo web
+local: Ester é identificada como Gestor do sistema, com capacidade independente
+dos papéis comunitários. Menu da conta → Gestão de devocionais abre a listagem;
+cadastro/edição ficam em tela branca separada, com tipografia uniforme. A revisão
+atual acrescenta controles de busca/retorno à Bíblia, incluindo os ícones pedidos,
+às ações Programar/Cancelar/Auxílio. Palavra e metadados bíblicos são somente leitura.
+
+- Criação somente em datas livres (hoje/futuras); conflito não altera conteúdo.
+- Edição somente de registro existente, com data fixa; retirada lógica confirmada
+  preserva favoritos, histórico e reserva da data. Edição pode restaurar retirados.
+- Servidor confere papel no banco e registra autoria/revisão da sessão, auditoria
+  e instante de disponibilização à meia-noite de Brasília.
+- Seleção bíblica preenche Palavra/referência; Cancelar descarta e retorna ao
+  capítulo de origem. Rascunho somente em memória e isolado por conta.
+- Auxílio somente mostra a mensagem sobre Peregrino; nenhuma integração de IA.
+- Calendário/cache local passam a usar Brasília por padrão. Sem polling HTTP;
+  escritas invalidam apenas a data afetada e a listagem editorial.
+
+**Checks do marco inicial (substituídos pela revisão de 119 testes acima):**
+`npm run test` passou com **96 testes**, sem skips (64 domain, 22 backend,
+10 web). A suíte HTTP exigiu execução autorizada fora do sandbox após EACCES na
+conexão loopback. `npm run lint`, `npm run typecheck` e `npm run verify:web` passaram.
+Build/PWA sem fixtures ou cache de API; permanece aviso de bundle acima de 500 kB.
+
+Testes web usam React StrictMode/jsdom, não navegador físico. Revisão visual física,
+Expo e backend público continuam pendentes; nenhum serviço foi publicado. A listagem
+editorial mantém o limite existente de 100 registros. Não há biblioteca/autosave de
+rascunhos. Fonte/licença permanece registrada para desenvolvimento, sem comprovar
+permissão de distribuição pública.
+
 ## Correção da entrada travada — verificação de 06/10/2026
 
 Reproduzido travamento ao abrir `/` como visitante: a rota raiz decidia acesso

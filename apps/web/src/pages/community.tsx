@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { BiblePickerButton } from "../ui/bible-picker-button";
+import { Button, buttonClassName, IconButton } from "../ui/button";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -13,8 +15,16 @@ import {
   Trash2,
   Pencil,
   ArrowRight,
+  Search,
+  BookOpen,
 } from "lucide-react";
-import { useCommunities, useCommunity, useRepository } from "domain/react";
+import {
+  useCommunities,
+  useCommunity,
+  useRepository,
+  useWatch,
+} from "domain/react";
+import { Dropdown } from "../dropdown";
 import {
   communitySchema,
   inviteSchema,
@@ -26,8 +36,10 @@ import {
   formatMessageDate,
   initials,
   validationMessage,
+  quoteText,
   copy,
   type ChecklistItem,
+  type Message,
 } from "domain/core";
 import {
   Empty,
@@ -38,6 +50,8 @@ import {
   Field,
   Success,
 } from "../components";
+import { useWriting } from "../context";
+import { Quote } from "../quote";
 type DialogKind = "create" | "join" | null;
 export function CommunitiesPage() {
   const { data, error } = useCommunities();
@@ -60,13 +74,14 @@ export function CommunitiesPage() {
       </div>
       <div className="section-top">
         <h2>Suas comunidades</h2>
-        <button
-          className="button secondary small"
+        <Button
+          variant="secondary"
+          size="compact"
           onClick={() => setDialog("join")}
         >
           <KeyRound size={15} />
           Entrar com código
-        </button>
+        </Button>
       </div>
       {error ? (
         <ErrorMessage message={error} />
@@ -116,10 +131,10 @@ export function CommunitiesPage() {
           <h3>Um novo espaço de cuidado.</h3>
           <p>Reúna sua igreja ou seu grupo em uma comunidade.</p>
         </div>
-        <button className="text-button" onClick={() => setDialog("create")}>
+        <Button variant="ghost" onClick={() => setDialog("create")}>
           <Plus size={17} />
           Criar comunidade
-        </button>
+        </Button>
       </div>
       <aside className="community-note">
         <Leaf size={21} strokeWidth={1.2} />
@@ -206,13 +221,13 @@ function CommunityDialog({
             <span className="caption">VOCÊ ESTÁ ENTRANDO EM</span>
             <h3>{invitation.name}</h3>
           </div>
-          <button
+          <Button
             type="button"
-            className="text-button"
+            variant="ghost"
             onClick={() => setInvitation(null)}
           >
             Usar outro código
-          </button>
+          </Button>
         </ActionForm>
       ) : (
         <ActionForm
@@ -283,16 +298,19 @@ function Tick({ item }: { item: ChecklistItem }) {
 export function CommunityPage({
   id,
   tab = "mural",
+  messageId,
 }: {
   id: string;
   tab?: "mural" | "listas" | "membros";
+  messageId?: string;
 }) {
   const repo = useRepository();
+  const writing = useWriting();
   const [cursor, setCursor] = useState<string | null>(null);
   const { data, error } = useCommunity(id, cursor);
   const [modal, setModal] = useState<
     "message" | "list" | "scripture" | "invite" | null
-  >(null);
+  >(writing.communities[id]?.open ? "message" : null);
   const [removing, setRemoving] = useState<{ id: string; name: string } | null>(
     null,
   );
@@ -314,7 +332,10 @@ export function CommunityPage({
       <div className="page">
         <Empty title="Um caminho diferente.">
           <p>{copy.revoked}</p>
-          <Link to="/comunidade" className="button secondary">
+          <Link
+            to="/comunidade"
+            className={buttonClassName({ variant: "secondary" })}
+          >
             Suas comunidades
           </Link>
         </Empty>
@@ -337,13 +358,14 @@ export function CommunityPage({
           </p>
         </div>
         {admin && (
-          <button
-            className="button secondary small"
+          <Button
+            variant="secondary"
+            size="compact"
             onClick={() => setModal("invite")}
           >
             <KeyRound size={16} />
             Convidar
-          </button>
+          </Button>
         )}
       </div>
       {(group.scripture || admin) && (
@@ -353,13 +375,13 @@ export function CommunityPage({
             {group.scripture || "Escolha uma palavra para guiar a comunidade."}
           </p>
           {admin && (
-            <button
-              className="icon-button"
+            <IconButton
+              variant="ghost"
               aria-label="Editar escritura da comunidade"
               onClick={() => setModal("scripture")}
             >
               <Pencil size={16} />
-            </button>
+            </IconButton>
           )}
         </aside>
       )}
@@ -400,30 +422,32 @@ export function CommunityPage({
               </p>
             </div>
             {admin && (
-              <button
-                className="button small"
-                onClick={() => setModal("message")}
-              >
+              <Button size="compact" onClick={() => setModal("message")}>
                 <Plus size={16} />
                 Escrever
-              </button>
+              </Button>
             )}
           </div>
+          {messageId && repo.sharing && (
+            <TargetMessage communityId={id} messageId={messageId} />
+          )}
           {cursor && (
-            <button
-              className="text-button load-more"
+            <Button
+              variant="ghost"
+              className="load-more"
               onClick={() => setCursor(null)}
             >
               Voltar às recentes
-            </button>
+            </Button>
           )}
           {data.hasMore && (
-            <button
-              className="text-button load-more"
+            <Button
+              variant="ghost"
+              className="load-more"
               onClick={() => setCursor(data.nextCursor)}
             >
               Carregar anteriores
-            </button>
+            </Button>
           )}
           {data.messages.length ? (
             <div className="message-list">
@@ -437,7 +461,8 @@ export function CommunityPage({
                     </div>
                     <span className="message-author">Liderança</span>
                   </header>
-                  <p>{message.content}</p>
+                  {message.quote && <Quote quote={message.quote} />}
+                  {message.content && <p>{message.content}</p>}
                 </article>
               ))}
             </div>
@@ -457,10 +482,10 @@ export function CommunityPage({
               </p>
             </div>
             {admin && (
-              <button className="button small" onClick={() => setModal("list")}>
+              <Button size="compact" onClick={() => setModal("list")}>
                 <Plus size={16} />
                 Criar lista
-              </button>
+              </Button>
             )}
           </div>
           {data.lists.length ? (
@@ -507,8 +532,8 @@ export function CommunityPage({
                   </span>
                 </div>
                 {admin && (
-                  <button
-                    className="icon-button"
+                  <IconButton
+                    variant="ghost"
                     aria-label={"Remover " + member.name}
                     title={
                       canRemoveMember(
@@ -529,7 +554,7 @@ export function CommunityPage({
                     }
                   >
                     <Trash2 size={17} />
-                  </button>
+                  </IconButton>
                 )}
               </li>
             ))}
@@ -547,17 +572,27 @@ export function CommunityPage({
                   ? "A Palavra que nos reúne."
                   : "Convide alguém para caminhar."
           }
-          onClose={() => setModal(null)}
+          onClose={() => {
+            const current = writing.communities[id];
+            if (current) writing.setCommunity(id, { ...current, open: false });
+            setModal(null);
+          }}
         >
-          {modal === "invite" ? (
+          {modal === "message" && repo.sharing ? (
+            <CommunityComposer
+              communityId={id}
+              admin={admin}
+              onClose={() => setModal(null)}
+            />
+          ) : modal === "invite" ? (
             <div className="invite-content">
               <p>
                 Compartilhe este código apenas com quem você deseja receber em{" "}
                 <strong>{group.name}</strong>.
               </p>
               <code>{group.inviteCode}</code>
-              <button
-                className="button secondary"
+              <Button
+                variant="secondary"
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(group.inviteCode ?? "");
@@ -569,7 +604,7 @@ export function CommunityPage({
               >
                 <Copy size={16} />
                 Copiar código
-              </button>
+              </Button>
               {copied && <Success>Código copiado.</Success>}
             </div>
           ) : (
@@ -660,5 +695,322 @@ export function CommunityPage({
         </Modal>
       )}
     </div>
+  );
+}
+function CommunityComposer({
+  communityId,
+  admin,
+  onClose,
+}: {
+  communityId: string;
+  admin: boolean;
+  onClose: () => void;
+}) {
+  const repo = useRepository(),
+    writing = useWriting(),
+    navigate = useNavigate();
+  const drafts = useWatch(
+    useMemo(() => repo.sharing!.watchDrafts(communityId), [repo, communityId]),
+  );
+  const [initial] = useState(() => ({
+    communityId,
+    draftId: null,
+    quote: null,
+    comment: "",
+    query: "",
+    open: true,
+    requestId: crypto.randomUUID(),
+  }));
+  const current = writing.communities[communityId] ?? initial;
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const initialized = useRef(false);
+  const setCommunity = writing.setCommunity;
+  useEffect(() => {
+    if (!drafts.data || initialized.current) return;
+    initialized.current = true;
+    const first = drafts.data[0];
+    if (!current.draftId && !current.quote && first)
+      setCommunity(communityId, {
+        ...current,
+        draftId: first.id,
+        quote: first.quote,
+        comment: current.comment || first.comment,
+        open: true,
+      });
+    // Hydrate once; subsequent draft refreshes must not overwrite the writer's text.
+  }, [drafts.data, communityId, setCommunity]);
+  async function saveCurrent() {
+    const saved = drafts.data?.find((draft) => draft.id === current.draftId);
+    if (
+      current.draftId &&
+      current.quote &&
+      (!saved ||
+        saved.comment !== current.comment.trim() ||
+        quoteText(saved.quote) !== quoteText(current.quote))
+    )
+      await repo.sharing!.updateDraft(
+        communityId,
+        current.draftId,
+        current.quote,
+        current.comment,
+      );
+  }
+  async function chooseWord() {
+    setBusy(true);
+    setError("");
+    try {
+      await saveCurrent();
+      writing.setCommunity(communityId, { ...current, open: true });
+      const previous =
+        writing.picker?.target.kind === "community" &&
+        writing.picker.target.communityId === communityId &&
+        writing.picker.target.draftId === current.draftId
+          ? writing.picker
+          : null;
+      const book = previous?.book ?? current.quote?.book ?? "jo",
+        chapter = previous?.chapter ?? current.quote?.chapter ?? 1;
+      writing.setPicker({
+        target: { kind: "community", communityId, draftId: current.draftId },
+        book,
+        chapter,
+        selection:
+          current.query.trim().length >= 4 && current.query !== previous?.query
+            ? null
+            : (previous?.selection ?? current.quote),
+        query: current.query,
+        scrollY: previous?.scrollY,
+      });
+      await navigate({
+        to: "/biblia",
+        search: { book, chapter, pick: "community", q: current.query },
+      });
+    } catch (cause) {
+      setError(validationMessage(cause));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <form
+      className="community-composer"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        if (busy) return;
+        setBusy(true);
+        setError("");
+        try {
+          if (current.quote && current.draftId)
+            await repo.sharing!.publishDraft(
+              communityId,
+              current.draftId,
+              current.quote,
+              current.comment,
+            );
+          else if (current.quote)
+            await repo.sharing!.sendQuote(
+              communityId,
+              current.quote,
+              current.comment,
+              current.requestId,
+            );
+          else
+            await repo.sendMessage(
+              communityId,
+              messageSchema.parse(current.comment),
+            );
+          writing.setCommunity(communityId, null);
+          writing.setPicker(null);
+          onClose();
+        } catch (cause) {
+          setError(validationMessage(cause));
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <h3>Preparar mensagem</h3>
+      {drafts.error && <ErrorMessage message={drafts.error} />}
+      {drafts.data && drafts.data.length > 0 && (
+        <div className="field">
+          <span>Rascunho salvo</span>
+          <Dropdown
+            label="Rascunho salvo"
+            disabled={busy}
+            value={current.draftId ?? ""}
+            onChange={async (value) => {
+              const next = drafts.data?.find((draft) => draft.id === value);
+              setBusy(true);
+              setError("");
+              try {
+                await saveCurrent();
+                writing.setCommunity(communityId, {
+                  ...initial,
+                  draftId: next?.id ?? null,
+                  quote: next?.quote ?? null,
+                  comment: next?.comment ?? "",
+                  requestId: crypto.randomUUID(),
+                });
+              } catch (cause) {
+                setError(validationMessage(cause));
+              } finally {
+                setBusy(false);
+              }
+            }}
+            options={[
+              { value: "", label: "Nova mensagem" },
+              ...drafts.data.map((draft) => ({
+                value: draft.id,
+                label: `${draft.quote.reference} · ${formatMessageDate(draft.createdAt)}`,
+              })),
+            ]}
+          />
+        </div>
+      )}
+      {current.quote && <Quote quote={current.quote} />}
+      {!admin && (
+        <p role="alert">
+          Você não administra mais esta comunidade. O rascunho não foi
+          publicado.
+        </p>
+      )}
+      <label className="field">
+        <span>Pesquisar na Bíblia</span>
+        <input
+          maxLength={100}
+          value={current.query}
+          onChange={(event) =>
+            writing.setCommunity(communityId, {
+              ...current,
+              query: event.target.value,
+            })
+          }
+        />
+      </label>
+      <Button
+        variant="secondary"
+        type="button"
+        disabled={busy || !admin}
+        onClick={() => void chooseWord()}
+      >
+        <Search size={17} />
+        Escolher trecho na Bíblia
+      </Button>
+      <label className="field">
+        <span>{current.quote ? "Comentário (opcional)" : "Mensagem"}</span>
+        <textarea
+          maxLength={1000}
+          value={current.comment}
+          onChange={(event) =>
+            writing.setCommunity(communityId, {
+              ...current,
+              comment: event.target.value,
+              open: true,
+            })
+          }
+        />
+      </label>
+      {error && <ErrorMessage message={error} />}
+      <div className="editorial-actions">
+        <Button disabled={busy || !admin || !drafts.data} type="submit">
+          Publicar na comunidade
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={busy}
+          type="button"
+          onClick={async () => {
+            setBusy(true);
+            setError("");
+            try {
+              await saveCurrent();
+              writing.setCommunity(communityId, { ...current, open: false });
+              onClose();
+            } catch (cause) {
+              setError(validationMessage(cause));
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          Guardar e fechar
+        </Button>
+        {current.draftId && (
+          <Button
+            variant="ghost"
+            disabled={busy}
+            type="button"
+            onClick={async () => {
+              setBusy(true);
+              setError("");
+              try {
+                await repo.sharing!.deleteDraft(communityId, current.draftId!);
+                writing.setCommunity(communityId, null);
+                onClose();
+              } catch (cause) {
+                setError(validationMessage(cause));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Descartar rascunho
+          </Button>
+        )}
+      </div>
+      <BiblePickerButton
+        type="button"
+        disabled={busy || !admin}
+        aria-label="Rever seleção na Bíblia"
+        onClick={() => void chooseWord()}
+      >
+        <BookOpen size={22} />
+      </BiblePickerButton>
+    </form>
+  );
+}
+function TargetMessage({
+  communityId,
+  messageId,
+}: {
+  communityId: string;
+  messageId: string;
+}) {
+  const repo = useRepository();
+  const [state, setState] = useState<{
+    id: string;
+    message?: Message;
+    error?: string;
+  }>({ id: "" });
+  useEffect(() => {
+    let active = true;
+    void repo.sharing!.message(communityId, messageId).then(
+      (message) => {
+        if (active) setState({ id: messageId, message });
+      },
+      (cause) => {
+        if (active)
+          setState({ id: messageId, error: validationMessage(cause) });
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, [repo, communityId, messageId]);
+  if (state.id !== messageId) return <Loading />;
+  if (state.error) return <ErrorMessage message={state.error} />;
+  if (!state.message) return null;
+  return (
+    <article
+      className="message-card notification-target"
+      aria-label="Mensagem da notificação"
+    >
+      <p>
+        <strong>{state.message.name}</strong> ·{" "}
+        {formatMessageDate(state.message.sentAt)}
+      </p>
+      {state.message.quote && <Quote quote={state.message.quote} />}
+      {state.message.content && <p>{state.message.content}</p>}
+    </article>
   );
 }

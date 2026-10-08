@@ -1,0 +1,547 @@
+.reader-header-space,
+.reader-masthead {
+  display: contents;
+}
+
+@media (min-width: 901px) {
+  .reader-header-space {
+    display: block;
+    flex: 0 0 auto;
+    height: var(--reader-header-height);
+  }
+
+  .reader-masthead {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 30;
+    background: var(--paper);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+
+  .reader-masthead .header-inner {
+    transition: height 180ms ease;
+  }
+
+  .reader-masthead .brand {
+    transition: font-size 180ms ease;
+  }
+
+  .reader-masthead .preview-strip {
+    max-height: 80px;
+    overflow: hidden;
+    transition:
+      max-height 180ms ease,
+      padding 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .reader-masthead .monthly-theme {
+    position: static;
+  }
+
+  .reader-masthead .monthly-theme > div {
+    transition:
+      min-height 180ms ease,
+      padding 180ms ease;
+  }
+
+  .reader-masthead[data-compact="true"] .header-inner {
+    height: 58px;
+    gap: 20px;
+  }
+
+  .reader-masthead[data-compact="true"] .brand {
+    font-size: 1.5rem;
+  }
+
+  .reader-masthead[data-compact="true"] .brand-mark,
+  .reader-masthead[data-compact="true"] .nav-label,
+  .reader-masthead[data-compact="true"] .account-name,
+  .reader-masthead[data-compact="true"] .account-menu summary > svg,
+  .reader-masthead[data-compact="true"] .theme-label {
+    display: none;
+  }
+
+  .reader-masthead[data-compact="true"] .desktop-nav {
+    gap: 10px;
+    align-items: center;
+  }
+
+  .reader-masthead[data-compact="true"] .desktop-nav a {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0 10px;
+    border-radius: 0px;
+  }
+
+  .reader-masthead[data-compact="true"] .desktop-nav a:hover {
+    background: var(--wash);
+  }
+
+  .reader-masthead[data-compact="true"] .notifications-bell {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .reader-masthead[data-compact="true"] .notifications-bell > svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .reader-masthead[data-compact="true"] .avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .reader-masthead[data-compact="true"] .preview-strip {
+    max-height: 0;
+    padding-block: 0;
+    opacity: 0;
+  }
+
+  .reader-masthead[data-compact="true"] .monthly-theme > div {
+    min-height: 40px;
+    padding-block: 8px;
+  }
+
+  .reader-masthead[data-compact="true"] .monthly-theme p {
+    font-size: 0.875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-masthead .header-inner,
+  .reader-masthead .brand,
+  .reader-masthead .preview-strip,
+  .reader-masthead .monthly-theme > div {
+    transition: none;
+  }
+}
+
+.reader-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.reader-shell > #main {
+  flex: 1 0 auto;
+  min-width: 0;
+}
+
+.reader-shell > .site-footer {
+  flex: 0 0 auto;
+  width: calc(100% - 46px);
+  margin: 0 auto;
+  padding: 14px 0;
+  min-height: 52px;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .reader-shell {
+    padding-bottom: var(--mobile-nav-height, 70px);
+  }
+
+  .reader-shell > .site-footer {
+    padding: 12px 0;
+  }
+
+  .reader-shell > .site-footer a {
+    margin-top: 6px;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 20px;
+  padding: 12px 20px;
+  background: var(--dark);
+  color: var(--inverse);
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.header-inner {
+  height: 94px;
+  max-width: 1168px;
+  margin: auto;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: Lora, Georgia, serif;
+  font-size: 1.875rem;
+  font-weight: 500;
+  letter-spacing: -1.5px;
+}
+
+.brand-dot {
+  color: var(--gold);
+}
+
+.brand-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 40px;
+}
+
+.brand-mark > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  position: absolute;
+  top: 3px;
+  left: 17px;
+}
+
+.desktop-nav {
+  align-self: stretch;
+  display: flex;
+  gap: 34px;
+}
+
+.desktop-nav a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  padding: 2px 0 0;
+}
+
+.desktop-nav a.active {
+  color: var(--ink);
+  border-color: var(--gold);
+}
+
+.desktop-nav a:hover {
+  color: var(--gold);
+}
+
+.account-menu {
+  position: relative;
+}
+
+.account-feedback {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(480px, calc(100vw - 32px));
+  z-index: 50;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.account-menu summary {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  min-height: 44px;
+}
+
+.account-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: var(--wash);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.account-popover {
+  position: absolute;
+  right: 0;
+  top: 54px;
+  width: 248px;
+  z-index: 30;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 12px 36px color-mix(in srgb, var(--ink) 9%, transparent);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+}
+
+.account-popover > .caption {
+  padding: 8px 10px 12px;
+}
+
+.account-popover a,
+.account-popover button {
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+}
+
+.preview-strip {
+  padding: 7px 20px;
+  text-align: center;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.preview-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin: 0 7px 1px 0;
+}
+
+.monthly-theme {
+  background: var(--theme);
+  color: var(--theme-ink);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.monthly-theme > div {
+  max-width: 1168px;
+  padding: 16px 40px;
+  min-height: 62px;
+  margin: auto;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.monthly-theme svg {
+  color: var(--prayer-line);
+}
+
+.theme-label {
+  font-size: 0.5625rem;
+  line-height: 1.7;
+  letter-spacing: 0.1em;
+}
+
+.monthly-theme p {
+  font-family: Lora, Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.theme-reference {
+  font-size: 0.625rem;
+  color: var(--prayer-line);
+  padding-left: 10px;
+  border-left: 1px solid color-mix(in srgb, var(--theme-ink) 20%, transparent);
+}
+
+.site-footer {
+  max-width: 1088px;
+  margin: auto;
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.625rem;
+  color: var(--muted);
+}
+
+.site-footer a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mobile-nav {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .header-inner {
+    padding: 0 28px;
+  }
+
+  .monthly-theme > div {
+    padding: 14px 24px;
+    gap: 12px;
+  }
+
+  .theme-label {
+    display: none;
+  }
+
+  .theme-reference {
+    max-width: 160px;
+  }
+
+  .site-footer {
+    margin: 0 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-inner {
+    height: 76px;
+    padding: 0 22px;
+    gap: 8px;
+  }
+
+  .brand {
+    font-size: min(1.6875rem, 27px);
+  }
+
+  .desktop-nav,
+  .account-name {
+    display: none;
+  }
+
+  .account-menu summary {
+    gap: 6px;
+  }
+
+  .account-menu summary > svg {
+    display: none;
+  }
+
+  .preview-long {
+    display: none;
+  }
+
+  .preview-strip {
+    font-size: 0.5625rem;
+    padding: 5px;
+  }
+
+  .monthly-theme > div {
+    padding: 12px 20px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .monthly-theme svg {
+    width: 13px;
+  }
+
+  .monthly-theme p {
+    font-size: 0.75rem;
+    flex: 1;
+  }
+
+  .theme-reference {
+    font-size: 0.5625rem;
+    max-width: none;
+    flex-basis: 100%;
+    text-align: center;
+    padding: 0;
+    border: 0;
+  }
+
+  .monthly-theme {
+    position: sticky;
+  }
+
+  .site-footer {
+    margin: 0 23px;
+    padding: 25px 0 106px;
+    display: block;
+    text-align: center;
+    font-size: 0.5625rem;
+  }
+
+  .site-footer a {
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 25;
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+    padding: 8px max(8px, env(safe-area-inset-right))
+      calc(8px + env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+    justify-content: space-around;
+    min-height: 70px;
+  }
+
+  .mobile-nav a {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 4px;
+    color: var(--muted);
+    font-size: 0.625rem;
+    flex: 1 1 0;
+    overflow-wrap: anywhere;
+  }
+
+  .mobile-nav a.active {
+    color: var(--gold);
+  }
+
+  .mobile-nav a.active svg {
+    stroke-width: 2;
+  }
+}
+
+.account-popover,
+.mobile-nav a,
+.desktop-nav a {
+  font-size: max(0.875rem, 14px);
+}
+
+@media (min-width: 641px) and (max-width: 1100px) {
+  .header-inner { gap: 16px; }
+  .brand { font-size: min(1.875rem, 30px); }
+  .desktop-nav { gap: 12px; }
+  .desktop-nav a { min-width: 44px; justify-content: center; }
+  .desktop-nav .nav-label, .account-name { display: none; }
+}

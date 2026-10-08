@@ -1,5 +1,13 @@
 # Plano Técnico: Devocional Diário
 
+## Revisão da navegação web — 08/10/2026
+
+Favoritos vazios: casca flex com altura mínima de viewport e rodapé compacto. Remoção retorna recibo opaco; backend mantém uma única cópia removida por perfil em memória e restaura somente mediante recibo válido do mesmo perfil, sem aceitar texto do client. Domain expõe restauração e invalida somente favoritos. UI mantém recibo até sair da tela/aba; nenhum recibo vai ao armazenamento do navegador. Sem tabela nova; reinício do servidor encerra recibos. Testar snapshot antigo/retirado, isolamento e consumo único.
+
+Feedback dos ícones: classes locais e tokens dos temas, transições CSS curtas de cor/superfície e transformação do SVG; hover somente em dispositivo com ponteiro preciso. Toque usa estado ativo, teclado usa foco visível, favorito/modal mantêm estados via atributos ARIA existentes. `prefers-reduced-motion` desativa transições e transformações. Sem listeners, timers, consultas ou novas regras de domínio.
+
+Separar seleção recente e favorita em estado de apresentação. Substituir o seletor recente por modal acessível com `useHome` sobre a janela já carregada; manter seletor dos favoritos. Reutilizar `setFavorite` e snapshots existentes sem alterar regras ou armazenamento. Remover blocos redundantes acima de Palavra. Validar navegação, ausência de novas consultas ao abrir recentes e alternância do favorito em testes integrados. Mobile adiado; sem alteração de schema.
+
 > Revisão técnica de 02/10/2026: a base aprovada foi preservada, com correções documentais para a SPA atual. Ver [stack](../../docs/engineering/stack.md) e [estado real](../../docs/engineering/status.md). Integração e aceites não estão concluídos; nativo fica para etapa posterior.  
 > **Revisão de 04/10/2026:** janela `[hoje−7, hoje]` e favoritos com snapshot (banco + JSON local) — spec §4 itens 11–13. Schema e funções abaixo ainda não implementados.
 

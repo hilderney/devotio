@@ -1,35 +1,19 @@
-import { ArrowDown, Leaf, Sun } from "lucide-react";
-import { formatDate, copy } from "domain/core";
+import { Button } from "../ui/button";
+import { Leaf } from "lucide-react";
+import { copy } from "domain/core";
 import { useReader } from "../context";
-import { Empty, Loading, ErrorMessage, Ornament } from "../components";
+import { Empty, Loading, ErrorMessage } from "../components";
 export function DevotionalPage() {
-  const { data, error, date } = useReader();
+  const { data, error } = useReader();
   return (
     <div className="devotional-page">
-      <section className="reading-intro">
-        <div>
-          <p className="eyebrow">
-            <Sun size={15} />
-            Deixe o ruído lá fora. Acolha a Palavra aqui.
-          </p>
-        </div>
-        <Ornament />
-      </section>
-      <div className="reading-meta">
-        <a href="#palavra" className="text-button">
-          <span className="date-label">{formatDate(date)}</span>
-          Começar a leitura <ArrowDown size={14} />
-        </a>
-      </div>
+      <h1 className="sr-only">Devocional</h1>
       {error ? (
         <div className="reading-column">
           <ErrorMessage message={error} />
-          <button
-            className="button secondary"
-            onClick={() => location.reload()}
-          >
+          <Button variant="secondary" onClick={() => location.reload()}>
             Tentar novamente
-          </button>
+          </Button>
         </div>
       ) : !data ? (
         <Loading />
@@ -78,22 +62,28 @@ export function DevotionalPage() {
                   <p key={index}>{paragraph}</p>
                 ))}
             </div>
-            <div className="section-heading">
-                <span className="section-number">03</span>
-                <span className="eyebrow">ORAÇÃO</span>
-                <span className="section-rule" />
-            </div>
             <div className="reading-divider">
               <span />
               <Leaf size={18} />
               <span />
             </div>
+            <div className="section-heading">
+              <span className="section-number">03</span>
+              <span className="eyebrow">ORAÇÃO</span>
+              <span className="section-rule" />
+            </div>
+
             <section className="prayer-card">
               <p>{data.devotional.prayerSuggestion}</p>
               <span className="prayer-end" aria-hidden="true">
                 ✧
               </span>
             </section>
+            <div className="reading-divider">
+              <span />
+              <Leaf size={18} />
+              <span />
+            </div>
             <p className="editorial-credit">{data.devotional.credit}</p>
           </article>
           {data.settings?.weeklyVerse && (
@@ -103,13 +93,6 @@ export function DevotionalPage() {
               <span className="caption">{data.settings.weeklyReference}</span>
             </aside>
           )}
-          <div className="reading-close">
-            <span className="tiny-line" />
-            <p>Leve a Palavra com você.</p>
-            <span className="caption">
-              O encontro continua nas pequenas coisas.
-            </span>
-          </div>
         </>
       )}
     </div>
