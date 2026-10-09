@@ -1,6 +1,9 @@
 # Deploy from apps/web after `npm run build` (output in ./dist).
 name = "devotio"
 compatibility_date = "2025-10-08"
+# Public URL: https://devotio.<sua-conta>.workers.dev
+workers_dev = true
+preview_urls = true
 
 [assets]
 directory = "./dist"
