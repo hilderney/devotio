@@ -14,6 +14,7 @@ Requisitos aprovados orientam código; planos orientam implementação; tasks re
 | [008](008-selecao-compartilhamento-notificacoes/spec.md) | Seleção bíblica, compartilhamento e notificações | Implementado localmente; revisão visual/gestos físicos pendente | Cópia numerada, multi-select, rascunhos persistentes, seleção contextual e sino SSE |
 | [009](009-configuracoes-leitura/spec.md) | Configurações de aparência e leitura | Aprovada em 08/10; implementada localmente, homologação visual/física pendente | Cinco temas, escala de fonte, modos contínuo/paginado e janela de três capítulos; independente da migração do corpus |
 | [010](010-temas-mensal-semanal/spec.md) | Gestão dos temas mensal e semanal | Rascunho; aprovação e vigência pendentes | Gestor do sistema escolhe escrituras e escreve temas de 256/512 caracteres; sem implementação |
+| [011](011-gestao-usuarios-aprovacao/spec.md) | Gestão de usuários e aprovação do piloto | Aprovada e implementada na branch em 09/10; configuração/rollout pendentes | Painel não listado, senha/TOTP, aprovação Google, desativação e permissões |
 
 [Roadmap](../docs/product/roadmap.md) determina a ordem proposta. A [ADR 001](../docs/adr/001-web-first-free-launch.md) registra distribuição web primeiro; tasks nativas permanecem abertas e adiadas.
 

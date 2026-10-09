@@ -1,4 +1,5 @@
 import { makeFunctionReference } from "convex/server";
+export { createAdministration, createConnectedEditorial, usePilotAccess } from "./administration";
 import { ConvexError } from "convex/values";
 import type { ConvexReactClient, Watch as ConvexWatch } from "convex/react";
 import type {

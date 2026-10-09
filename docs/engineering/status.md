@@ -1,5 +1,41 @@
 # Estado real do projeto
 
+## Gestão de usuários e aprovação — branch de 09/10/2026
+
+[Spec 011](../../specs/011-gestao-usuarios-aprovacao/spec.md) aprovada e implementada
+na branch `codex/gestao-usuarios-aprovacao`, sem publicação. `/gestao-acesso` tem
+entrada administrativa com senha/TOTP, sessão de 30 minutos, limite de tentativas,
+proteção contra replay, listagem paginada, busca, pré-cadastro, edição, aprovação,
+desativação e concessão de editorial/admin por comunidade. Não aparece nos menus.
+
+Google mantém novas contas pendentes; bootstrap vincula somente pré-cadastro com
+e-mail verificado. Contas antigas são preservadas pelo registro legado ou marco
+de ativação, com backfill/importação em lotes preparados. Todas as operações
+públicas de conteúdo exigem aprovação no servidor. Revogação retira conteúdo da
+interface por assinatura reativa. Desativação conserva dados e não se desfaz por
+novo login; último administrador ativo protegido. Editorial conectado inclui
+cadastro manual/correção/retirada; corpus SQLite permanece no modo local.
+
+**Evidências:** 163 testes passaram (83 domain, 39 backend, 41 web), sem skips.
+Lint e typecheck passaram no monorepo inteiro.
+Build/PWA e `verify:web` passaram, com 22 recursos estáticos e sem cache de API.
+Tipos/módulos Convex analisados por codegen, sem finalizar deploy. A primeira
+rodada teve bloqueio de loopback pelo sandbox e timeouts sob carga; a rodada
+completa autorizada com dois workers por suíte e workspaces em sequência passou.
+
+**Pendências operacionais:** configurar credenciais privadas e marco de usuários
+existentes, publicar backend/web, executar backfill/importação e homologar Google
+e autenticador reais. Revisão visual física e Expo não realizados. O
+[roteiro](../operations/user-administration.md) descreve setup e recuperação.
+O script de credenciais não foi executado pelo agente; nenhum segredo foi gerado
+ou gravado para o proprietário e nenhuma conta real foi alterada.
+
+Auditoria npm online indicou 11 entradas em dependências de desenvolvimento
+preexistentes (3 moderadas, 6 altas, 2 críticas; Vitest/Tinypool e cadeia de
+Tailwind entre elas). Os pacotes afetados mantêm as versões anteriores à branch;
+atualização dessas ferramentas não foi incluída neste CRUD. Nenhuma conclusão
+de ausência de vulnerabilidades foi baseada no audit offline.
+
 ## Cabeçalho desktop na rolagem — revisão de 08/10/2026
 
 Casca comum mantém cabeçalho fixo acima de 900 px: completo no topo e compacto

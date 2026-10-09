@@ -22,6 +22,8 @@ import { CommunitiesPage, CommunityPage } from "./pages/community";
 import { SignInPage, InfoPage } from "./pages/access";
 import { RouteRedirect } from "./redirect";
 import { ReaderLayout } from "./reader-shell";
+import { AdministrationPage } from "./pages/administration";
+import { AccessWaitPage } from "./pages/access-wait";
 
 const pageTitles: Record<string, string> = {
   "/devocional": "Devocional",
@@ -66,13 +68,14 @@ function Root() {
         </p>
       </div>
     );
-  if (app.loading)
+  if (app.loading && location.pathname !== "/gestao-acesso")
     return (
       <div className="page narrow">
         <Brand />
         <Loading />
       </div>
     );
+  if (location.pathname !== "/gestao-acesso" && (app.accessError || (app.pilotAccess && app.pilotAccess.status !== "approved"))) return <AccessWaitPage />;
   return <Outlet />;
 }
 const rootRoute = createRootRoute({
@@ -86,6 +89,7 @@ const rootRoute = createRootRoute({
     </div>
   ),
 });
+const administrationRoute = createRoute({ getParentRoute: () => rootRoute, path: "/gestao-acesso", component: AdministrationPage });
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
@@ -176,6 +180,7 @@ const privacyRoute = createRoute({
   component: () => <InfoPage kind="privacy" />,
 });
 const routeTree = rootRoute.addChildren([
+  administrationRoute,
   indexRoute,
   editorFormRoute,
   readerRoute.addChildren([

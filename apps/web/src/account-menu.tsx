@@ -101,7 +101,7 @@ export function AccountMenu({ name = "Minha conta" }: { name?: string }) {
               Atualizar conteúdo
             </Button>
           )}
-          {canPublish(app.localProfile?.editorial) && (
+          {(canPublish(app.localProfile?.editorial) || app.pilotAccess?.editorial) && (
             <Link className={linkAppearance} to="/editorial">
               <PenLine size={16} />
               Gestão de devocionais

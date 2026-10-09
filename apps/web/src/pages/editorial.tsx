@@ -9,9 +9,11 @@ import {
 } from "domain/core";
 import { useApp, useWriting } from "../context";
 import { Empty, ErrorMessage, Loading } from "../components";
+import { ConnectedEditorialPage } from "./connected-editorial";
 export function EditorialPage() {
   const app = useApp(),
     repository = useRepository();
+  if (app.connectedEditorial && app.pilotAccess?.editorial) return <ConnectedEditorialPage editorial={app.connectedEditorial} />;
   if (!canPublish(app.localProfile?.editorial) || !repository.reading)
     return <Empty title="Acesso exclusivo do Gestor do sistema." />;
   return <Editorial reading={repository.reading} />;

@@ -15,6 +15,9 @@ const modules = {
 const setup = () => convexTest(schema, modules);
 async function community() {
   const t = setup();
+  await t.run(async ctx => {
+    for (const authId of ["leader", "member", "outsider"]) await ctx.db.insert("users", { authId, name: authId, email: `${authId}@example.com` });
+  });
   const admin = t.withIdentity({ subject: "leader", name: "Líder" });
   const member = t.withIdentity({ subject: "member", name: "Membro" });
   const outsider = t.withIdentity({
@@ -146,6 +149,7 @@ describe("autorização e consistência no servidor", () => {
     vi.setSystemTime(new Date("2026-10-03T12:00:00Z"));
     const t = setup();
     const reader = t.withIdentity({ subject: "reader" });
+    await t.run(ctx => ctx.db.insert("users", { authId: "reader", name: "Leitor", email: "reader@example.com" }));
     const publish = makeFunctionReference<
       "mutation",
       {

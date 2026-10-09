@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+export { useAdminSession } from "./administration";
 import { localDate } from "../rules";
 import { dateInZone } from "../reading";
 import type { Repository, Watch } from "../types";
