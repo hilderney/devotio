@@ -123,3 +123,17 @@ O comando lint na raiz não comprova análise enquanto os workspaces não tivere
 scripts/configuração. Não declarar DoD atendida com execução vazia. Para revisão
 somente documental, verificar links, comandos, fontes datadas e consistência das
 specs; registrar checks indisponíveis sem alterar código para maquiar a verificação.
+
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`packages/backend/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->

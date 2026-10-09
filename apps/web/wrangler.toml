@@ -1,0 +1,7 @@
+# Deploy from apps/web after `npm run build` (output in ./dist).
+name = "devotio"
+compatibility_date = "2025-10-08"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"

@@ -15,7 +15,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "verify:web": "npm run build && node scripts/verify-web-build.mjs",
-    "deploy:web": "npm run build --workspace=web && wrangler deploy"
+    "deploy:web": "npm run build --workspace=web && npm run deploy --workspace=web"
   },
   "devDependencies": {
     "convex": "^1.46.0",
