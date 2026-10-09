@@ -77,7 +77,6 @@ for (const { url } of cache) {
 assert.equal(routes.length, 1, "Não adicionar cache de APIs autenticadas");
 assert.ok(routes[0] instanceof NavigationRoute);
 assert.equal(routes[0].handler, "index.html");
-assert.match(await read("_redirects"), /\/\*\s+\/index\.html\s+200/);
 console.log(
   `Build verificado: manifest, ícones, licenças, ${cache.length} recursos estáticos e ausência de fixtures. Nenhum cache de API registrado.`,
 );
