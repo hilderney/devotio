@@ -1,5 +1,34 @@
 # Estado real do projeto
 
+## Almeida 1911 e escolha da edição — 09/10/2026
+
+[Spec 012](../../specs/012-versoes-biblia/spec.md) aprovada e implementada na `main`.
+Configurações oferece a edição disponível e conserva tema/fonte/modo. ALM1911
+funciona na web conectada sem ativar funções privadas de favoritos/editorial;
+AA permanece na leitura local. Busca/cópia identificam edição; troca mantém endereço
+e termo, limpa seleção e impede reaproveitar capítulos da outra edição. Links de
+citações carregam versão; snapshots existentes preservados. Backend local reconstrói
+citações do arquivo confiável e mantém autorização de comunidade/editorial.
+
+Fonte fornecida: 66 livros, 1.189 capítulos, 31.101 versículos, SHA256 registrado em
+[bible-provider.md](bible-provider.md). Build gera catálogo/capítulos/índice sob demanda,
+sem API bíblica externa. Cache público limitado a seis capítulos por perfil/edição,
+separado de dados privados. Não oferece download integral offline; a sessão já aberta
+pode continuar exibindo capítulos disponíveis ao ficar sem rede. Reabertura da
+sessão Google sem rede não foi implementada.
+
+Verificações: 153 testes passaram (83 domain, 31 backend e 39 web), sem skips. Dois testes
+HTTP falharam com EACCES no sandbox e passaram após execução autorizada com loopback.
+Build/PWA passou e inspeção verificou todos os 1.189 capítulos, contagem de versículos,
+índice de busca, ausência de fixtures e corpus fora do JS/precache. Lint e typecheck
+passaram no monorepo inteiro. Depois dos ajustes finais, as suítes afetadas foram
+reexecutadas e passaram; build/verify:web finais também passaram. Nenhum deployment
+Convex alterado, nenhum commit/push ou deploy do Worker realizado nesta entrega.
+Homologação visual/física e Expo pendentes.
+
+A `main` de origem não contém o CRUD da branch 011. A publicação aguarda a decisão
+do usuário sobre incorporar esse commit para preservar `/gestao-acesso` no site.
+
 ## Cabeçalho desktop na rolagem — revisão de 08/10/2026
 
 Casca comum mantém cabeçalho fixo acima de 900 px: completo no topo e compacto

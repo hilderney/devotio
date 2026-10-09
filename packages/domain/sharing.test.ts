@@ -10,7 +10,7 @@ describe("seleção e compartilhamento", () => {
     expect(quote.text).toBe("1 - Verso 1\n2 - Verso 2\n3 - Verso 3");
     expect(quote.reference).toBe("João 1:1–3");
     expect(quoteText(quote)).toBe("1 - Verso 1\n2 - Verso 2\n3 - Verso 3\n\nJoão 1:1–3\nAlmeida Atualizada (AA)");
-    expect(bibleQuotePath(quote)).toBe("/biblia?book=jo&chapter=1&verse=1");
+    expect(bibleQuotePath(quote)).toBe("/biblia?book=jo&chapter=1&verse=1&version=aa");
     expect(bibleQuote(chapter, { ...selection, first: 2, last: 2 }).reference).toBe("João 1:2");
   });
   it("rejeita lacunas, capítulo errado, outra versão e intervalos inválidos", () => {

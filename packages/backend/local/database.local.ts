@@ -4,6 +4,8 @@ import { randomUUID, createHash } from "node:crypto";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { LOCAL_SESSION_SECONDS } from "../../domain/local-cache";
+import { alm1911Chapter } from "./alm1911.local";
+import { bibleVersionNames, type BibleVersion } from "../../domain/validators/bible";
 import {
   bibleDatasetSchema, bibleBooksSchema, canManage, canRemoveMember, canPublish,
   isPublished, dateInZone, recentDates, isRecent, searchWords, publicationMidnight, canScheduleDate, scheduleSchema,
@@ -255,7 +257,7 @@ export class LocalDatabase {
           this.communityNotice(input.id, user.id, messageId); return null;
         }
         case "saveQuoteDrafts": {
-          const chapter = this.chapter(input.selection.book, input.selection.chapter);
+          const chapter = this.chapter(input.selection.book, input.selection.chapter, input.selection.version);
           if (!chapter) throw new LocalError("Capítulo não encontrado.", 404);
           const quote = JSON.stringify(bibleQuote(chapter, input.selection));
           for (const id of input.ids) {
@@ -281,7 +283,7 @@ export class LocalDatabase {
         }
         case "updateQuoteDraft": case "publishQuoteDraft": {
           this.membership(user.id, input.id, true);
-          const chapter = this.chapter(input.selection.book, input.selection.chapter);
+          const chapter = this.chapter(input.selection.book, input.selection.chapter, input.selection.version);
           if (!chapter) throw new LocalError("Capítulo não encontrado.", 404);
           const quote = JSON.stringify(bibleQuote(chapter, input.selection));
           const draft = this.get("SELECT id FROM quoteDrafts WHERE id=? AND userId=? AND communityId=? AND state='draft'", input.draftId, user.id, input.id);
@@ -300,7 +302,7 @@ export class LocalDatabase {
         }
         case "sendQuote": {
           this.membership(user.id, input.id, true);
-          const chapter = this.chapter(input.selection.book, input.selection.chapter);
+          const chapter = this.chapter(input.selection.book, input.selection.chapter, input.selection.version);
           if (!chapter) throw new LocalError("Capítulo não encontrado.", 404);
           const quote = JSON.stringify(bibleQuote(chapter, input.selection));
           const previous = this.get<{ userId: string; communityId: string; content: string; quote: string }>("SELECT userId,communityId,content,quote FROM messages WHERE id=?", input.requestId);
@@ -372,7 +374,7 @@ export class LocalDatabase {
           const previous = existing ? JSON.parse(existing.data) as Devotional : null;
           content.selection ??= previous?.selection;
           if (content.selection) {
-            const chapter = this.chapter(content.selection.book, content.selection.chapter);
+            const chapter = this.chapter(content.selection.book, content.selection.chapter, content.selection.version);
             if (!chapter) throw new LocalError("Capítulo não encontrado.", 404);
             const quote = bibleQuote(chapter, content.selection);
             content.scripture = quote.text; content.reference = quote.reference;
@@ -381,7 +383,7 @@ export class LocalDatabase {
             // Legacy entries keep their original Word until a new Bible selection replaces it.
             content.scripture = previous.scripture; content.reference = previous.reference;
           }
-          const data = JSON.stringify({ ...previous, ...content, date, id: date, translation: content.selection ? "Almeida Atualizada (AA)" : previous?.translation ?? "AA · ABíbliaDigital", credit: name, reviewedBy: name, publishedBy: user.id });
+          const data = JSON.stringify({ ...previous, ...content, date, id: date, translation: content.selection ? bibleVersionNames[content.selection.version] : previous?.translation ?? "AA · ABíbliaDigital", credit: name, reviewedBy: name, publishedBy: user.id });
           const publishedAt = publicationMidnight(date);
           if (mode === "create") this.run("INSERT INTO devotionals VALUES (?,?,?,0)", date, data, publishedAt);
           else this.run("UPDATE devotionals SET data=?,publishedAt=?,withdrawn=0 WHERE date=?", data, publishedAt, date);
@@ -421,7 +423,8 @@ export class LocalDatabase {
   catalog(): BibleCatalog {
     return { version: "aa", books: this.all<{ data: string }>("SELECT data FROM bibleBooks ORDER BY bookOrder").map(r => JSON.parse(r.data) as BibleBook), verses: this.get<{ count: number }>("SELECT COUNT(*) count FROM bibleVerses")!.count, importedAt: Number(this.get<{ value: string }>("SELECT value FROM metadata WHERE key='bibleImportedAt'")?.value) || null, source: this.get<{ value: string }>("SELECT value FROM metadata WHERE key='bibleSource'")?.value ?? "" };
   }
-  chapter(abbrev: string, chapter: number): BibleChapter | null {
+  chapter(abbrev: string, chapter: number, version: BibleVersion = "aa"): BibleChapter | null {
+    if (version === "alm1911") return alm1911Chapter(abbrev, chapter);
     const row = this.get<{ data: string }>("SELECT data FROM bibleBooks WHERE abbrev=?", abbrev);
     if (!row) return null;
     const book = JSON.parse(row.data) as BibleBook;

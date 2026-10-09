@@ -1,5 +1,9 @@
 # Spec: Conteúdo Bíblico — Importação, Cache e Leitura
 
+> Extensão aprovada em 09/10/2026: a [spec 012](../012-versoes-biblia/spec.md)
+> inclui ALM1911 fornecida pelo usuário na web local/conectada por corpus estático.
+> AA permanece independente; as tabelas Convex propostas abaixo não foram criadas.
+
 > Implementação local autorizada e executada pela [spec 006](../006-desenvolvimento-local/spec.md):
 > corpus AA completo em SQLite, importação manual e leitura/busca locais. O desenho
 > Convex abaixo continua pendente de implementação; não confundir os dois bancos.

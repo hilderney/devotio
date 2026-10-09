@@ -13,6 +13,7 @@ export function Quote({ quote }: { quote: BibleQuote }) {
           book: quote.book,
           chapter: quote.chapter,
           verse: quote.first,
+          version: quote.version,
         }}
       >
         Ler na Bíblia

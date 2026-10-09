@@ -449,6 +449,7 @@ describe("entrada local integrada", () => {
     await screen.findByText("Meu comentário");
     const link = screen.getByRole("link", { name: "Ler na Bíblia" });
     expect(link.getAttribute("href")).toContain("verse=1");
+    expect(link.getAttribute("href")).toContain("version=aa");
     expect(fetcher.mock.calls.filter(([, options]) => String(options?.body).includes('"publishQuoteDraft"'))).toHaveLength(1);
   });
   it("escolhe trecho pela comunidade, preserva comentário e seleção, sem menu lateral contextual", async () => {

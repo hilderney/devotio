@@ -41,6 +41,28 @@ Membros não recebem emails ou autores dos ticks. Contagens pequenas podem permi
 
 ## Modelo de Dados
 
+### Corpus público ALM1911 (spec 012)
+
+Almeida 1911 é um corpus estático separado do Convex e do SQLite de contas. O
+build valida o JSON fornecido, confere SHA256 e gera catálogo, capítulos individuais
+e índice de palavras sob `/bibles/alm1911/<hash>/`. Web local/conectada usam o mesmo
+adaptador em domain. A web conectada oferece ALM1911; AA permanece no adaptador local
+existente. Nenhuma tabela Convex nova ou migração de dados privados.
+
+`Repository.bible` é independente de `Repository.reading` (favoritos/editorial),
+para habilitar a Bíblia publicada sem simular funções privadas. `BibleRepository`
+lista versões e fornece um leitor por edição. Preferências salvas por perfil/aparelho
+aceitam `bibleVersion` opcional, preservando dados antigos. Capítulos/cache são
+separados por edição e hash; somente seis capítulos, incluindo a janela de leitura.
+Cache público localStorage separado de sessões/favoritos e fora do service worker.
+Índice sob demanda, páginas de 40 e hidratação dos resultados por capítulo; nenhum
+corpus integral no JavaScript ou precache do shell. Não é download integral offline.
+
+Seleções identificam AA/ALM1911 e links carregam `version`; cópias usam o nome correto.
+Backend local reconstrói citações a partir da fonte conferida, mantendo autorização
+editorial/comunitária. Snapshots anteriores permanecem intactos. A migração geral
+AA para SQLite isolado/pacotes integrais continua futura.
+
 [Schema v1](../packages/backend/schema.ts):
 
 | Tabela | Responsabilidade | Índices |

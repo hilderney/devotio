@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { createLocalRepository, localSession, localLogin, localLogout } from "domain/local";
 import type { LocalProfile, Repository } from "domain/core";
 import { App } from "./router";
+import { createWebBible } from "./bible-repository";
 
 const sessionEvent = "devotio:session-change";
 function clearCache() {
@@ -51,7 +52,7 @@ export function LocalApp() {
       write(cache) { localStorage.setItem(key, JSON.stringify(cache)); },
       clear: clearCache,
     }, () => { setSession(null); setRepository(null); notifySession(); }, session.profile.id, { sessionExpiresAt: session.expiresAt, onStorageWarning: setStorageWarning });
-    setRepository(connection.repository);
+    setRepository({ ...connection.repository, bible: createWebBible(session.profile.id, connection.repository.reading) });
     const events = typeof EventSource === "undefined" ? null : new EventSource("/__local/events?profile=" + encodeURIComponent(session.profile.id));
     events?.addEventListener("notifications", event => {
       try { void connection.acceptNotificationEvent(JSON.parse((event as MessageEvent<string>).data)); } catch { /* Ignore malformed transport data; explicit refresh remains available. */ }

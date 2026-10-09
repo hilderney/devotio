@@ -27,6 +27,7 @@ locais não são montados. Sem configuração, o acesso fica indisponível.
 | npm run verify:local | Verificar servidor local aberto em outro terminal |
 | npm run dev --workspace=backend | Convex dev; requer conta e projeto |
 | npm run build | Domain/ui-kit e web/PWA; não implanta Convex |
+| node scripts/prepare-bible.mjs | Validar ALM1911 fornecida e gerar corpus estático público; também executado por dev/build da web |
 | npm run verify:web | Build e inspeção de PWA, licenças, ícones e exclusão de fixtures |
 | npm run lint | ESLint real nos quatro workspaces |
 | npm run typecheck | TypeScript estrito nos quatro workspaces |

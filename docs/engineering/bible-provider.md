@@ -1,5 +1,30 @@
 # Fonte bíblica — ABíbliaDigital
 
+## Almeida 1911 fornecida em 09/10/2026
+
+A [spec 012](../../specs/012-versoes-biblia/spec.md) foi aprovada pelo usuário para
+incluir `docs/bibles/ALM1911.json` na web publicada. A procedência registrada é o
+arquivo fornecido pelo usuário; não inferir uma URL/release que ele não informou.
+O usuário declara domínio público da edição e autoriza sua inclusão. A regra
+brasileira geral dos setenta anos é contada a partir do falecimento do autor,
+com disposições próprias para outras categorias, conforme os arts. 41, 43 e 44 da
+[Lei 9.610/1998](https://www.planalto.gov.br/ccivil_03/leis/l9610.htm); a aprovação
+do arquivo não constitui certificação jurídica automatizada.
+
+SHA256 `a47705dc5637daaa2e65160c9fe9aadb70edbdda855179045dbaf288f6aff795`:
+66 livros, 1.189 capítulos, 31.101 versículos. Grafia/pontuação preservadas.
+O gerador rejeita fonte alterada, ordem de livros ou capítulos divergentes e não
+completa nem troca versos por AA. Os identificadores canônicos distinguem Jó (`job`)
+de João (`jo`), apesar da abreviação antiga do arquivo.
+
+`node scripts/prepare-bible.mjs` gera os arquivos estáticos; dev/build da web também
+executam o comando. Catálogo, capítulos e índice de busca ficam num caminho com hash,
+fora do JS inicial e do precache. O arquivo original entra no Git; arquivos gerados
+em `apps/web/public/bibles` são ignorados. Busca/leitura nunca acessam a API externa.
+AA existente continua independente e não é republicada por essa geração.
+
+As seções abaixo preservam o histórico e as pendências da AA.
+
 **Revisão documental:** 08/10/2026. **Verificação da importação:** 04/10/2026. **Escolha do provedor:** feita pelo usuário.
 
 ## Estado atual e destino proposto

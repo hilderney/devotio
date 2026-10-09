@@ -1,5 +1,12 @@
 # Plano: corpus bíblico isolado
 
+Atualização de 09/10/2026: a [spec 012](../../specs/012-versoes-biblia/spec.md)
+autoriza uma entrega parcial independente: ALM1911 fornecida pelo usuário em
+catálogo/capítulos estáticos, com escolha nas Configurações e busca sob demanda
+na web local/conectada. Não implementa os SQLite por edição, outras candidatas,
+download integral offline ou migração da AA propostos abaixo. A AA permanece no
+SQLite local; publicação verificada consta no [estado real](status.md).
+
 **Data:** 07/10/2026. **Estado:** proposta. Não está implementada. Não substitui a [spec 003](../../specs/003-conteudo-biblico/spec.md) até ela ser revisada. A leitura atual continua no SQLite único do desenvolvimento local.
 
 Há duas entregas independentes: **migração do corpus** (§1–4, ainda proposta) e **configurações de leitura** (§5, [spec 009](../../specs/009-configuracoes-leitura/spec.md), aprovada e implementada na web local em 08/10/2026). Configurações usam AA existente, sem outras traduções nem download integral. Consulte [tasks e homologação pendente](../../specs/009-configuracoes-leitura/tasks.md). As diretrizes de §5 referentes ao pacote integral continuam futuras; modal, temas, escala, dois modos e janela de vizinhos já existem localmente.

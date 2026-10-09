@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "env": ["VITE_CONVEX_URL", "VITE_CONVEX_SITE_URL"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "$TURBO_ROOT$/docs/bibles/ALM1911.json", "$TURBO_ROOT$/scripts/prepare-bible.mjs"],
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".output/**"]
     },

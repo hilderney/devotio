@@ -11,6 +11,17 @@ function setup() {
 }
 const input = { action: "sendQuote" as const, id: "esperanca", selection: { book: "jo", chapter: 1, first: 1, last: 3, version: "aa" as const }, comment: "", requestId: "3537e982-5116-45df-95d9-c2c9f7f1cbbf" };
 describe("trechos e avisos locais", () => {
+  it("reconstrói ALM1911 no servidor, identifica a edição e mantém permissões", () => {
+    const db = setup();
+    const selection = { book: "gn", chapter: 1, first: 1, last: 1, version: "alm1911" as const };
+    db.command(db.profile("daniel"), { ...input, selection });
+    const detail = db.query(db.profile("marina"), { query: "community", id: "esperanca", cursor: null }) as CommunityDetail;
+    expect(detail.messages.at(-1)?.quote).toMatchObject({ version: "alm1911", versionName: "Almeida 1911 (ALM1911)", text: "1 - No principio creou Deus os céus e a terra." });
+    expect(() => db.command(db.profile("lucas"), { ...input, selection, requestId: "1537e982-5116-45df-95d9-c2c9f7f1cbbf" })).toThrow();
+    db.command(db.profile("ester"), { action: "schedule", input: { mode: "create", date: "2099-01-01", scripture: "Texto cliente", reference: "Referência cliente", reflection: "Reflexão", prayerSuggestion: "Oração", licenseEvidence: "Arquivo 1911 autorizado", selection } });
+    const stored = JSON.parse(db.get<{ data: string }>("SELECT data FROM devotionals WHERE date='2099-01-01'")!.data) as Devotional;
+    expect(stored).toMatchObject({ scripture: "1 - No principio creou Deus os céus e a terra.", reference: "Gênesis 1:1", translation: "Almeida 1911 (ALM1911)" });
+  });
   it("salva lote privado sem publicar, repete sem duplicar e reverte lote com destino proibido", () => {
     const db = setup(), admin = db.profile("daniel");
     const second = db.command(admin, { action: "createCommunity", input: { name: "Segunda", description: "" } }) as string;

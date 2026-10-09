@@ -74,6 +74,7 @@ export type Watch<T> = (
 export interface Repository {
   mode: "preview" | "live" | "local";
   reading?: import("./reading").ReadingRepository;
+  bible?: import("./reading").BibleRepository;
   notifications?: import("./sharing").NotificationsRepository;
   sharing?: import("./sharing").SharingRepository;
   refresh?(): Promise<void>;

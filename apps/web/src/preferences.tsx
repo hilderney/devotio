@@ -15,7 +15,11 @@ import {
   resolveReadingTheme,
   nextThemeTransition,
   type ReadingPreferences,
+  bibleVersionNames,
+  resolveBibleVersion,
+  bibleVersionSchema,
 } from "domain/core";
+import { useRepository } from "domain/react";
 import { Modal } from "./components";
 import { readingThemes } from "ui-kit";
 import { Dropdown } from "./dropdown";
@@ -139,6 +143,8 @@ export function SettingsModal({
   returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   const { preferences, change } = usePreferences();
+  const repository = useRepository();
+  const versions = repository.bible?.versions ?? (repository.reading ? ["aa"] as const : []);
   return (
     <Modal
       title="Configurações"
@@ -149,6 +155,15 @@ export function SettingsModal({
       }}
     >
       <div className="settings-controls">
+        {versions.length > 0 && <div className="field">
+          <span>Versão da Bíblia</span>
+          <Dropdown label="Versão da Bíblia"
+            value={preferences.bibleVersion ?? resolveBibleVersion(undefined, versions)}
+            options={versions.map(value => ({ value, label: bibleVersionNames[value] }))}
+            onChange={value => change({ bibleVersion: bibleVersionSchema.parse(value) })}
+          />
+          {preferences.bibleVersion && !versions.includes(preferences.bibleVersion) && <p role="status" className="caption">A versão salva não está disponível neste ambiente. Escolha uma das versões acima.</p>}
+        </div>}
         <div className="field">
           <span>Tema</span>
           <Dropdown

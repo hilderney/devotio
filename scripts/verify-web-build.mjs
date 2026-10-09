@@ -3,6 +3,7 @@ import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
+import { alm1911Base, alm1911Revision, bibleChapterSchema, bibleCatalogSchema } from "../packages/domain/validators/bible.ts";
 
 const root = fileURLToPath(new URL("../apps/web/dist/", import.meta.url));
 const read = (name) => readFile(path.join(root, name), "utf8");
@@ -80,3 +81,22 @@ assert.equal(routes[0].handler, "index.html");
 console.log(
   `Build verificado: manifest, ícones, licenças, ${cache.length} recursos estáticos e ausência de fixtures. Nenhum cache de API registrado.`,
 );
+const biblePath = alm1911Base.slice(1);
+const catalog = bibleCatalogSchema.parse(JSON.parse(await read(`${biblePath}/catalog.json`)));
+assert.equal(catalog.version, "alm1911");
+assert.equal(catalog.books.length, 66);
+const source = JSON.parse(await read(`${biblePath}/source.json`));
+assert.equal(source.sha256, alm1911Revision);
+let chapterCount = 0, verseCount = 0;
+for (const book of catalog.books) for (let number = 1; number <= book.chapters; number++) {
+  const chapter = bibleChapterSchema.parse(JSON.parse(await read(`${biblePath}/${book.abbrev}/${number}.json`)));
+  assert.equal(chapter.version, "alm1911"); assert.equal(chapter.book.abbrev, book.abbrev); assert.equal(chapter.chapter, number);
+  chapterCount++; verseCount += chapter.verses.length;
+}
+assert.equal(chapterCount, 1189); assert.equal(verseCount, 31101);
+const search = JSON.parse(await read(`${biblePath}/search.json`));
+assert.equal(search.length, verseCount);
+assert.ok(cache.every(({ url }) => !url.includes("bibles/")), "Corpus não pertence ao precache do shell");
+for (const asset of assets.filter(name => name.endsWith(".js")))
+  assert.ok(!(await read(`assets/${asset}`)).includes("No principio creou Deus os céus e a terra."), "Não empacotar o corpus no JavaScript");
+console.log("ALM1911 no build público: 66 livros, 1.189 capítulos, 31.101 versículos; corpus fora do JS/precache.");

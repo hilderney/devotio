@@ -52,7 +52,7 @@ function Root() {
     document.title = `${title} · Devotio`;
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname]);
-  if (!online && !app.localProfile)
+  if (!online && !app.localProfile && !(location.pathname === "/biblia" && app.repository?.bible))
     return (
       <div className="offline-page">
         <Brand />

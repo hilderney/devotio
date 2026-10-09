@@ -17,7 +17,13 @@ coverage
 .agents/
 .claude/
 docs/adr/client_secret_*
-packages/
+packages/**
+!packages/**/
+!packages/domain/bible.ts
+!packages/domain/bible.test.ts
+!packages/domain/validators/bible.ts
+!packages/backend/local/alm1911.local.ts
 skills-lock.json
 CLAUDE.md
+apps/web/public/bibles/
 AGENTS.md

@@ -8,6 +8,8 @@ import {
 import { createConvexRepository } from "domain/convex";
 import { loginDestination } from "domain/core";
 import { App } from "./router";
+import { useMemo } from "react";
+import { createWebBible } from "./bible-repository";
 
 /** Load the connected adapter only when both public service URLs are configured. */
 export function createLiveApp(url: string, site: string) {
@@ -21,9 +23,11 @@ export function createLiveApp(url: string, site: string) {
   function AuthenticatedApp() {
     const { isAuthenticated, isLoading } = useConvexAuth();
     const session = auth.useSession();
+    const owner = session.data?.user.id;
+    const connected = useMemo(() => owner ? { ...repository, bible: createWebBible(owner) } : null, [owner]);
     return (
       <App
-        repository={isAuthenticated && session.data ? repository : null}
+        repository={isAuthenticated && session.data ? connected : null}
         loading={isLoading || session.isPending}
         configured
         userKey={session.data?.user.id ?? "guest"}

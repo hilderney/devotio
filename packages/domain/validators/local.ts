@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { bibleVersionSchema, bibleSearchSchema } from "./bible";
 import { bibleSelectionSchema } from "../sharing";
 import { dateSchema, communitySchema, inviteSchema, messageSchema, scriptureSchema, checklistSchema, publicationSchema, scheduleSchema } from "./index";
 
@@ -12,6 +13,7 @@ export const bibleParamsSchema = z.object({
   verse: z.coerce.number().int().min(1).max(176).optional().catch(undefined),
   pick: z.enum(["devotional", "community"]).optional().catch(undefined),
   q: z.string().max(100).optional().catch(undefined),
+  version: bibleVersionSchema.optional().catch(undefined),
 });
 export const bibleDatasetSchema = z.array(z.object({
   abbrev: z.string().min(1), name: z.string().min(1),
@@ -56,7 +58,7 @@ export const localQuerySchema = z.discriminatedUnion("query", [
   z.object({ query: z.literal("invite"), code: inviteSchema }),
   z.object({ query: z.literal("bible") }),
   z.object({ query: z.literal("chapter"), abbrev: z.string().regex(/^[a-z0-9]{1,6}$/), chapter: z.number().int().min(1).max(150) }),
-  z.object({ query: z.literal("search"), text: z.string().trim().min(4, "Digite ao menos 4 caracteres.").max(100), page: z.number().int().min(0).max(2000) }),
+  z.object({ query: z.literal("search"), ...bibleSearchSchema.shape }),
   z.object({ query: z.literal("editorial") }),
 ]);
 export type LocalCommand = z.infer<typeof localCommandSchema>;

@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
+    "dev": "node ../../scripts/prepare-bible.mjs && vite --host 127.0.0.1",
+    "build": "node ../../scripts/prepare-bible.mjs && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",

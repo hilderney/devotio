@@ -20,7 +20,10 @@ import {
   validationMessage,
   type BibleChapter,
   type BibleSelection,
-  type ReadingRepository,
+  type BibleReaderRepository,
+  type BibleVersion,
+  resolveBibleVersion,
+  bibleVersionNames,
   type Watch,
 } from "domain/core";
 import { usePreferences } from "../preferences";
@@ -32,9 +35,18 @@ import { Empty, ErrorMessage, Loading, Ornament } from "../components";
 
 export function BiblePage() {
   const repository = useRepository();
+  const { preferences, change } = usePreferences();
   const params = useSearch({ from: "/_reader/biblia" }),
     { picker } = useWriting();
-  if (!repository.reading)
+  const versions = repository.bible?.versions ?? ["aa"];
+  const version = resolveBibleVersion(preferences.bibleVersion, versions);
+  useEffect(() => {
+    const desired = params.version ?? (params.pick ? picker?.selection?.version : undefined);
+    if (desired && versions.includes(desired)) change({ bibleVersion: desired });
+    // Apply the edition of an incoming link once; later Settings changes remain effective.
+  }, [params.version, params.pick]);
+  const reading = useMemo(() => repository.bible?.forVersion(version) ?? repository.reading, [repository, version]);
+  if (!reading)
     return <Empty title="Leitura bíblica em preparação." />;
   return (
     <BibleReader
@@ -43,11 +55,12 @@ export function BiblePage() {
           ? `${params.pick}:${picker?.target.kind === "devotional" ? picker.target.key : picker?.target.communityId}`
           : "normal"
       }
-      reading={repository.reading}
+      reading={reading}
+      version={version}
     />
   );
 }
-function BibleReader({ reading }: { reading: ReadingRepository }) {
+function BibleReader({ reading, version }: { reading: BibleReaderRepository; version: BibleVersion }) {
   const { preferences } = usePreferences();
   const params = useSearch({ from: "/_reader/biblia" });
   const navigate = useNavigate();
@@ -60,9 +73,10 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
   const [returning, setReturning] = useState(false),
     [returnError, setReturnError] = useState("");
   const versesElement = useRef<HTMLDivElement>(null);
-  const [selected, setSelected] = useState<BibleSelection | null>(
+  const [storedSelection, setSelected] = useState<BibleSelection | null>(
     picker?.selection ?? null,
   );
+  const selected = storedSelection?.version === version ? storedSelection : null;
   const anchor = useRef(picker?.selection?.first ?? 1);
   const gesture = useRef<{
     chapter: BibleChapter;
@@ -117,7 +131,7 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
     next.data,
     ...retained.current,
   ].filter(
-    (data): data is BibleChapter => !!data && data.book.abbrev === params.book,
+    (data): data is BibleChapter => !!data && data.book.abbrev === params.book && (data.version ?? "aa") === version,
   );
   const current = available.find((data) => data.chapter === params.chapter);
   const visibleChapters = current
@@ -226,6 +240,16 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
   const [search, setSearch] = useState<{ query: string; page: number } | null>(
     null,
   );
+  const lastVersion = useRef(version);
+  useLayoutEffect(() => {
+    if (lastVersion.current === version) return;
+    lastVersion.current = version;
+    cancelGesture();
+    window.getSelection()?.removeAllRanges();
+    setSelected(null);
+    setSearch(current => current ? { ...current, page: 0 } : null);
+    scrollAnchor.current = null;
+  }, [version]);
   const chapterReady = !!chapter.data;
   const selectedData = visibleChapters.find(
     (data) => data.chapter === selected?.chapter,
@@ -238,7 +262,7 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
         book: data.book.abbrev,
         chapter: data.chapter,
         ...selectionRange(first, last),
-        version: "aa",
+        version,
       });
   }
   function clearSelection() {
@@ -309,7 +333,7 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
         chapter: pieces[0].chapter,
         first,
         last,
-        version: "aa",
+        version,
       });
     };
     document.addEventListener("selectionchange", update);
@@ -327,7 +351,7 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
       document.removeEventListener("pointercancel", cancelGesture);
       element?.removeEventListener("touchmove", preventScroll);
     };
-  }, [chapter.data, params.book]);
+  }, [chapter.data, params.book, version]);
   const targetKey =
     picker?.target.kind === "devotional"
       ? picker.target.key
@@ -487,7 +511,7 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
             <br />
             <em>Encontre sentido.</em>
           </h1>
-          <p className="intro-copy">AA · Uma leitura de cada vez.</p>
+          <p className="intro-copy">{bibleVersionNames[version]} · Uma leitura de cada vez.</p>
         </div>
         <Ornament />
       </header>
@@ -849,15 +873,7 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
             </>
           )}
           <p className="bible-source caption">
-            Texto AA fornecido pela{" "}
-            <a
-              href="https://abibliadigital.api.br"
-              target="_blank"
-              rel="noreferrer"
-            >
-              ABíbliaDigital
-            </a>
-            . Leitura a partir da cópia local.
+            {catalog.data.source}. {version === "alm1911" ? "Grafia original preservada." : "Leitura a partir da cópia local."}
           </p>
         </>
       )}
@@ -885,7 +901,7 @@ function BibleReader({ reading }: { reading: ReadingRepository }) {
   );
 }
 function useNeighbor(
-  reading: ReadingRepository,
+  reading: BibleReaderRepository,
   book: string,
   number: number | undefined,
   preload = true,
@@ -921,7 +937,7 @@ function BibleSearch({
   onClose,
   pick,
 }: {
-  reading: ReadingRepository;
+  reading: BibleReaderRepository;
   query: string;
   page: number;
   onPage: (page: number) => void;

@@ -283,7 +283,7 @@ export function createLocalRepository(storage: LocalCacheStorage, onExpired: () 
       watchBible: () => watch("bible", async () => {
         if (cache.catalog) return cache.catalog;
         const value = await query<BibleCatalog>({ query: "bible" });
-        if (!disposed && value.books.length) { cache.catalog = value; persist(); }
+        if (!disposed && value.books.length && value.version === "aa") { cache.catalog = { ...value, version: "aa" }; persist(); }
         return value;
       }),
       watchChapter: (abbrev, number, preload = false) => watch((preload ? "prefetch:" : "chapter:") + abbrev + ":" + number, () => chapter(abbrev, number, preload)),

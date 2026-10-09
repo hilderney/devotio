@@ -1,5 +1,10 @@
 # Spec: Configurações de aparência e leitura bíblica
 
+Extensão aprovada em 09/10/2026: [spec 012](../012-versoes-biblia/spec.md) acrescenta
+Versão da Bíblia e ALM1911 no build local/conectado. As restrições abaixo sobre
+AA como única edição descrevem o escopo original da 009, substituídas somente
+para essa inclusão aprovada. Tema, fonte e modos continuam seguindo esta spec.
+
 Revisão autorizada: menu da conta fecha ao clicar/tocar fora, pressionar Escape ou acionar qualquer botão/link interno, inclusive Configurações. Fechar o menu não cancela a ação acionada.
 
 **ID:** 009-configuracoes-leitura

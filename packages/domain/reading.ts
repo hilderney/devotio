@@ -7,8 +7,8 @@ export interface Favorite { devotional: Devotional; favoritedAt: number }
 export interface ReadingData { dates: string[]; favorites: Favorite[]; offline?: boolean; storageWarning?: string }
 export interface BibleBook { abbrev: string; name: string; chapters: number; testament: "VT" | "NT"; order: number }
 export interface BibleVerse { abbrev: string; bookName: string; chapter: number; number: number; text: string }
-export interface BibleChapter { book: BibleBook; chapter: number; verses: BibleVerse[] }
-export interface BibleCatalog { books: BibleBook[]; version: "aa"; verses: number; importedAt: number | null; source: string }
+export interface BibleChapter { version?: import("./validators/bible").BibleVersion; book: BibleBook; chapter: number; verses: BibleVerse[] }
+export interface BibleCatalog { books: BibleBook[]; version: import("./validators/bible").BibleVersion; verses: number; importedAt: number | null; source: string }
 export interface BibleResults { verses: BibleVerse[]; total: number; page: number }
 export type PublicationInput = z.infer<typeof publicationSchema>;
 export type ScheduleInput = z.infer<typeof scheduleSchema>;
@@ -24,6 +24,11 @@ export interface ReadingRepository {
   publish(input: PublicationInput): Promise<void>;
   schedule(input: ScheduleInput): Promise<void>;
   withdraw(date: string, reason: string): Promise<void>;
+}
+export type BibleReaderRepository = Pick<ReadingRepository, "watchBible" | "watchChapter" | "watchSearch">;
+export interface BibleRepository {
+  versions: readonly import("./validators/bible").BibleVersion[];
+  forVersion(version: import("./validators/bible").BibleVersion): BibleReaderRepository;
 }
 export function dateInZone(timeZone: string, now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);

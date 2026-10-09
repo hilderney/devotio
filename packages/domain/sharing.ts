@@ -3,6 +3,7 @@ import { bibleSelectionSchema, notificationSummarySchema } from "./validators/sh
 export { bibleSelectionSchema, notificationSummarySchema } from "./validators/sharing";
 import type { BibleChapter } from "./reading";
 import type { Watch, Message } from "./types";
+import { bibleVersionNames } from "./validators/bible";
 
 export type BibleSelection = z.infer<typeof bibleSelectionSchema>;
 export interface BibleQuote extends BibleSelection { text: string; reference: string; versionName: string }
@@ -10,12 +11,13 @@ export function selectionRange(anchor: number, end: number) { return { first: Ma
 export function bibleQuote(chapter: BibleChapter, selection: BibleSelection): BibleQuote {
   bibleSelectionSchema.parse(selection);
   if (selection.book !== chapter.book.abbrev || selection.chapter !== chapter.chapter) throw new Error("A seleção pertence a outro capítulo.");
+  if ((chapter.version ?? "aa") !== selection.version) throw new Error("A seleção pertence a outra versão.");
   const verses = chapter.verses.filter(verse => verse.number >= selection.first && verse.number <= selection.last);
   if (verses.length !== selection.last - selection.first + 1) throw new Error("Versículos não encontrados.");
-  return { ...selection, text: verses.map(verse => `${verse.number} - ${verse.text}`).join("\n"), reference: `${chapter.book.name} ${selection.chapter}:${selection.first}${selection.last === selection.first ? "" : "–" + selection.last}`, versionName: "Almeida Atualizada (AA)" };
+  return { ...selection, text: verses.map(verse => `${verse.number} - ${verse.text}`).join("\n"), reference: `${chapter.book.name} ${selection.chapter}:${selection.first}${selection.last === selection.first ? "" : "–" + selection.last}`, versionName: bibleVersionNames[selection.version] };
 }
 export function quoteText(quote: BibleQuote) { return `${quote.text}\n\n${quote.reference}\n${quote.versionName}`; }
-export function bibleQuotePath(quote: BibleSelection) { return `/biblia?book=${quote.book}&chapter=${quote.chapter}&verse=${quote.first}`; }
+export function bibleQuotePath(quote: BibleSelection) { return `/biblia?book=${quote.book}&chapter=${quote.chapter}&verse=${quote.first}&version=${quote.version}`; }
 export function notificationDate(at: number) { return new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric" }).format(at); }
 export type NotificationSummary = z.infer<typeof notificationSummarySchema>;
 export interface AppNotification { id: string; type: "system" | "community"; entity: string; text: string; communityId: string | null; messageId: string | null; createdAt: number; readAt: number | null }
