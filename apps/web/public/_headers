@@ -6,3 +6,6 @@
   Cache-Control: no-cache
 /index.html
   Cache-Control: no-cache
+/gestao-acesso
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store

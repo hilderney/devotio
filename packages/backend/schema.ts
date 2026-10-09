@@ -2,10 +2,48 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 export default defineSchema({
   users: defineTable({
-    authId: v.string(),
+    authId: v.optional(v.string()),
+    tokenIdentifier: v.optional(v.string()),
     name: v.string(),
     email: v.string(),
-  }).index("by_authId", ["authId"]),
+    normalizedEmail: v.optional(v.string()),
+    normalizedName: v.optional(v.string()),
+    status: v.optional(
+      v.union(
+        v.literal("pending"),
+        v.literal("approved"),
+        v.literal("disabled"),
+      ),
+    ),
+    editorial: v.optional(v.boolean()),
+  })
+    .index("by_authId", ["authId"])
+    .index("by_tokenIdentifier", ["tokenIdentifier"])
+    .index("by_email", ["email"])
+    .index("by_normalizedEmail", ["normalizedEmail"])
+    .index("by_normalizedName", ["normalizedName"])
+    .index("by_status_and_normalizedEmail", ["status", "normalizedEmail"])
+    .index("by_status_and_normalizedName", ["status", "normalizedName"]),
+  adminSessions: defineTable({
+    tokenHash: v.string(),
+    credentialVersion: v.string(),
+    expiresAt: v.number(),
+  }).index("by_tokenHash", ["tokenHash"]),
+  adminSecurity: defineTable({
+    key: v.literal("owner"),
+    lastTotpCounter: v.number(),
+    credentialVersion: v.string(),
+  }).index("by_key", ["key"]),
+  accessSettings: defineTable({
+    key: v.literal("main"),
+    approvalRequired: v.boolean(),
+  }).index("by_key", ["key"]),
+  userAdminEvents: defineTable({
+    actor: v.string(),
+    target: v.string(),
+    action: v.string(),
+    at: v.number(),
+  }).index("by_target", ["target"]),
   devotionals: defineTable({
     date: v.string(),
     reference: v.string(),

@@ -1,0 +1,108 @@
+.admin-page {
+  max-width: 1100px;
+}
+.admin-page h1 {
+  margin-block: 1.5rem;
+}
+.admin-heading,
+.admin-actions,
+.admin-filters,
+.admin-community {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.admin-heading {
+  justify-content: space-between;
+}
+.admin-filters {
+  margin-block: 1.5rem;
+  align-items: end;
+}
+.admin-form {
+  display: grid;
+  gap: 1rem;
+}
+.admin-login {
+  max-width: 420px;
+}
+.admin-page label {
+  display: grid;
+  gap: 0.4rem;
+}
+.admin-page input,
+.admin-page select,
+.connected-editorial input,
+.connected-editorial textarea {
+  color: inherit;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.65rem;
+  min-height: 44px;
+  max-width: 100%;
+}
+.admin-card,
+.admin-confirm {
+  border: 1px solid var(--line);
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin-block: 1.5rem;
+}
+.admin-page .admin-check {
+  display: flex;
+  align-items: center;
+}
+.admin-check input {
+  width: 20px;
+  min-height: 20px;
+}
+.admin-table-wrap {
+  overflow-x: auto;
+  margin-block: 1.5rem;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.admin-table caption {
+  text-align: left;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+.admin-table td:first-child {
+  overflow-wrap: anywhere;
+  min-width: 180px;
+}
+.admin-community {
+  margin-block: 1rem;
+  align-items: end;
+}
+.connected-editorial label {
+  display: grid;
+  gap: 0.5rem;
+}
+.connected-editorial textarea {
+  min-height: 130px;
+}
+@media (max-width: 600px) {
+  .admin-page {
+    padding-inline: 1rem;
+  }
+  .admin-filters label {
+    width: 100%;
+  }
+  .admin-table td,
+  .admin-table th {
+    padding: 0.5rem;
+  }
+}

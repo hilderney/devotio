@@ -2,6 +2,11 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import type { Repository, HomeData, LocalProfile, Devotional, EditorialDraft, CommunityWritingDraft, BiblePickerState } from "domain/core";
 import { PreferencesProvider } from "./preferences";
 export interface AppContextValue {
+  administration?: import("domain/core").Administration;
+  connectedEditorial?: import("domain/core").ConnectedEditorial;
+  pilotAccess?: import("domain/core").AccessState;
+  accessError?: string;
+  refreshAccess?: () => void;
   repository: Repository | null;
   preview?: boolean;
   localProfiles?: LocalProfile[];

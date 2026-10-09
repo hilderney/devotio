@@ -41,6 +41,45 @@ Membros não recebem emails ou autores dos ticks. Contagens pequenas podem permi
 
 ## Modelo de Dados
 
+### Gestão de acesso ao piloto (spec 011 — 09/10/2026)
+
+O backend conectado acrescenta aprovação global antes de qualquer leitura/escrita
+de conteúdo. A identidade autenticada permanece separada da autorização. Contas
+legadas sem situação são aprovadas; bootstrap preenche metadados e vincula o
+`tokenIdentifier` canônico, preservando `authId` para compatibilidade. Contas novas
+ficam pendentes. Pré-cadastros só são vinculados ao e-mail verificado correspondente.
+
+| Tabela / alteração | Responsabilidade | Índices novos |
+|---|---|---|
+| users | authId opcional, tokenIdentifier, normalizedEmail/normalizedName, status opcional pending/approved/disabled e editorial opcional | by_tokenIdentifier, by_email, by_normalizedEmail, by_normalizedName, by_status_and_normalizedEmail, by_status_and_normalizedName |
+| adminSessions | Hash do token opaco, versão das credenciais e expiração de 30 minutos | by_tokenHash |
+| adminSecurity | Último contador TOTP usado pelo proprietário, por versão das credenciais | by_key |
+| accessSettings | Singleton main: aprovação obrigatória para novos cadastros | by_key |
+| userAdminEvents | Autor, alvo, ação e instante das mudanças de conta/permissão | by_target |
+
+O superusuário é uma identidade operacional configurada no servidor, separada dos
+participantes; o CRUD não pode removê-la nem promover participantes a superusuário.
+Login é uma action com scrypt/TOTP do Better Auth e rate-limiter oficial em componente
+isolado, consumido antes da autenticação em transação independente. A emissão
+transacional consome o contador TOTP, impedindo replay. O token aleatório só fica
+em memória no navegador; o banco guarda seu SHA-256. Cada operação administrativa
+valida expiração/versão das credenciais; logout e limpeza agendada removem sessões.
+
+Desativação preserva usuário e vínculos, revoga acesso às operações do produto e
+não concede entrada na próxima autenticação. Mudanças reativas da situação retiram
+as telas protegidas. O último administrador ativo de uma comunidade é protegido;
+ticks de contas desativadas deixam de contar como membros ativos. Administração
+comunitária continua por associação; editorial exige capacidade própria no servidor.
+O painel só mostra metadados cadastrais e nomes/papéis de comunidades, sem acesso
+a comentários, progresso ou outras informações privadas.
+
+`users:backfill` normaliza registros legados em lotes. `users:importAuthUsers`
+inclui contas existentes apenas no Better Auth sem duplicar pré-cadastros; o marco
+ISO `PILOT_EXISTING_USERS_BEFORE` distingue antigos de novos. Executar a preparação
+do [roteiro operacional](operations/user-administration.md) no rollout.
+
+O schema abaixo descreve a base anterior; esta extensão não migra o SQLite local.
+
 [Schema v1](../packages/backend/schema.ts):
 
 | Tabela | Responsabilidade | Índices |
