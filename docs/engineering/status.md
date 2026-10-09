@@ -1,5 +1,24 @@
 # Estado real do projeto
 
+## Bíblia e gestão integradas — correção do build de 09/10/2026
+
+O merge `46f3bb0` em `main` retirou as exportações de Bíblia do ponto de entrada
+`domain/core`, causando a falha de Rollup informada pelo usuário em produção.
+Também retirou a composição de `Repository.bible` no app conectado. Ambas foram
+restauradas preservando o painel administrativo, o editorial e a aprovação de
+contas. A [spec 012](../../specs/012-versoes-biblia/spec.md) volta ao catálogo.
+
+ALM1911 pode ser escolhida nas Configurações; catálogo, capítulos e busca usam
+arquivos estáticos gerados do JSON fornecido. A edição tem 66 livros, 1.189
+capítulos e 31.101 versículos. Corpus separado do bundle JS e do precache PWA.
+
+**Evidências desta correção:** 135 testes passaram (88 domain e 47 web), incluindo
+quatro testes da composição conectada com acesso aprovado, pendente, desativado
+e sem autenticação. Lint/typecheck do monorepo, build de produção do workspace
+web e verificação do artefato passaram. Não houve alteração de funções/schema
+Convex nem nova implantação do backend. Publicação do Worker e homologação
+visual/física devem ser confirmadas separadamente.
+
 ## Gestão de usuários e aprovação — branch de 09/10/2026
 
 [Spec 011](../../specs/011-gestao-usuarios-aprovacao/spec.md) aprovada e implementada

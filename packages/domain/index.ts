@@ -9,3 +9,5 @@ export * from "./writing";
 export * from "./preferences";
 export * from "./administration";
 export * from "./validators/administration";
+export * from "./validators/bible";
+export * from "./bible";

@@ -30,6 +30,11 @@ export function createLiveApp(url: string, site: string) {
   function AuthenticatedApp() {
     const { isAuthenticated, isLoading } = useConvexAuth();
     const session = auth.useSession();
+    const owner = session.data?.user.id;
+    const connected = useMemo(
+      () => owner ? { ...repository, bible: createWebBible(owner) } : null,
+      [owner],
+    );
     const access = usePilotAccess(
       client,
       isAuthenticated && session.data ? session.data.user.id : null,
@@ -40,7 +45,7 @@ export function createLiveApp(url: string, site: string) {
           isAuthenticated &&
           session.data &&
           access.access?.status === "approved"
-            ? repository
+            ? connected
             : null
         }
         loading={isLoading || session.isPending || access.loading}

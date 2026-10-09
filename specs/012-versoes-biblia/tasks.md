@@ -31,7 +31,15 @@ e build/verify:web finais passaram. Inspeção do build confere 1.189 capítulos
 31.101 versículos, corpus fora do JS/precache e ausência de fixtures de desenvolvimento.
 HTTP local exigiu execução autorizada fora do sandbox por EACCES no loopback.
 
-Publicação pendente: a `main` de origem está no commit `649c3e0`, sem o CRUD do commit
-`ceeef56` da branch `codex/gestao-usuarios-aprovacao`. Pergunta enviada ao usuário
-para incorporar esse commit antes de publicar e preservar `/gestao-acesso`.
-Nenhum commit/push ou deploy foi realizado nesta entrega.
+Integração realizada pelo usuário: `main` contém o CRUD após o merge `46f3bb0`.
+O log de produção de 09/10 às 18:33 UTC revelou perda de exportações de Bíblia em
+`domain/core` durante esse merge. Também se perdeu a ligação `Repository.bible`
+do app conectado. Correção restaura ambas, preservando aprovação/CRUD; validação
+do estado integrado e publicação permanecem separadas.
+
+- [x] Validar o build de produção após restaurar exports e composição do app conectado.
+
+Correção de integração em 09/10/2026: build do workspace web e verificação do
+artefato passaram, com 66 livros/1.189 capítulos/31.101 versículos. Lint/typecheck
+do monorepo passaram. Foram executados 135 testes (88 domain + 47 web), incluindo
+quatro regressões da composição conectada para preservar Bíblia e aprovação.
