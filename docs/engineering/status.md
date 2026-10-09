@@ -1,5 +1,23 @@
 # Estado real do projeto
 
+## Menu bíblico publicado — correção de 09/10/2026
+
+O usuário confirmou leitura pela rota `/biblia`, mas ausência da entrada nos menus.
+A condição dos menus ainda exigia `repository.reading` (capacidade privada local)
+e passou a reconhecer também `repository.bible` (corpus público). Três testes de
+Bíblia publicada passaram, incluindo navegação desde Devocional e presença dos
+links desktop/celular. Lint/typecheck do monorepo e build web passaram.
+
+Na rodada anterior, Workers Builds de `a5d52d2` terminou com sucesso e HTTP público
+confirmou catálogo JSON, João 1 com 51 versículos e assets atuais. Isso comprovou
+o corpus e o leitor, mas não o menu autenticado; a hipótese de cache não explicou
+essa regressão. Homologação autenticada no aparelho permanece separada dos testes.
+
+O editorial conectado usa um formulário distinto do local, ainda sem a seleção
+integrada. A [spec 013](../../specs/013-editorial-biblia-publicada/spec.md) consolida
+o novo pedido (datas, fonte padronizada, seleção, limites, autoria e fuso) e propostas
+para auditoria/compatibilidade; aguarda aprovação antes de plano e implementação.
+
 ## Bíblia e gestão integradas — correção do build de 09/10/2026
 
 O merge `46f3bb0` em `main` retirou as exportações de Bíblia do ponto de entrada

@@ -92,7 +92,7 @@ function ReaderShell() {
                       <BookOpen size={17} />
                       <span className="nav-label">Devocional</span>
                     </Link>
-                    {app.repository?.reading && (
+                    {(app.repository?.bible || app.repository?.reading) && (
                       <Link
                         to="/biblia"
                         aria-label="Bíblia"
@@ -175,7 +175,7 @@ function ReaderShell() {
               <BookOpen size={21} />
               <span>Devocional</span>
             </Link>
-            {app.repository?.reading && (
+            {(app.repository?.bible || app.repository?.reading) && (
               <Link
                 to="/biblia"
                 search={{ book: "jo", chapter: 1 }}

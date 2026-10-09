@@ -22,7 +22,7 @@
 
 - [x] Atualizar arquitetura, fonte bíblica e estado real.
 - [x] Lint, typecheck, testes e build verificados; corpus fora do bundle/precache.
-- [ ] Publicar Worker e verificar catálogo/capítulo da ALM1911.
+- [x] Publicar Worker e verificar catálogo/capítulo da ALM1911.
 - [ ] Homologação visual/física no aparelho do usuário.
 
 Verificação em 09/10/2026: 153 testes passaram (83 domain, 31 backend, 39 web).
@@ -43,3 +43,15 @@ Correção de integração em 09/10/2026: build do workspace web e verificação
 artefato passaram, com 66 livros/1.189 capítulos/31.101 versículos. Lint/typecheck
 do monorepo passaram. Foram executados 135 testes (88 domain + 47 web), incluindo
 quatro regressões da composição conectada para preservar Bíblia e aprovação.
+
+Publicação `a5d52d2`: Workers Builds concluído com sucesso. HTTP público verificou
+catálogo JSON e João 1 com 51 versículos, além dos assets atuais do leitor e seletor.
+Isso não verificou o menu autenticado: o usuário identificou que ele ainda dependia
+de `repository.reading`, apesar de a rota já usar `repository.bible`.
+
+- [x] Corrigir a disponibilidade dos menus desktop/celular e validar navegação.
+
+Correção do menu em 09/10: menus consideram Bíblia independente da capacidade
+privada local. Três testes de Bíblia publicada passaram, incluindo links desktop
+e celular e navegação de Devocional para João 1. Lint/typecheck do monorepo e build
+web passaram. A regressão era de interface, não ausência do corpus no Worker.

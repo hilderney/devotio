@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBibleRepository, alm1911DatasetSchema, type BibleChapter, type BibleCatalog, type BibleReaderRepository, type Watch } from "domain/core";
 import { createPreviewRepository } from "domain/preview";
@@ -39,6 +39,16 @@ async function settings() {
   fireEvent.click(screen.getByRole("combobox", { name: /Versão da Bíblia/ }));
 }
 describe("Bíblia na web conectada", () => {
+  it("oferece Bíblia nos menus desktop e celular sem o adaptador privado local", async () => {
+    window.history.replaceState(null, "", "/devocional");
+    start();
+    const desktop = within(await screen.findByRole("navigation", { name: "Navegação principal" }));
+    const mobile = within(screen.getByRole("navigation", { name: "Navegação no celular" }));
+    expect(mobile.getByRole("link", { name: "Bíblia" }).getAttribute("href")).toContain("/biblia");
+    fireEvent.click(desktop.getByRole("link", { name: "Bíblia" }));
+    await screen.findByText("No principio era o Verbo, e o Verbo estava com Deus, e o Verbo era Deus.");
+    expect(window.location.pathname).toBe("/biblia");
+  });
   it("lê ALM1911 sem reading privado, oferece só edição disponível e pesquisa seu texto", async () => {
     localStorage.setItem("devotio:preferences:v1:public-reader", JSON.stringify({ theme: "day", fontSize: 20, mode: "paged", bibleVersion: "aa" }));
     const load = start();

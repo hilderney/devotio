@@ -15,7 +15,8 @@ Requisitos aprovados orientam código; planos orientam implementação; tasks re
 | [009](009-configuracoes-leitura/spec.md) | Configurações de aparência e leitura | Aprovada em 08/10; implementada localmente, homologação visual/física pendente | Cinco temas, escala de fonte, modos contínuo/paginado e janela de três capítulos; independente da migração do corpus |
 | [010](010-temas-mensal-semanal/spec.md) | Gestão dos temas mensal e semanal | Rascunho; aprovação e vigência pendentes | Gestor do sistema escolhe escrituras e escreve temas de 256/512 caracteres; sem implementação |
 | [011](011-gestao-usuarios-aprovacao/spec.md) | Gestão de usuários e aprovação do piloto | Aprovada e implementada na branch em 09/10; configuração/rollout pendentes | Painel não listado, senha/TOTP, aprovação Google, desativação e permissões |
-| [012](012-versoes-biblia/spec.md) | Escolha da versão bíblica e Almeida 1911 | Aprovada em 09/10; integração à main e correção do build verificadas localmente, publicação/homologação pendentes | Configurações, leitura e busca por edição na web local/conectada |
+| [012](012-versoes-biblia/spec.md) | Escolha da versão bíblica e Almeida 1911 | Aprovada em 09/10; corpus publicado e verificado por HTTP, correção do menu em validação | Configurações, leitura e busca por edição na web local/conectada |
+| [013](013-editorial-biblia-publicada/spec.md) | Editorial integrado à Bíblia publicada | Requisitos consolidados em rascunho para aprovação | Datas livres, seleção bíblica, limites, autoria, horário de Brasília e corpus padronizado |
 
 [Roadmap](../docs/product/roadmap.md) determina a ordem proposta. A [ADR 001](../docs/adr/001-web-first-free-launch.md) registra distribuição web primeiro; tasks nativas permanecem abertas e adiadas.
 
