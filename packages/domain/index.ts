@@ -11,3 +11,4 @@ export * from "./administration";
 export * from "./validators/administration";
 export * from "./validators/bible";
 export * from "./bible";
+export * from "./editorial";

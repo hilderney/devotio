@@ -16,12 +16,15 @@ import {
 } from "domain/core";
 import { useApp, useWriting } from "../context";
 import { RouteRedirect } from "../redirect";
+import { ConnectedDevotionalEditor } from "./connected-devotional-editor";
 
 export function DevotionalEditorPage() {
   const app = useApp();
   const { date } = useSearch({ from: "/editorial/cadastro" });
   if (!app.repository)
     return <RouteRedirect to="/entrar" redirect="/editorial/cadastro" />;
+  if (app.connectedEditorial && app.pilotAccess?.editorial)
+    return <ConnectedDevotionalEditor key={app.userKey + (date ?? "new")} editorial={app.connectedEditorial} date={date} />;
   if (!canPublish(app.localProfile?.editorial) || !app.repository.reading)
     return (
       <main className="devotional-editor">
@@ -77,6 +80,7 @@ function EditorForm({
   reading: ReadingRepository;
   existing?: Devotional;
 }) {
+  const app = useApp();
   const navigate = useNavigate();
   const writing = useWriting();
   const key = existing?.date ?? "new";
@@ -204,7 +208,7 @@ function EditorForm({
           <textarea
             name="reflection"
             required
-            maxLength={12000}
+            maxLength={512}
             rows={9}
             value={draft.reflection}
             onChange={(event) => change({ reflection: event.target.value })}
@@ -215,7 +219,7 @@ function EditorForm({
           <textarea
             name="prayerSuggestion"
             required
-            maxLength={2000}
+            maxLength={512}
             rows={4}
             value={draft.prayerSuggestion}
             onChange={(event) =>
@@ -223,6 +227,7 @@ function EditorForm({
             }
           />
         </label>
+        <label>Créditos<input readOnly value={existing?.credit ?? app.localProfile?.name ?? ""} /></label>
         {draft.programming && (
           <div className="devotional-scheduling">
             <label>

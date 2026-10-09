@@ -1,7 +1,7 @@
 # Spec: Cadastro editorial integrado à Bíblia publicada
 
 **ID:** 013-editorial-biblia-publicada
-**Status:** rascunho para aprovação dos requisitos consolidados
+**Status:** implementação autorizada pelo pedido reiterado do usuário em 09/10/2026
 **Versão alvo:** web publicada e local; Expo adiado
 **Revisão:** 09/10/2026
 
@@ -106,9 +106,10 @@ legíveis. O plano definirá campos opcionais e documentará a arquitetura.
 
 ## 10. Aprovação e lançamento
 
-Pedido detalhado do usuário em 09/10 registrado acima. Aprovação da spec consolidada
-pendente antes de plano/tasks/código desta ampliação. A correção do menu já autorizado
-pela spec 012 segue independentemente. Web local e publicada; Expo adiado.
+Pedido detalhado e reiterado do usuário em 09/10 autoriza aplicar os requisitos.
+Nesta rodada, alterações permanecem locais: não fazer commit, push ou publicação.
+A correção do menu já autorizado pela spec 012 foi entregue anteriormente.
+Web local e conectada; Expo adiado.
 Verificar regras no servidor, fonte confiável, ida/volta do cadastro, seletores,
 menus, fuso e persistência; lint/typecheck/testes/build antes de publicação.
 Registrar separadamente qualquer homologação autenticada não realizada.

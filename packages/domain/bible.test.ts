@@ -80,7 +80,7 @@ describe("corpus e leitura por edição", () => {
     expect(resolveBibleVersion("aa", ["alm1911"])).toBe("alm1911");
     const selection = { book: "gn", chapter: 1, first: 1, last: 1, version: "alm1911" as const };
     const quote = bibleQuote(content("gn", 1), selection);
-    expect(quote.versionName).toBe("Almeida 1911 (ALM1911)");
+    expect(quote.versionName).toBe("Almeida Revista e Corrigida 1911 (ARC1911)");
     expect(bibleQuotePath(quote)).toContain("version=alm1911");
     expect(() => bibleQuote(content("gn", 1), { ...selection, version: "aa" })).toThrow("outra versão");
   });

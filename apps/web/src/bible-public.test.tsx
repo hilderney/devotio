@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createBibleRepository, alm1911DatasetSchema, type BibleChapter, type BibleCatalog, type BibleReaderRepository, type Watch } from "domain/core";
+import { createBibleRepository, alm1911DatasetSchema, dateInZone, type ConnectedEditorial, type ConnectedPublication, type BibleChapter, type BibleCatalog, type BibleReaderRepository, type Watch } from "domain/core";
 import { createPreviewRepository } from "domain/preview";
 import { App } from "./router";
 
@@ -22,7 +22,7 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function () { this.removeAttribute("open"); };
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
-function start(legacy?: BibleReaderRepository) {
+function start(legacy?: BibleReaderRepository, editorial?: ConnectedEditorial) {
   const load = vi.fn(async (path: string): Promise<unknown> => {
     if (path.endsWith("catalog.json")) return catalog;
     if (path.endsWith("search.json")) return [["gn", 1, 1, "principio creou deus ceus terra"]];
@@ -30,7 +30,7 @@ function start(legacy?: BibleReaderRepository) {
     return chapter(book, Number(n));
   });
   const repository = { ...createPreviewRepository(), mode: "live" as const, bible: createBibleRepository({ load }, legacy) };
-  render(<App repository={repository} configured loading={false} userKey="public-reader" onLogin={async () => {}} onLogout={async () => {}} />);
+  render(<App repository={repository} connectedEditorial={editorial} pilotAccess={editorial ? { status: "approved", editorial: true } : undefined} configured loading={false} userKey="public-reader" onLogin={async () => {}} onLogout={async () => {}} />);
   return load;
 }
 async function settings() {
@@ -56,7 +56,7 @@ describe("Bíblia na web conectada", () => {
     expect(screen.queryByText("Leitura bíblica em preparação.")).toBeNull();
     await settings();
     expect(screen.queryByRole("option", { name: "Almeida Atualizada (AA)" })).toBeNull();
-    fireEvent.click(screen.getByRole("option", { name: /Almeida 1911/ }));
+    fireEvent.click(screen.getByRole("option", { name: /ARC1911/ }));
     fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
     await waitFor(() => expect(JSON.parse(localStorage.getItem("devotio:preferences:v1:public-reader")!).bibleVersion).toBe("alm1911"));
     fireEvent.change(screen.getByRole("textbox", { name: /Buscar/ }), { target: { value: "principio" } });
@@ -76,7 +76,7 @@ describe("Bíblia na web conectada", () => {
     await screen.findByText("Texto da AA para teste");
     fireEvent.click(screen.getByRole("checkbox", { name: /Versículo 1:/ }));
     await settings();
-    fireEvent.click(screen.getByRole("option", { name: /Almeida 1911/ }));
+    fireEvent.click(screen.getByRole("option", { name: /ARC1911/ }));
     fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
     await screen.findByText("No principio creou Deus os céus e a terra.");
     expect(screen.queryByText("Texto da AA para teste")).toBeNull();
@@ -85,5 +85,69 @@ describe("Bíblia na web conectada", () => {
     expect(window.location.search).toContain("chapter=1");
     expect(document.documentElement.dataset.theme).toBe("papyrus");
     await waitFor(() => expect(JSON.parse(localStorage.getItem("devotio:preferences:v1:public-reader")!)).toMatchObject({ theme: "papyrus", fontSize: 24, bibleVersion: "alm1911" }));
+  });
+});
+
+describe("cadastro editorial publicado", () => {
+  const date = dateInZone("America/Sao_Paulo");
+  function service(entry?: ConnectedPublication): ConnectedEditorial {
+    return { list: vi.fn(async () => ({ entries: entry ? [entry] : [], cursor: null })), get: vi.fn(async () => entry ?? null),
+      calendar: vi.fn(async () => ({ dates: [date], credit: "Editor autenticado" })), save: vi.fn(async () => {}), withdraw: vi.fn(async () => {}) };
+  }
+  async function openNew(editorial: ConnectedEditorial) {
+    window.history.replaceState(null, "", "/editorial"); start(undefined, editorial);
+    fireEvent.click(await screen.findByRole("link", { name: "Cadastrar devocional" }));
+    await screen.findByDisplayValue("Editor autenticado");
+    fireEvent.click(screen.getByRole("combobox", { name: "Data da leitura" }));
+    fireEvent.click(screen.getByRole("option", { name: date.split("-").reverse().join("/") }));
+  }
+  it("preserva formulário na ida/volta à Bíblia e salva apenas seleção, data e textos", async () => {
+    const editorial = service(); await openNew(editorial);
+    expect((screen.getByLabelText("Créditos") as HTMLInputElement).readOnly).toBe(true);
+    expect((screen.getByLabelText("Texto bíblico") as HTMLTextAreaElement).readOnly).toBe(true);
+    expect(screen.queryByLabelText(/Motivo/)).toBeNull();
+    expect((screen.getByLabelText(/Disponível a partir/) as HTMLInputElement).value).toContain("00:00");
+    fireEvent.change(screen.getByLabelText("Reflexão"), { target: { value: "Reflexão preservada" } });
+    fireEvent.change(screen.getByLabelText("Sugestão de oração"), { target: { value: "Oração preservada" } });
+    fireEvent.click(screen.getByRole("combobox", { name: "Tradução" }));
+    expect(screen.queryByRole("option", { name: /Atualizada/ })).toBeNull();
+    fireEvent.click(screen.getByRole("option", { name: /ARC1911/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Alternar para leitura bíblica" }));
+    await screen.findByText("No principio era o Verbo, e o Verbo estava com Deus, e o Verbo era Deus.");
+    fireEvent.click(screen.getByRole("checkbox", { name: /Versículo 1:/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Usar trecho no devocional" }));
+    await screen.findByLabelText("Reflexão");
+    expect((screen.getByLabelText("Reflexão") as HTMLTextAreaElement).value).toBe("Reflexão preservada");
+    expect((screen.getByLabelText("Texto bíblico") as HTMLTextAreaElement).value).toContain("1 - No principio era o Verbo");
+    fireEvent.click(screen.getByRole("button", { name: "Salvar publicação" }));
+    await screen.findByRole("heading", { name: "Gestão editorial" });
+    expect(editorial.save).toHaveBeenCalledWith({ date, reflection: "Reflexão preservada", prayerSuggestion: "Oração preservada", mode: "create", reason: undefined,
+      selection: { book: "jo", chapter: 1, first: 1, last: 1, version: "alm1911" } });
+  });
+  it("impede texto acima de 512 e preserva campos quando a gravação falha", async () => {
+    const editorial = service(); await openNew(editorial);
+    fireEvent.change(screen.getByLabelText("Reflexão"), { target: { value: "R".repeat(513) } });
+    fireEvent.change(screen.getByLabelText("Sugestão de oração"), { target: { value: "Oração" } });
+    fireEvent.click(screen.getByRole("button", { name: "Salvar publicação" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("512");
+    expect(editorial.save).not.toHaveBeenCalled();
+    expect((screen.getByLabelText("Reflexão") as HTMLTextAreaElement).value).toHaveLength(513);
+  });
+  it("preserva conteúdo legado ao editar e exige justificativa sem trocar autoria", async () => {
+    const entry: ConnectedPublication = { id: "old", date, reference: "Referência original", translation: "AA histórica", scripture: "Texto original",
+      reflection: "R".repeat(700), prayerSuggestion: "Oração original", credit: "Autor original", licenseEvidence: "Fonte original", publishedAt: 1, withdrawn: false };
+    const editorial = service(entry);
+    window.history.replaceState(null, "", `/editorial/cadastro?date=${date}`); start(undefined, editorial);
+    await screen.findByDisplayValue("Autor original");
+    expect((screen.getByLabelText("Reflexão") as HTMLTextAreaElement).value).toHaveLength(700);
+    expect((screen.getByLabelText("Data da leitura") as HTMLInputElement).readOnly).toBe(true);
+    fireEvent.change(screen.getByLabelText("Reflexão"), { target: { value: "Reflexão reduzida" } });
+    fireEvent.change(screen.getByLabelText("Motivo da correção"), { target: { value: "Adequar texto" } });
+    vi.mocked(editorial.save).mockRejectedValue(new Error("Falha de conexão. Tente novamente."));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar publicação" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("Falha de conexão");
+    expect((screen.getByLabelText("Reflexão") as HTMLTextAreaElement).value).toBe("Reflexão reduzida");
+    expect((screen.getByLabelText("Texto bíblico") as HTMLTextAreaElement).value).toBe("Texto original");
+    expect(editorial.save).toHaveBeenCalledWith({ date, reflection: "Reflexão reduzida", prayerSuggestion: "Oração original", reason: "Adequar texto", mode: "update", selection: undefined });
   });
 });

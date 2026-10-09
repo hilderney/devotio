@@ -95,16 +95,14 @@ export interface ConnectedPublication {
   publishedAt: number;
   withdrawn: boolean;
   audioUrl?: string;
+  selection?: import("./sharing").BibleSelection;
 }
 export interface ConnectedEditorial {
   list(
     cursor: string | null,
   ): Promise<{ entries: ConnectedPublication[]; cursor: string | null }>;
-  save(
-    input: Omit<ConnectedPublication, "id" | "withdrawn"> & {
-      reason: string;
-      mode: "create" | "update";
-    },
-  ): Promise<void>;
+  get(date: string): Promise<ConnectedPublication | null>;
+  calendar(month: string, today: string): Promise<{ dates: string[]; credit: string }>;
+  save(input: import("./editorial").EditorialSave): Promise<void>;
   withdraw(id: string, reason: string): Promise<void>;
 }

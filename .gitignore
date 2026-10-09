@@ -21,6 +21,13 @@ packages/**
 !packages/**/
 !packages/domain/bible.ts
 !packages/domain/bible.test.ts
+!packages/domain/editorial.ts
+!packages/domain/editorial.test.ts
+!packages/backend/scriptures.ts
+!packages/backend/scriptureValidators.ts
+!packages/backend/editorialAccess.test.ts
+!packages/backend/local/scripture-store.local.ts
+!packages/backend/local/scripture-store.test.ts
 !packages/domain/validators/bible.ts
 !packages/backend/local/alm1911.local.ts
 skills-lock.json

@@ -4,7 +4,7 @@ export const bibleVersionSchema = z.enum(["aa", "alm1911"]);
 export type BibleVersion = z.infer<typeof bibleVersionSchema>;
 export const bibleVersionNames: Record<BibleVersion, string> = {
   aa: "Almeida Atualizada (AA)",
-  alm1911: "Almeida 1911 (ALM1911)",
+  alm1911: "Almeida Revista e Corrigida 1911 (ARC1911)",
 };
 export const alm1911Revision = "a47705dc5637daaa2e65160c9fe9aadb70edbdda855179045dbaf288f6aff795";
 export const alm1911Base = `/bibles/alm1911/${alm1911Revision}`;

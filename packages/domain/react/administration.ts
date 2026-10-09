@@ -20,7 +20,7 @@ import type {
   ConnectedEditorial,
   ConnectedPublication,
 } from "../administration";
-import { publicationSchema } from "../validators/index";
+import { editorialSaveSchema } from "../editorial";
 
 export function createConnectedEditorial(
   client: ConvexReactClient,
@@ -37,16 +37,12 @@ export function createConnectedEditorial(
           { cursor },
         ),
       ),
+    get: date => safeAdmin(client.query(ref<"query", { date: string }, ConnectedPublication | null>("editorialAccess:get"), { date })),
+    calendar: (month, today) => safeAdmin(client.query(ref<"query", { month: string; today: string }, { dates: string[]; credit: string }>("editorialAccess:calendar"), { month, today })),
     save: async (input) => {
-      const { reviewedBy: _actor, ...data } = publicationSchema.parse({
-        ...input,
-        reviewedBy: "server",
-      });
-      void _actor;
       await safeAdmin(
         client.mutation(ref<"mutation">("editorialAccess:save"), {
-          ...data,
-          mode: input.mode,
+          ...editorialSaveSchema.parse(input),
         }),
       );
     },

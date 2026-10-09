@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { scriptureSelectionValidator } from "./scriptureValidators";
 export default defineSchema({
   users: defineTable({
     authId: v.optional(v.string()),
@@ -45,6 +46,7 @@ export default defineSchema({
     at: v.number(),
   }).index("by_target", ["target"]),
   devotionals: defineTable({
+    selection: v.optional(scriptureSelectionValidator),
     date: v.string(),
     reference: v.string(),
     translation: v.string(),

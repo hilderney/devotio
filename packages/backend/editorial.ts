@@ -6,8 +6,10 @@ import {
 } from "domain/core";
 import { makeFunctionReference } from "convex/server";
 import { internalMutation } from "./server";
+import { scriptureSelectionValidator } from "./scriptureValidators";
 export const publish = internalMutation({
   args: {
+    selection: v.optional(scriptureSelectionValidator),
     date: v.string(),
     reference: v.string(),
     translation: v.string(),

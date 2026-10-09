@@ -6,6 +6,8 @@ export interface EditorialDraft {
   scripture: string; reference: string; translation: string; selection?: BibleSelection;
   reflection: string; prayerSuggestion: string; date: string; licenseEvidence: string;
   programming: boolean; query: string;
+  reason?: string;
+  version?: import("./validators/bible").BibleVersion;
 }
 export function editorialDraft(existing?: Devotional, quote?: BibleQuote): EditorialDraft {
   return {
@@ -15,10 +17,11 @@ export function editorialDraft(existing?: Devotional, quote?: BibleQuote): Edito
     date: existing?.date ?? dateInZone("America/Sao_Paulo"),
     licenseEvidence: existing?.licenseEvidence ?? "AA · ABíbliaDigital; uso no ambiente local. Distribuição pública depende de validação de licença.",
     programming: false, query: "",
+    version: quote?.version ?? existing?.selection?.version,
   };
 }
 export function applyEditorialQuote(draft: EditorialDraft, quote: BibleQuote): EditorialDraft {
-  return { ...draft, scripture: quote.text, reference: quote.reference, translation: quote.versionName, selection: quote };
+  return { ...draft, scripture: quote.text, reference: quote.reference, translation: quote.versionName, selection: quote, version: quote.version };
 }
 export interface CommunityWritingDraft {
   communityId: string; draftId: string | null; quote: BibleQuote | null; comment: string;

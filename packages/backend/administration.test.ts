@@ -364,14 +364,9 @@ describe("aprovação no backend conectado", () => {
     });
     const input = {
       date: "2026-10-09",
-      reference: "João 1:1",
-      translation: "Autoral",
-      scripture: "Teste",
+      selection: { book: "jo", chapter: 1, first: 1, last: 1, version: "alm1911" },
       reflection: "Reflexão",
       prayerSuggestion: "Oração",
-      credit: "Equipe",
-      licenseEvidence: "Teste",
-      publishedAt: 1,
       reason: "Teste",
       mode: "create",
     };

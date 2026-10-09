@@ -185,7 +185,7 @@ export function SelectionMenu({
           </Button>
         </div>
       )}
-      {canPublish(app.localProfile?.editorial) && (
+      {(canPublish(app.localProfile?.editorial) || app.pilotAccess?.editorial) && (
         <Button
           variant="ghost"
           className="selection-action"

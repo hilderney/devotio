@@ -10,6 +10,7 @@ export const dateSchema = z
       !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
     );
   }, "Informe uma data válida.");
+export const editorialTextSchema = z.string().trim().min(1, "Preencha o texto.").max(512, "Use até 512 caracteres.");
 export const communitySchema = z.object({
   name: z
     .string()
@@ -44,6 +45,7 @@ export const checklistSchema = z.object({
     .max(30, "Use até 30 itens por lista."),
 });
 export const publicationSchema = z.object({
+  selection: bibleSelectionSchema.optional(),
   date: dateSchema,
   reference: z.string().trim().min(1).max(160),
   translation: z.string().trim().min(1).max(160),
@@ -58,6 +60,8 @@ export const publicationSchema = z.object({
   audioUrl: z.string().url().startsWith("https://").optional(),
 });
 export const scheduleSchema = publicationSchema.pick({ date: true, reference: true, scripture: true, reflection: true, prayerSuggestion: true, licenseEvidence: true }).extend({
+  reflection: editorialTextSchema,
+  prayerSuggestion: editorialTextSchema,
   mode: z.enum(["create", "update"]),
   selection: bibleSelectionSchema.optional(),
 }).superRefine((input, context) => {
