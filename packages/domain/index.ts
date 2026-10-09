@@ -7,5 +7,5 @@ export * from "./validators/local";
 export * from "./sharing";
 export * from "./writing";
 export * from "./preferences";
-export * from "./validators/bible";
-export * from "./bible";
+export * from "./administration";
+export * from "./validators/administration";

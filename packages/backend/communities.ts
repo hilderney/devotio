@@ -8,11 +8,12 @@ import {
   canRemoveMember,
   copy,
   tickChange,
+  hasApprovedAccess,
   type Community,
   type CommunityDetail,
 } from "domain/core";
 import { query, mutation } from "./server";
-import { ensureUser, findUser, identity, membership } from "./access";
+import { ensureUser, findUser, membership } from "./access";
 export const list = query({
   args: {},
   handler: async (ctx): Promise<Community[]> => {
@@ -78,7 +79,7 @@ export const create = mutation({
 export const previewInvite = query({
   args: { code: v.string() },
   handler: async (ctx, args) => {
-    await identity(ctx);
+    await findUser(ctx);
     const code = inviteSchema.parse(args.code);
     const c = await ctx.db
       .query("communities")
@@ -131,7 +132,16 @@ export const detail = query({
       .query("communityMembers")
       .withIndex("by_community", (q) => q.eq("communityId", args.id))
       .collect();
-    const activeIds = new Set(members.map((m) => m.userId));
+    const activeIds = new Set(
+      (
+        await Promise.all(
+          members.map(async (m) => {
+            const user = await ctx.db.get(m.userId);
+            return user && hasApprovedAccess(user.status) ? m.userId : null;
+          }),
+        )
+      ).filter((id) => id !== null),
+    );
     const messages = await ctx.db
       .query("communityMessages")
       .withIndex("by_community_time", (q) => q.eq("communityId", args.id))
@@ -159,14 +169,12 @@ export const detail = query({
         })),
       ),
       messages: await Promise.all(
-        messages.page
-          .reverse()
-          .map(async (m) => ({
-            id: m._id,
-            content: m.content,
-            sentAt: m.sentAt,
-            name: (await ctx.db.get(m.senderId))?.name ?? "Administrador",
-          })),
+        messages.page.reverse().map(async (m) => ({
+          id: m._id,
+          content: m.content,
+          sentAt: m.sentAt,
+          name: (await ctx.db.get(m.senderId))?.name ?? "Administrador",
+        })),
       ),
       hasMore: !messages.isDone,
       nextCursor: messages.isDone ? null : messages.continueCursor,
@@ -241,7 +249,7 @@ export const createChecklist = mutation({
 export const setTick = mutation({
   args: { itemId: v.id("checklistItems"), checked: v.boolean() },
   handler: async (ctx, args) => {
-    await identity(ctx);
+    await findUser(ctx);
     const item = await ctx.db.get(args.itemId);
     const list = item && (await ctx.db.get(item.checklistId));
     if (!list) throw new ConvexError("Este item não está disponível.");
@@ -272,11 +280,17 @@ export const removeMember = mutation({
       .query("communityMembers")
       .withIndex("by_community", (q) => q.eq("communityId", args.id))
       .collect();
+    let activeAdmins = 0;
+    for (const member of members) {
+      if (member.role !== "admin") continue;
+      const account = await ctx.db.get(member.userId);
+      if (account && hasApprovedAccess(account.status)) activeAdmins++;
+    }
+    const targetAccount = await ctx.db.get(target.userId);
     if (
-      !canRemoveMember(
-        target.role,
-        members.filter((m) => m.role === "admin").length,
-      )
+      targetAccount &&
+      hasApprovedAccess(targetAccount.status) &&
+      !canRemoveMember(target.role, activeAdmins)
     )
       throw new ConvexError(copy.lastAdmin);
     await ctx.db.delete(target._id);

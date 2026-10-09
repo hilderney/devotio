@@ -1,11 +1,11 @@
 import { v } from "convex/values";
 import { dateSchema, isPublished, type HomeData } from "domain/core";
 import { query } from "./server";
-import { identity } from "./access";
+import { findUser } from "./access";
 export const get = query({
   args: { date: v.string() },
   handler: async (ctx, args): Promise<HomeData> => {
-    const session = await identity(ctx);
+    const user = await findUser(ctx);
     const date = dateSchema.parse(args.date);
     const doc = await ctx.db
       .query("devotionals")
@@ -16,7 +16,7 @@ export const get = query({
       .withIndex("by_key", (q) => q.eq("key", "main"))
       .unique();
     return {
-      user: { id: session.subject, name: session.name ?? "Leitor" },
+      user: { id: user._id, name: user.name },
       settings: settings && {
         monthlyVerse: settings.monthlyVerse,
         monthlyReference: settings.monthlyReference,

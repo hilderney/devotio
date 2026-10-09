@@ -41,27 +41,44 @@ Membros não recebem emails ou autores dos ticks. Contagens pequenas podem permi
 
 ## Modelo de Dados
 
-### Corpus público ALM1911 (spec 012)
+### Gestão de acesso ao piloto (spec 011 — 09/10/2026)
 
-Almeida 1911 é um corpus estático separado do Convex e do SQLite de contas. O
-build valida o JSON fornecido, confere SHA256 e gera catálogo, capítulos individuais
-e índice de palavras sob `/bibles/alm1911/<hash>/`. Web local/conectada usam o mesmo
-adaptador em domain. A web conectada oferece ALM1911; AA permanece no adaptador local
-existente. Nenhuma tabela Convex nova ou migração de dados privados.
+O backend conectado acrescenta aprovação global antes de qualquer leitura/escrita
+de conteúdo. A identidade autenticada permanece separada da autorização. Contas
+legadas sem situação são aprovadas; bootstrap preenche metadados e vincula o
+`tokenIdentifier` canônico, preservando `authId` para compatibilidade. Contas novas
+ficam pendentes. Pré-cadastros só são vinculados ao e-mail verificado correspondente.
 
-`Repository.bible` é independente de `Repository.reading` (favoritos/editorial),
-para habilitar a Bíblia publicada sem simular funções privadas. `BibleRepository`
-lista versões e fornece um leitor por edição. Preferências salvas por perfil/aparelho
-aceitam `bibleVersion` opcional, preservando dados antigos. Capítulos/cache são
-separados por edição e hash; somente seis capítulos, incluindo a janela de leitura.
-Cache público localStorage separado de sessões/favoritos e fora do service worker.
-Índice sob demanda, páginas de 40 e hidratação dos resultados por capítulo; nenhum
-corpus integral no JavaScript ou precache do shell. Não é download integral offline.
+| Tabela / alteração | Responsabilidade | Índices novos |
+|---|---|---|
+| users | authId opcional, tokenIdentifier, normalizedEmail/normalizedName, status opcional pending/approved/disabled e editorial opcional | by_tokenIdentifier, by_email, by_normalizedEmail, by_normalizedName, by_status_and_normalizedEmail, by_status_and_normalizedName |
+| adminSessions | Hash do token opaco, versão das credenciais e expiração de 30 minutos | by_tokenHash |
+| adminSecurity | Último contador TOTP usado pelo proprietário, por versão das credenciais | by_key |
+| accessSettings | Singleton main: aprovação obrigatória para novos cadastros | by_key |
+| userAdminEvents | Autor, alvo, ação e instante das mudanças de conta/permissão | by_target |
 
-Seleções identificam AA/ALM1911 e links carregam `version`; cópias usam o nome correto.
-Backend local reconstrói citações a partir da fonte conferida, mantendo autorização
-editorial/comunitária. Snapshots anteriores permanecem intactos. A migração geral
-AA para SQLite isolado/pacotes integrais continua futura.
+O superusuário é uma identidade operacional configurada no servidor, separada dos
+participantes; o CRUD não pode removê-la nem promover participantes a superusuário.
+Login é uma action com scrypt/TOTP do Better Auth e rate-limiter oficial em componente
+isolado, consumido antes da autenticação em transação independente. A emissão
+transacional consome o contador TOTP, impedindo replay. O token aleatório só fica
+em memória no navegador; o banco guarda seu SHA-256. Cada operação administrativa
+valida expiração/versão das credenciais; logout e limpeza agendada removem sessões.
+
+Desativação preserva usuário e vínculos, revoga acesso às operações do produto e
+não concede entrada na próxima autenticação. Mudanças reativas da situação retiram
+as telas protegidas. O último administrador ativo de uma comunidade é protegido;
+ticks de contas desativadas deixam de contar como membros ativos. Administração
+comunitária continua por associação; editorial exige capacidade própria no servidor.
+O painel só mostra metadados cadastrais e nomes/papéis de comunidades, sem acesso
+a comentários, progresso ou outras informações privadas.
+
+`users:backfill` normaliza registros legados em lotes. `users:importAuthUsers`
+inclui contas existentes apenas no Better Auth sem duplicar pré-cadastros; o marco
+ISO `PILOT_EXISTING_USERS_BEFORE` distingue antigos de novos. Executar a preparação
+do [roteiro operacional](operations/user-administration.md) no rollout.
+
+O schema abaixo descreve a base anterior; esta extensão não migra o SQLite local.
 
 [Schema v1](../packages/backend/schema.ts):
 

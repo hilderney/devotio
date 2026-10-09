@@ -36,6 +36,8 @@ No modo local, AA usa o SQLite da aplicação. A entrega 012 acrescenta ALM1911 
 
 ## Operação
 
+- [Gestão de usuários e aprovação](operations/user-administration.md): configuração do proprietário, TOTP, preservação de contas e operação do painel da spec 011.
+
 - [Lançamento gratuito](operations/free-launch.md): fornecedores, cotas e capacidade.
 - [Publicação e operação](operations/release.md): checklist, deploy e recuperação.
 - [Conteúdo e privacidade](operations/content-privacy.md): revisão humana, licenças e dados.

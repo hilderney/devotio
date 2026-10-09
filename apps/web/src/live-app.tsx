@@ -5,7 +5,12 @@ import {
   convexClient,
   crossDomainClient,
 } from "@convex-dev/better-auth/client/plugins";
-import { createConvexRepository } from "domain/convex";
+import {
+  createConvexRepository,
+  createAdministration,
+  createConnectedEditorial,
+  usePilotAccess,
+} from "domain/convex";
 import { loginDestination } from "domain/core";
 import { App } from "./router";
 import { useMemo } from "react";
@@ -15,6 +20,8 @@ import { createWebBible } from "./bible-repository";
 export function createLiveApp(url: string, site: string) {
   const client = new ConvexReactClient(url);
   const repository = createConvexRepository(client);
+  const administration = createAdministration(client);
+  const connectedEditorial = createConnectedEditorial(client);
   const auth = createAuthClient({
     baseURL: site,
     plugins: [convexClient(), crossDomainClient()],
@@ -23,12 +30,25 @@ export function createLiveApp(url: string, site: string) {
   function AuthenticatedApp() {
     const { isAuthenticated, isLoading } = useConvexAuth();
     const session = auth.useSession();
-    const owner = session.data?.user.id;
-    const connected = useMemo(() => owner ? { ...repository, bible: createWebBible(owner) } : null, [owner]);
+    const access = usePilotAccess(
+      client,
+      isAuthenticated && session.data ? session.data.user.id : null,
+    );
     return (
       <App
-        repository={isAuthenticated && session.data ? connected : null}
-        loading={isLoading || session.isPending}
+        repository={
+          isAuthenticated &&
+          session.data &&
+          access.access?.status === "approved"
+            ? repository
+            : null
+        }
+        loading={isLoading || session.isPending || access.loading}
+        administration={administration}
+        connectedEditorial={connectedEditorial}
+        pilotAccess={access.access}
+        accessError={access.error}
+        refreshAccess={access.refresh}
         configured
         userKey={session.data?.user.id ?? "guest"}
         onLogin={async (destination) => {
