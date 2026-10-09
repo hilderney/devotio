@@ -14,3 +14,10 @@ dist
 artifacts
 coverage
 .data
+.agents/
+.claude/
+docs/adr/client_secret_*
+packages/
+skills-lock.json
+CLAUDE.md
+AGENTS.md

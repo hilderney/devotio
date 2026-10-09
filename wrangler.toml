@@ -1,0 +1,8 @@
+# Static SPA (Vite) after `npm run build --workspace=web`.
+# Used by Cloudflare Workers Git builds (`npx wrangler deploy`).
+name = "devotio"
+compatibility_date = "2025-10-08"
+
+[assets]
+directory = "./apps/web/dist"
+not_found_handling = "single-page-application"
